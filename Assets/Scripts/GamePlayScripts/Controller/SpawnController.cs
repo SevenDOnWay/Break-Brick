@@ -20,8 +20,52 @@ public class SpawnController : MonoBehaviour {
 
 
     void Start() {
-        InitializeBrick();
-    }  
+        SetUpScreen();
+        ScalePrefab();
+        //InitializeBrick();
+
+    }
+
+    void SetUpScreen() {
+        CreateTriggerLine();
+        CreateWall("TopWall", new Vector2(0, playScreen.squareSize * 5), new Vector2(playScreen.squareSize * 8, 0.1f));
+        CreateWall("BottomWall", new Vector2(0, -playScreen.squareSize * 6), new Vector2(playScreen.squareSize * 8, 0.1f));
+        CreateWall("LeftWall", new Vector2(-playScreen.squareSize * 4, 0), new Vector2(0.1f, playScreen.squareSize * 12));
+        CreateWall("RightWall", new Vector2(playScreen.squareSize * 4, 0), new Vector2(0.1f, playScreen.squareSize * 12));
+    }
+    void CreateTriggerLine() {
+        Vector2 start = new Vector2(-playScreen.squareSize * 4, -playScreen.squareSize * 5);
+        Vector2 end = new Vector2(playScreen.squareSize * 4, -playScreen.squareSize * 5);
+
+        GameObject lineObj = new GameObject("EndLine");
+        lineObj.tag = "EndLine";
+        lineObj.transform.parent = transform;
+
+        EdgeCollider2D edge = lineObj.AddComponent<EdgeCollider2D>();
+        edge.isTrigger = true;
+        edge.points = new Vector2[] { start, end };
+    }
+
+    void CreateWall( string name, Vector2 position, Vector2 size ) {
+        GameObject wall = new GameObject(name);
+        wall.transform.parent = transform;
+        wall.tag = "Wall";
+        wall.transform.position = position;
+
+        BoxCollider2D col = wall.AddComponent<BoxCollider2D>();
+        col.size = size;
+        col.isTrigger = false;
+
+        Debug.Log($"Created wall: {name} at position {position} with size {size}");
+    }
+
+
+    void ScalePrefab() {
+        var spriteRenderer = prefab.GetComponent<SpriteRenderer>();
+
+        var TargetSize =  playScreen.squareSize / spriteRenderer.sprite.bounds.size.x;
+        prefab.transform.localScale = new Vector3(TargetSize, TargetSize, 1f);
+    }
 
     void InitializeBrick() {
         float startX = -((column - 1) * playScreen.squareSize) / 2f;

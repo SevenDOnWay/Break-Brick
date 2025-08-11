@@ -10,23 +10,31 @@ public class BallController : MonoBehaviour {
 
     NativeArray<BallData> ballDatas;
     //int ballCount;
+    GameObject ball;
     Rigidbody2D ballRigidbody;
+
+    [SerializeField] GameObject ballPrefab; 
     [SerializeField] float speed;
 
-    PlayerController playerController;
+    Vector2 ballPos;
+
+    PlayScreen playScreen;    
+
 
     [Inject]
-    void Construct( PlayerController playerController ) {
-        this.playerController = playerController;
+    void Construct( PlayScreen playScreen) {
+        this.playScreen = playScreen;
     }
 
     private void Start() {
         ballRigidbody = GetComponent<Rigidbody2D>();
-        playerController.onLaunch += LaunchBall;
+
+        ballPos = new Vector2(0, -playScreen.squareSize * 6);
+        SpawnBall();
     }
 
-    void Update() {
-
+    void SpawnBall() {
+        Instantiate(ballPrefab, ballPos, Quaternion.identity);
     }
 
     void LaunchBall( Vector2 direction ) {

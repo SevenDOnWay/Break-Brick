@@ -13,6 +13,6 @@ public class GameLifetimeScope : LifetimeScope {
 
         builder.RegisterComponentInHierarchy<PlayerController>();
         builder.RegisterComponentInHierarchy<SpawnController>();
-        builder.RegisterComponentInHierarchy<BallController>();
+        builder.Register<BallScript>(Lifetime.Transient);
     }
 }
