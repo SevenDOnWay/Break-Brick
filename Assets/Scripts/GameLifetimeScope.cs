@@ -13,5 +13,6 @@ public class GameLifetimeScope : LifetimeScope {
 
         builder.RegisterComponentInHierarchy<PlayerController>();
         builder.RegisterComponentInHierarchy<SpawnController>();
+        builder.RegisterComponentInHierarchy<BallController>();
     }
 }
