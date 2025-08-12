@@ -527,6 +527,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 634722760cd06604cb123467a88c87b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  row: 5
+  column: 8
   BrickPrefab: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
   Pool: {fileID: 600349753}
 --- !u!4 &847058738

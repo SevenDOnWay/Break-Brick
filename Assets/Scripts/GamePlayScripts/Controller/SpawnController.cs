@@ -5,8 +5,8 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class SpawnController : MonoBehaviour {
 
-    int row = 10;
-    int column = 8;
+    [SerializeField] int row = 10;
+    [SerializeField] int column = 8;
 
     [SerializeField] GameObject BrickPrefab;
     [SerializeField] GameObject Pool;
@@ -39,22 +39,13 @@ public class SpawnController : MonoBehaviour {
         var TargetSize = playScreen.squareSize / spriteRenderer.sprite.bounds.size.x;
         spriteRenderer.transform.localScale = new Vector3(TargetSize, TargetSize, 1f);
 
-        // ===== Scale Brick Raycast =====
-        var boxCollider = BrickPrefab.GetComponent<BoxCollider2D>();
-        if (boxCollider == null)
+        // ===== Scale BrickScript Raycast =====
+        if (!BrickPrefab.TryGetComponent<BoxCollider2D>(out var boxCollider))
         {
             Debug.LogError("Prefab does not have a BoxCollider2D component.");
             return;
         }
         boxCollider.size = new Vector2(TargetSize, TargetSize);
-    }
-}
-
-    void Start() {
-        SetUpScreen();
-        ScalePrefab();
-        //InitializeBrick();
-
     }
 
     void SetUpScreen() {
@@ -89,10 +80,6 @@ public class SpawnController : MonoBehaviour {
 
         Debug.Log($"Created wall: {name} at position {position} with size {size}");
     }
-
-
-
-
 
     void InitializeBrick() {
         float startX = -((column - 1) * playScreen.squareSize) / 2f;

@@ -26,6 +26,7 @@ public class BallScript : MonoBehaviour {
     }
 
     private void OnCollisionEnter2D( Collision2D collision ) {
+        // ===== Wall Collision Logic =====
         if ( collision.gameObject.CompareTag("Wall") ) {
             bounceTime++;
             if ( bounceTime > 6 ) {
@@ -34,7 +35,11 @@ public class BallScript : MonoBehaviour {
                 ResetVelocity();
             }
         }
-        if ( collision.gameObject.CompareTag("Brick") ) {
+
+        // ===== BrickScript Collision Logic =====
+        if (collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick)){ 
+            Debug.Log("BrickScript Hit");
+            brick.TakeDamage(1);
             bounceTime = 0;
         }
     }

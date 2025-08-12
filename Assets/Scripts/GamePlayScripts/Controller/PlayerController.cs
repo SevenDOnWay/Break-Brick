@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] GameObject ballPrefab;
     [SerializeField] float speed;
     [SerializeField] LineRenderer line;
-    [SerializeField] float ballRaycastRadius = 0.5f; // Radius of the ball for raycasting
 
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();
     public event Action OnLauchBall;
