@@ -8,7 +8,7 @@ public class SpawnController : MonoBehaviour {
     int row = 10;
     int column = 8;
 
-    [SerializeField] GameObject prefab;
+    [SerializeField] GameObject BrickPrefab;
     [SerializeField] GameObject Pool;
 
     PlayScreen playScreen;
@@ -18,6 +18,37 @@ public class SpawnController : MonoBehaviour {
         this.playScreen = playScreen;
     }
 
+    void Start()
+    {
+        ScalePrefab();
+        SetUpScreen();
+        InitializeBrick();
+
+    }
+
+    void ScalePrefab()
+    {
+        // ===== Scale Brick_Visual =====
+        var spriteRenderer = BrickPrefab.GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogError("Prefab does not have a SpriteRenderer component.");
+            return;
+        }
+
+        var TargetSize = playScreen.squareSize / spriteRenderer.sprite.bounds.size.x;
+        spriteRenderer.transform.localScale = new Vector3(TargetSize, TargetSize, 1f);
+
+        // ===== Scale Brick Raycast =====
+        var boxCollider = BrickPrefab.GetComponent<BoxCollider2D>();
+        if (boxCollider == null)
+        {
+            Debug.LogError("Prefab does not have a BoxCollider2D component.");
+            return;
+        }
+        boxCollider.size = new Vector2(TargetSize, TargetSize);
+    }
+}
 
     void Start() {
         SetUpScreen();
@@ -60,12 +91,8 @@ public class SpawnController : MonoBehaviour {
     }
 
 
-    void ScalePrefab() {
-        var spriteRenderer = prefab.GetComponent<SpriteRenderer>();
 
-        var TargetSize =  playScreen.squareSize / spriteRenderer.sprite.bounds.size.x;
-        prefab.transform.localScale = new Vector3(TargetSize, TargetSize, 1f);
-    }
+
 
     void InitializeBrick() {
         float startX = -((column - 1) * playScreen.squareSize) / 2f;
@@ -79,15 +106,12 @@ public class SpawnController : MonoBehaviour {
                     0
                 );
 
-                GameObject brick = Instantiate(prefab, position, Quaternion.identity);
+                GameObject brick = Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.transform.SetParent(Pool.transform, true);
             }
         }
 
         Debug.Log($"Spawned {column * row} bricks in the pool.");
     }
-
-
-
 
 }

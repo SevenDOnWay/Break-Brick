@@ -527,7 +527,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 634722760cd06604cb123467a88c87b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 7986931436297506665, guid: f7f6c09c19cb8c34484c7f8a948eb379, type: 3}
+  BrickPrefab: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
   Pool: {fileID: 600349753}
 --- !u!4 &847058738
 Transform:
@@ -591,7 +591,8 @@ MonoBehaviour:
   parentReference:
     TypeName: 
   autoRun: 1
-  autoInjectGameObjects: []
+  autoInjectGameObjects:
+  - {fileID: 0}
 --- !u!1 &1240185878
 GameObject:
   m_ObjectHideFlags: 0

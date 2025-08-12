@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] GameObject ballPrefab;
     [SerializeField] float speed;
     [SerializeField] LineRenderer line;
+    [SerializeField] float ballRaycastRadius = 0.5f; // Radius of the ball for raycasting
 
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();
     public event Action OnLauchBall;
@@ -21,7 +22,8 @@ public class PlayerController : MonoBehaviour {
     bool isBallMoving = false;
 
 
-    void Start() {
+    void Start()
+    {
         //TODO setup ballPos based on the game area
 
         if ( playScreen == null ) {
@@ -41,13 +43,16 @@ public class PlayerController : MonoBehaviour {
 
     }
 
-    void Update() {
-        if ( isBallMoving ) return;
+    void Update()
+    {
+        if (isBallMoving) return;
 
-        if ( Input.GetMouseButtonDown(0) ) {
+        if (Input.GetMouseButtonDown(0))
+        {
             DrawLine(Input.mousePosition);
         }
-        else if ( Input.GetMouseButton(0) ) {
+        else if (Input.GetMouseButton(0))
+        {
             DrawLine(Input.mousePosition);
         }
         else if ( Input.GetMouseButtonUp(0) ) {
@@ -69,12 +74,11 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    void DrawLine( Vector2 pos ) {
+    void DrawLine(Vector2 pos)
+    {
         line.enabled = true;
         line.SetPosition(0, ballPos);
         line.SetPosition(1, Camera.main.ScreenToWorldPoint(pos));
     }
-
-
 
 }
