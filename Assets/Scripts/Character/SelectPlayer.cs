@@ -1,70 +1,71 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SelectPlayer : MonoBehaviour {
-    [SerializeField] private GameObject[] players;
+    [SerializeField] public GameObject[] Characters;
     private int currentPlayerIndex = 0;
 
-    [SerializeField] private GameObject[] difficulty;
     [SerializeField] Button nextDifficulty;
     [SerializeField] Button previousDifficulty;
-    private int currentDifficultyIndex = 0;
+    private int currentDifficultIndex = 0;
+    int maxDifficultIndex = 2; // hardcode for now 1 esay, 2 normal, 3 hard
+
+    public event Action<int> OnDifficultChange;
+    public event Action<int> OnCharacterChange;
 
 
-
-    private void Start() {
+    void Awake() {
         //TODO : Load the current player and difficulty from playerdata or settings
         SetActivePlayer(currentPlayerIndex);
-        SetActiveDifficulty(currentDifficultyIndex);
         CheckButtonDifficulty();
     }
 
-
-
     public void OnClicNextkDifficulty() {
-        SetActiveDifficulty(currentDifficultyIndex + 1);
+        OnDifficultChange?.Invoke(++currentDifficultIndex);
+        CheckButtonDifficulty();
     }
 
     public void OnClickPreviousDifficulty() {
-        SetActiveDifficulty(currentDifficultyIndex - 1);
+        OnDifficultChange?.Invoke(--currentDifficultIndex);
+        CheckButtonDifficulty();
     }
 
     public void OnClickNextPlayer() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.Length;
+        currentPlayerIndex = (currentPlayerIndex + 1) % Characters.Length;
         SetActivePlayer(currentPlayerIndex);
+        OnCharacterChange?.Invoke(currentPlayerIndex);
+        Debug.Log($"Current Player Index: {currentPlayerIndex}"); // Debug log to check the current player index
     }
 
     public void OnClickPreviousPlayer() {
-        currentPlayerIndex = (currentPlayerIndex - 1 + players.Length) % players.Length;
+        currentPlayerIndex = (currentPlayerIndex - 1 + Characters.Length) % Characters.Length;
         SetActivePlayer(currentPlayerIndex);
+        OnCharacterChange?.Invoke(currentPlayerIndex);
     }
 
     public void OnClickPlay() {
         //TODO: Implement the logic to start the game with the selected player and difficulty
+
+
 
         //TODO: Save the current player and difficulty to playerdata or settings
         SceneManager.LoadScene(2); 
     }
 
     void SetActivePlayer( int index ) {
-        for ( int i = 0; i < players.Length; i++ ) {
-            players[i].SetActive(i == index);
+        for ( int i = 0; i < Characters.Length; i++ ) {
+            Characters[i].SetActive(i == index);
         }
         CheckButtonDifficulty();
     }
 
     void CheckButtonDifficulty() {
-        nextDifficulty.interactable = currentDifficultyIndex < difficulty.Length - 1;
-        previousDifficulty.interactable = currentDifficultyIndex > 0;
-    }
-
-    void SetActiveDifficulty( int index ) {
-        for ( int i = 0; i < difficulty.Length; i++ ) {
-            difficulty[i].SetActive(i == index);
-        }
+        nextDifficulty.interactable = currentDifficultIndex < maxDifficultIndex;
+        previousDifficulty.interactable = currentDifficultIndex > 0;
     }
 
     public int GetCurrentPlayerIndex() => currentPlayerIndex;
-    public int GetCurrentDifficultyIndex() => currentDifficultyIndex;
+    public int GetCurrentDifficultyIndex() => currentDifficultIndex;
 }

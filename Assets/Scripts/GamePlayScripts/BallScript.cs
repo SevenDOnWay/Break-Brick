@@ -13,10 +13,7 @@ public class BallScript : MonoBehaviour {
 
     void Start() {
         NewLauch();
-        if ( playerController == null ) {
-            Debug.LogError("PlayerController is not injected into BallScript.");
-            return;
-        }
+  
         playerController.OnLauchBall += NewLauch; 
     }
 
@@ -38,7 +35,6 @@ public class BallScript : MonoBehaviour {
 
         // ===== BrickScript Collision Logic =====
         if (collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick)){ 
-            Debug.Log("BrickScript Hit");
             brick.TakeDamage(1);
             bounceTime = 0;
         }
@@ -46,7 +42,6 @@ public class BallScript : MonoBehaviour {
 
     private void OnTriggerEnter2D( Collider2D collision ) {
         if ( collision.gameObject.CompareTag("EndLine")) {
-            Debug.Log("EndLine Triggered");
             endLineTriggerCount++;
             if ( endLineTriggerCount <= maxEndLineTriggers ) return;
             ResetVelocity();

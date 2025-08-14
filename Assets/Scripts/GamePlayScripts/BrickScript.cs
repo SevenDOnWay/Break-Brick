@@ -10,11 +10,9 @@ public class BrickScript : MonoBehaviour
 
         if (health <= 0)
         {
-            Debug.Log("Brick destroyed");
             Destroy(gameObject);
         }
 
-        Debug.Log($"Brick health remaining: {health}");
 
     }
 }

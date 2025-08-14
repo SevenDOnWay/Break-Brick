@@ -5,43 +5,46 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class SpawnController : MonoBehaviour {
 
+    /*
+     * enum Difficulties for the game.
+     * 
+    enum Difficult{
+        Easy = 0,
+        Normal = 1,
+        Hard = 2
+    }
+
+    */
+
+    [Inject] PlayScreen playScreen;
+    [Inject] SelectPlayer selectPlayer;
+
     [SerializeField] int row = 10;
     [SerializeField] int column = 8;
 
     [SerializeField] GameObject BrickPrefab;
     [SerializeField] GameObject Pool;
 
-    PlayScreen playScreen;
-
-    [Inject]
-    void Construct( PlayScreen playScreen ) {
-        this.playScreen = playScreen;
-    }
-
-    void Start()
-    {
+    
+ 
+    void Start() {
         ScalePrefab();
         SetUpScreen();
-        InitializeBrick();
+
+
+        InitializeBrick(selectPlayer.GetCurrentDifficultyIndex());
 
     }
 
-    void ScalePrefab()
-    {
+    void ScalePrefab() {
         // ===== Scale Brick_Visual =====
         var spriteRenderer = BrickPrefab.GetComponentInChildren<SpriteRenderer>();
-        if (spriteRenderer == null)
-        {
-            Debug.LogError("Prefab does not have a SpriteRenderer component.");
-            return;
-        }
 
         var TargetSize = playScreen.squareSize / spriteRenderer.sprite.bounds.size.x;
         spriteRenderer.transform.localScale = new Vector3(TargetSize, TargetSize, 1f);
 
         // ===== Scale BrickScript Raycast =====
-        if (!BrickPrefab.TryGetComponent<BoxCollider2D>(out var boxCollider))
-        {
+        if ( !BrickPrefab.TryGetComponent<BoxCollider2D>(out var boxCollider) ) {
             Debug.LogError("Prefab does not have a BoxCollider2D component.");
             return;
         }
@@ -54,6 +57,7 @@ public class SpawnController : MonoBehaviour {
         CreateWall("BottomWall", new Vector2(0, -playScreen.squareSize * 6), new Vector2(playScreen.squareSize * 8, 0.1f));
         CreateWall("LeftWall", new Vector2(-playScreen.squareSize * 4, 0), new Vector2(0.1f, playScreen.squareSize * 12));
         CreateWall("RightWall", new Vector2(playScreen.squareSize * 4, 0), new Vector2(0.1f, playScreen.squareSize * 12));
+
     }
     void CreateTriggerLine() {
         Vector2 start = new Vector2(-playScreen.squareSize * 4, -playScreen.squareSize * 5);
@@ -77,11 +81,12 @@ public class SpawnController : MonoBehaviour {
         BoxCollider2D col = wall.AddComponent<BoxCollider2D>();
         col.size = size;
         col.isTrigger = false;
-
-        Debug.Log($"Created wall: {name} at position {position} with size {size}");
     }
 
-    void InitializeBrick() {
+    void InitializeBrick(int difficultIndex) {
+
+        //TODO: add a strucure to handle different difficulties
+
         float startX = -((column - 1) * playScreen.squareSize) / 2f;
         float startY = -((row - 1) * playScreen.squareSize) / 2f;
 
@@ -100,5 +105,9 @@ public class SpawnController : MonoBehaviour {
 
         Debug.Log($"Spawned {column * row} bricks in the pool.");
     }
+
+    //TODO: Create a method to spawn a ball While in the Game 
+    //Should use observer pattern to check when the ball reach end line
+
 
 }

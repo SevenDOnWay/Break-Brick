@@ -379,10 +379,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccb2560f9e8d7d3429e8defbcc3c39de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballPos: {x: 0, y: 0}
   ballPrefab: {fileID: 7441496029052621378, guid: 7b9a505aec9b8f149aa03d51c479e789, type: 3}
   speed: 5
-  line: {fileID: 1240185879}
+  ballPos: {x: 0, y: 0}
 --- !u!1 &600349753
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,7 +658,7 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 5, z: 0}
+  - {x: 0, y: 0, z: -1}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -711,7 +710,7 @@ LineRenderer:
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
