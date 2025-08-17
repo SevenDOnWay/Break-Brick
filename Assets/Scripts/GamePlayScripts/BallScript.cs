@@ -13,8 +13,8 @@ public class BallScript : MonoBehaviour {
 
     void Start() {
         NewLauch();
-  
-        playerController.OnLauchBall += NewLauch; 
+
+        playerController.OnLauchBall += NewLauch;
     }
 
     void NewLauch() {
@@ -29,29 +29,31 @@ public class BallScript : MonoBehaviour {
             if ( bounceTime > 6 ) {
                 transform.position = playerController.ballPos;
                 bounceTime = 0;
-                ResetVelocity();
+                ResetVelocityAndPosition();
             }
         }
 
         // ===== BrickScript Collision Logic =====
-        if (collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick)){ 
+        if ( collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick) ) {
             brick.TakeDamage(1);
             bounceTime = 0;
         }
     }
 
     private void OnTriggerEnter2D( Collider2D collision ) {
-        if ( collision.gameObject.CompareTag("EndLine")) {
+        if ( collision.gameObject.CompareTag("EndLine") ) {
             endLineTriggerCount++;
             if ( endLineTriggerCount <= maxEndLineTriggers ) return;
-            ResetVelocity();
 
-            playerController.ballPos = transform.position;
+            playerController.ballPos = new Vector2(transform.position.x, -playerController.playScreen.squareSize * 6);
 
+            ResetVelocityAndPosition();
         }
     }
 
-    void ResetVelocity() {
+    void ResetVelocityAndPosition() {
+        transform.position = playerController.ballPos;
+
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.linearVelocity = Vector2.zero;
     }

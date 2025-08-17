@@ -4,7 +4,6 @@ using VContainer.Unity;
 
 public class GameLifetimeScope : LifetimeScope {
     protected override void Configure( IContainerBuilder builder ) {
-        builder.RegisterInstance(Camera.main);
         builder.Register<PlayScreen>(Lifetime.Singleton)
             .AsSelf()
             .WithParameter("column", 8)

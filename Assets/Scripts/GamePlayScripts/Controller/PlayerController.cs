@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -8,9 +8,8 @@ using VContainer.Unity;
 
 public class PlayerController : MonoBehaviour {
 
-    [Inject] PlayScreen playScreen;
     [Inject] IObjectResolver resolver;
-    [Inject] SelectPlayer selectPlayer;
+    [Inject,HideInInspector] public PlayScreen playScreen;
 
     [SerializeField] GameObject ballPrefab;
     [SerializeField] float speed;
@@ -27,6 +26,11 @@ public class PlayerController : MonoBehaviour {
 
     void Start() {
         //TODO: Set up ball base on character selection
+
+        if( playScreen == null ) {
+            Debug.LogError("PlayScreen is not initialized.");
+            return;
+        }
 
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
         SpawnBall();

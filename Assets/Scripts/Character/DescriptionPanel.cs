@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 
 public class DescriptionPanel : MonoBehaviour {
 
-    SelectPlayer selctPlayer;
+    [Inject] CharacterEntry characterEntry;
+    [Inject] SelectCharacter selectCharacter;
+
     [SerializeField] TextMeshProUGUI descriptionText;
     [SerializeField] GameObject indexPanel;
 
@@ -15,27 +18,25 @@ public class DescriptionPanel : MonoBehaviour {
     [SerializeField] Color activeColor = Color.white;
     [SerializeField] Color inactiveColor = Color.gray;
 
-    [SerializeField]
-    string[] descriptions = new string[] {
-        "Start with 3 ball ",
-        "idk yet"
-    };
-
     List<Image> dots = new List<Image>();
 
     void Start() {
-        selctPlayer = GetComponentInParent<SelectPlayer>();
+
+        if ( selectCharacter == null ) {
+            Debug.LogError("SelectCharacter component not found");
+            return;
+        }
 
         InitializeDot();
 
-        UpdatePanel(selctPlayer.GetCurrentPlayerIndex());
+        UpdatePanel(selectCharacter.GetCurrentPlayerIndex());
 
-        selctPlayer.OnCharacterChange += UpdatePanel;
+        selectCharacter.OnCharacterChange += UpdatePanel;
 
     }
 
     void InitializeDot() {
-        for ( int i = 0; i < selctPlayer.Characters.Length; i++ ) {
+        for ( int i = 0; i < characterEntry.characters.Length; i++ ) {
             GameObject dot = Instantiate(dotPrefab, indexPanel.transform);
 
             dot.transform.localPosition = Vector3.zero;
@@ -59,7 +60,7 @@ public class DescriptionPanel : MonoBehaviour {
     }
 
     void SetDescription( int index ) {
-        descriptionText.text = descriptions[index];
+        descriptionText.text = characterEntry.characters[index].description;
     }
 
     void SetActiveDot( int index ) {

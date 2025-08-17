@@ -1,26 +1,18 @@
 using TMPro;
 using UnityEngine;
+using VContainer;
 
 public class DifficultPanel : MonoBehaviour {
+    [Inject] SelectCharacter selectCharacter;
+
     [SerializeField] TextMeshProUGUI difficultyText;
+
     string[] difficultyStrings = { "Easy", "Normal", "Hard" };
 
-    SelectPlayer selctPlayer;
-
-
     void Start() {
-        selctPlayer = GetComponentInParent<SelectPlayer>();
+        UpdateDifficultyText(selectCharacter.GetCurrentDifficultyIndex());
 
-        if ( selctPlayer == null ) {
-            Debug.LogError("SelectPlayer component not found in parent.");
-            return;
-        }
-
-        // Initialize the difficulty text with the current difficulty
-
-        UpdateDifficultyText(selctPlayer.GetCurrentDifficultyIndex());
-
-        selctPlayer.OnDifficultChange += UpdateDifficultyText;
+        selectCharacter.OnDifficultChange += UpdateDifficultyText;
     }
 
     void UpdateDifficultyText( int index ) {

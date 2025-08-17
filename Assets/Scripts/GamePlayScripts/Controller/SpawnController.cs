@@ -1,7 +1,5 @@
-using Unity.Hierarchy;
 using UnityEngine;
 using VContainer;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class SpawnController : MonoBehaviour {
 
@@ -17,7 +15,6 @@ public class SpawnController : MonoBehaviour {
     */
 
     [Inject] PlayScreen playScreen;
-    [Inject] SelectPlayer selectPlayer;
 
     [SerializeField] int row = 10;
     [SerializeField] int column = 8;
@@ -25,20 +22,33 @@ public class SpawnController : MonoBehaviour {
     [SerializeField] GameObject BrickPrefab;
     [SerializeField] GameObject Pool;
 
-    
+    SelectState selectstate;
+    int difficult;    
  
     void Start() {
         ScalePrefab();
         SetUpScreen();
 
+        GameObject temp = GameObject.FindGameObjectWithTag("Select State");
+        selectstate = temp.GetComponent<SelectState>();
 
-        InitializeBrick(selectPlayer.GetCurrentDifficultyIndex());
+        InitializeBrick(selectstate.difficultyIndex);
 
     }
 
     void ScalePrefab() {
         // ===== Scale Brick_Visual =====
         var spriteRenderer = BrickPrefab.GetComponentInChildren<SpriteRenderer>();
+
+        if ( spriteRenderer == null ) {
+            Debug.LogError("Prefab does not have a SpriteRenderer component.");
+            return;
+        }
+
+        if( playScreen == null ) {
+            Debug.LogError("PlayScreen is not initialized.");
+            return;
+        }
 
         var TargetSize = playScreen.squareSize / spriteRenderer.sprite.bounds.size.x;
         spriteRenderer.transform.localScale = new Vector3(TargetSize, TargetSize, 1f);
