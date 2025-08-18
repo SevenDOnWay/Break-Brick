@@ -1,3 +1,4 @@
+using System;
 using System.Security.Cryptography;
 using UnityEngine;
 using VContainer;
@@ -5,6 +6,8 @@ using VContainer;
 public class BallScript : MonoBehaviour {
 
     [Inject] PlayerController playerController;
+
+    public event Action<BallScript> OnBallFinished;
 
     int bounceTime;
     int endLineTriggerCount = 0;
@@ -26,10 +29,8 @@ public class BallScript : MonoBehaviour {
         // ===== Wall Collision Logic =====
         if ( collision.gameObject.CompareTag("Wall") ) {
             bounceTime++;
-            if ( bounceTime > 6 ) {
-                transform.position = playerController.ballPos;
-                bounceTime = 0;
-                ResetVelocityAndPosition();
+            if ( bounceTime > 5 ) {
+                FinishBall();
             }
         }
 
@@ -45,10 +46,16 @@ public class BallScript : MonoBehaviour {
             endLineTriggerCount++;
             if ( endLineTriggerCount <= maxEndLineTriggers ) return;
 
-            playerController.ballPos = new Vector2(transform.position.x, -playerController.playScreen.squareSize * 6);
+            Vector2 newPos = new Vector2(transform.position.x, -playerController.playScreen.squareSize * 6);
+            playerController.ResetBallPos(newPos);
 
-            ResetVelocityAndPosition();
+            FinishBall();
         }
+    }
+
+    void FinishBall() {
+        ResetVelocityAndPosition();
+        OnBallFinished?.Invoke(this); // notify controller
     }
 
     void ResetVelocityAndPosition() {

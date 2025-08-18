@@ -1,5 +1,9 @@
+using DG.Tweening;
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using static UnityEngine.GraphicsBuffer;
 
 public class SpawnController : MonoBehaviour {
 
@@ -15,26 +19,34 @@ public class SpawnController : MonoBehaviour {
     */
 
     [Inject] PlayScreen playScreen;
+    [Inject] PlayerController playerController;
+    SelectState selectstate;
 
-    [SerializeField] int row = 10;
-    [SerializeField] int column = 8;
+    int row = 10;
+    int column = 8;
 
     [SerializeField] GameObject BrickPrefab;
     [SerializeField] GameObject Pool;
+    List<GameObject> listBricks = new List<GameObject>();
 
-    SelectState selectstate;
-    int difficult;    
- 
+
+    int difficult;
+
+
     void Start() {
         ScalePrefab();
         SetUpScreen();
 
         GameObject temp = GameObject.FindGameObjectWithTag("Select State");
         selectstate = temp.GetComponent<SelectState>();
+        difficult = selectstate.difficultyIndex;
 
-        InitializeBrick(selectstate.difficultyIndex);
+        InitializeBrick();
 
+        playerController.OnBallDone += UpdateBrick;
     }
+
+    #region initialize
 
     void ScalePrefab() {
         // ===== Scale Brick_Visual =====
@@ -45,7 +57,7 @@ public class SpawnController : MonoBehaviour {
             return;
         }
 
-        if( playScreen == null ) {
+        if ( playScreen == null ) {
             Debug.LogError("PlayScreen is not initialized.");
             return;
         }
@@ -93,31 +105,104 @@ public class SpawnController : MonoBehaviour {
         col.isTrigger = false;
     }
 
-    void InitializeBrick(int difficultIndex) {
+    void InitializeBrick() {
 
         //TODO: add a strucure to handle different difficulties
 
-        float startX = -((column - 1) * playScreen.squareSize) / 2f;
-        float startY = -((row - 1) * playScreen.squareSize) / 2f;
+        float startX = ((column - 1) * playScreen.squareSize) / 2f;
+        float startY = ((row - 1) * playScreen.squareSize) / 2f;
+
+        int target;
+        float spawnChance;
+
+        switch ( difficult ) {
+            case 0:
+                target = 3;
+                spawnChance = 0.5f;
+                break;
+            case 1: // Normal
+                target = 3;
+                spawnChance = 0.75f;
+                break;
+            case 2: // Hard
+                target = 4;
+                spawnChance = 0.9f;
+                break;
+            default:
+                Debug.LogError("Invalid difficulty level. Defaulting to Normal.");
+                target = 3; // Default to Normal if invalid difficulty
+                spawnChance = 0.75f;
+                break;
+        }
 
         for ( int i = 0; i < column; i++ ) {
-            for ( int j = 0; j < row; j++ ) {
-                Vector3 position = new Vector3(
-                    startX + i * playScreen.squareSize,
-                    startY + j * playScreen.squareSize,
-                    0
-                );
+            for ( int j = 0; j < target; j++ ) {
+                if ( Random.value > spawnChance ) continue;
+                Vector3 position = new Vector3(startX - i * playScreen.squareSize,
+                                               startY - j * playScreen.squareSize,
+                                               0);
 
                 GameObject brick = Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.transform.SetParent(Pool.transform, true);
+                listBricks.Add(brick);
             }
         }
 
         Debug.Log($"Spawned {column * row} bricks in the pool.");
     }
 
+    #endregion
     //TODO: Create a method to spawn a ball While in the Game 
-    //Should use observer pattern to check when the ball reach end line
+    //TODO: Should Create observer pattern to check when the ball reach end line
+    //Then move every brick down 1 and spawn new brick
 
+
+    void UpdateBrick() {
+        MoveBrick();
+        SpawnBrick();
+    }
+
+    void MoveBrick() {
+        foreach ( var brick in listBricks ) {
+            if ( brick == null ) continue; // Skip if the brick is null
+            brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
+
+
+        }
+    }
+
+    void SpawnBrick() {
+        float startX = ((column - 1) * playScreen.squareSize) / 2f;
+        float startY = ((row - 1) * playScreen.squareSize) / 2f;
+
+        float spawnChance;
+        switch ( difficult ) {
+            case 0: // Easy
+                spawnChance = 0.5f;
+                break;
+            case 1: // Normal
+                spawnChance = 0.75f;
+                break;
+            case 2: // Hard
+                spawnChance = 0.9f;
+                break;
+            default:
+                spawnChance = 0.75f;
+                break;
+        }
+
+        for ( int i = 0; i < column; i++ ) {
+            if ( Random.value > spawnChance ) continue;
+            Vector3 position = new Vector3(
+                    startX - i * playScreen.squareSize,
+                    startY,
+                    0
+                );
+
+            GameObject brick = Instantiate(BrickPrefab, position, Quaternion.identity);
+            brick.transform.SetParent(Pool.transform, true);
+            listBricks.Add(brick);
+        }
+    }
 
 }

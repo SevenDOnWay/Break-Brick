@@ -1,8 +1,7 @@
-﻿    using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Video;
 using VContainer;
 using VContainer.Unity;
 
@@ -17,10 +16,12 @@ public class PlayerController : MonoBehaviour {
 
     [HideInInspector] public Vector2 ballPos;
     bool isBallMoving = false;
+    bool ballPosLocked = false;
 
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();
 
     public event Action OnLauchBall;
+    public event Action OnBallDone;
 
 
 
@@ -35,6 +36,7 @@ public class PlayerController : MonoBehaviour {
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
         SpawnBall();
         SpawnLine();
+
     }
 
     void SpawnBall() {
@@ -73,9 +75,39 @@ public class PlayerController : MonoBehaviour {
     }
 
     void LauchBall( Vector2 direction ) {
+        UnlockBallPos();
+
         foreach ( var ballRigidbody in ballsRigidbody ) {
-            ballRigidbody.AddForce(direction * speed, ForceMode2D.Impulse);
+            StartCoroutine(SuspendBall(ballRigidbody, direction));
         }
+
+        StartCoroutine(WaitBall());
+    }
+
+    IEnumerator SuspendBall(Rigidbody2D ballRigidbody, Vector2 direction) {
+        ballRigidbody.AddForce(direction * speed, ForceMode2D.Impulse);
+
+        yield return new WaitForSeconds(0.5f);
+    }
+
+    IEnumerator WaitBall() {
+        int finishedCount = 0;
+        int totalBalls = ballsRigidbody.Count;
+
+        // Subscribe to all balls
+        foreach ( var ballRigidbody in ballsRigidbody ) {
+            BallScript script = ballRigidbody.GetComponent<BallScript>();
+            script.OnBallFinished += ( ball ) => {
+                finishedCount++;
+            };
+        }
+
+        // Wait until all balls are finished
+        yield return new WaitUntil(() => finishedCount == totalBalls);
+
+        OnBallDone?.Invoke();
+
+        Debug.Log("All balls are done!");
     }
 
     void DrawLine( Vector2 pos ) {
@@ -87,4 +119,14 @@ public class PlayerController : MonoBehaviour {
         line.SetPosition(1, targetPosScreen);
     }
 
+    public void ResetBallPos( Vector2 newPos ) {
+        if ( !ballPosLocked ) {
+            ballPos = newPos;
+            ballPosLocked = true; // only first ball can update
+        }
+    }
+
+    public void UnlockBallPos() {
+        ballPosLocked = false;
+    }
 }
