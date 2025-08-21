@@ -2,7 +2,9 @@ using DG.Tweening;
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 using VContainer;
+using VContainer.Unity;
 using static UnityEngine.GraphicsBuffer;
 
 public class SpawnController : MonoBehaviour {
@@ -17,9 +19,10 @@ public class SpawnController : MonoBehaviour {
     }
 
     */
-
+    [Inject] IObjectResolver resolver;
     [Inject] PlayScreen playScreen;
     [Inject] PlayerController playerController;
+    [Inject] BallManager ballManager;
     SelectState selectstate;
 
     int row = 10;
@@ -29,6 +32,8 @@ public class SpawnController : MonoBehaviour {
     [SerializeField] GameObject Pool;
     List<GameObject> listBricks = new List<GameObject>();
 
+    [SerializeField] GameObject ballPrefab;
+
 
     int difficult;
 
@@ -37,16 +42,16 @@ public class SpawnController : MonoBehaviour {
         ScalePrefab();
         SetUpScreen();
 
-        GameObject temp = GameObject.FindGameObjectWithTag("Select State");
-        selectstate = temp.GetComponent<SelectState>();
+        selectstate = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
         difficult = selectstate.difficultyIndex;
 
         InitializeBrick();
 
-        playerController.OnBallDone += UpdateBrick;
+        ballManager.NotifyAddBall += SpawnBall;
+        ballManager.OnAllBallsDone += SpawnBrick;
     }
 
-    #region initialize
+    #region initialize_Screen
 
     void ScalePrefab() {
         // ===== Scale Brick_Visual =====
@@ -152,25 +157,16 @@ public class SpawnController : MonoBehaviour {
     }
 
     #endregion
+
     //TODO: Create a method to spawn a ball While in the Game 
-    //TODO: Should Create observer pattern to check when the ball reach end line
-    //Then move every brick down 1 and spawn new brick
 
+    void SpawnBall(int extraballs) {
+        for(int i = 0; i < extraballs; i++ ) {
+            var temp = resolver.Instantiate(ballPrefab, ballManager.ballPos, Quaternion.identity);
 
-    void UpdateBrick() {
-        MoveBrick();
-        SpawnBrick();
-    }
-
-    void MoveBrick() {
-        foreach ( var brick in listBricks ) {
-            if ( brick == null ) continue; // Skip if the brick is null
-            brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
-
-
+            ballManager.RegisterBall(temp);
         }
     }
-
     void SpawnBrick() {
         float startX = ((column - 1) * playScreen.squareSize) / 2f;
         float startY = ((row - 1) * playScreen.squareSize) / 2f;
@@ -204,5 +200,10 @@ public class SpawnController : MonoBehaviour {
             listBricks.Add(brick);
         }
     }
+
+
+
+    //TODO: move to brickmanager
+
 
 }

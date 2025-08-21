@@ -1,23 +1,27 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 using VContainer;
 
 public class BallScript : MonoBehaviour {
 
-    [Inject] PlayerController playerController;
+    [Inject] BallManager ballManager;
 
-    public event Action<BallScript> OnBallFinished;
 
+    private Rigidbody2D rb;
     int bounceTime;
     int endLineTriggerCount = 0;
     const int maxEndLineTriggers = 2;
 
+    public event Action<BallScript> OnBallFinished;
+
+    void Awake() {
+        rb = GetComponent<Rigidbody2D>();
+    }
 
     void Start() {
         NewLauch();
-
-        playerController.OnLauchBall += NewLauch;
     }
 
     void NewLauch() {
@@ -46,8 +50,8 @@ public class BallScript : MonoBehaviour {
             endLineTriggerCount++;
             if ( endLineTriggerCount <= maxEndLineTriggers ) return;
 
-            Vector2 newPos = new Vector2(transform.position.x, -playerController.playScreen.squareSize * 6);
-            playerController.ResetBallPos(newPos);
+            Vector2 newPos = new Vector2(transform.position.x, -ballManager.playScreen.squareSize * 6);
+            ballManager.ResetBallPos(newPos);
 
             FinishBall();
         }
@@ -59,10 +63,14 @@ public class BallScript : MonoBehaviour {
     }
 
     void ResetVelocityAndPosition() {
-        transform.position = playerController.ballPos;
+        transform.position = ballManager.ballPos;
 
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.linearVelocity = Vector2.zero;
+    }
+
+    public void SetProperties( Dictionary<string, float> properties ) {
+        // If you need per-ball state later, you can cache properties here
     }
 
 }
