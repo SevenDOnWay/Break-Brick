@@ -58,6 +58,7 @@ public class BallScript : MonoBehaviour {
     }
 
     void FinishBall() {
+        NewLauch();
         ResetVelocityAndPosition();
         OnBallFinished?.Invoke(this); // notify controller
     }

@@ -23,6 +23,7 @@ public class SpawnController : MonoBehaviour {
     [Inject] PlayScreen playScreen;
     [Inject] PlayerController playerController;
     [Inject] BallManager ballManager;
+    [Inject] BrickManager brickManager;
     SelectState selectstate;
 
     int row = 10;
@@ -46,6 +47,8 @@ public class SpawnController : MonoBehaviour {
         difficult = selectstate.difficultyIndex;
 
         InitializeBrick();
+        
+        SpawnBall(1); // Spawn initial ball
 
         ballManager.NotifyAddBall += SpawnBall;
         ballManager.OnAllBallsDone += SpawnBrick;
@@ -149,7 +152,7 @@ public class SpawnController : MonoBehaviour {
 
                 GameObject brick = Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.transform.SetParent(Pool.transform, true);
-                listBricks.Add(brick);
+                brickManager.RegisterBrick(brick);
             }
         }
 
@@ -158,11 +161,10 @@ public class SpawnController : MonoBehaviour {
 
     #endregion
 
-    //TODO: Create a method to spawn a ball While in the Game 
-
     void SpawnBall(int extraballs) {
         for(int i = 0; i < extraballs; i++ ) {
             var temp = resolver.Instantiate(ballPrefab, ballManager.ballPos, Quaternion.identity);
+            temp.transform.position = ballManager.ballPos;
 
             ballManager.RegisterBall(temp);
         }
@@ -197,7 +199,7 @@ public class SpawnController : MonoBehaviour {
 
             GameObject brick = Instantiate(BrickPrefab, position, Quaternion.identity);
             brick.transform.SetParent(Pool.transform, true);
-            listBricks.Add(brick);
+            brickManager.RegisterBrick(brick);
         }
     }
 

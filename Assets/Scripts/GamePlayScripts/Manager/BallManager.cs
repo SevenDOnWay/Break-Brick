@@ -36,7 +36,7 @@ public class BallManager : MonoBehaviour {
     public event Action<int> NotifyAddBall;
     public event Action OnAllBallsDone;
 
-    private void Start() {
+    private void Awake() {
 
         selectState = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
         characterEntry = GameObject.FindGameObjectWithTag("Character Entry").GetComponent<CharacterEntry>();
@@ -44,6 +44,7 @@ public class BallManager : MonoBehaviour {
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
 
         playerController = resolver.Resolve<PlayerController>();
+
 
         //characterEntry.characters[selectState.characterIndex].Apply();
 
