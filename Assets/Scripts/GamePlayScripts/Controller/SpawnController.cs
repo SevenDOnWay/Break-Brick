@@ -63,7 +63,7 @@ public class SpawnController : MonoBehaviour {
         }
 
         if ( playScreen == null ) {
-            Debug.LogError("PlayScreen is not initialized.");
+            Debug.LogError("PlayScreen is not initialized2.");
             return;
         }
 

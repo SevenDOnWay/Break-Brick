@@ -8,6 +8,7 @@ TagManager:
   - Wall
   - Brick
   - Select State
+  - Character Entry
   layers:
   - Default
   - TransparentFX

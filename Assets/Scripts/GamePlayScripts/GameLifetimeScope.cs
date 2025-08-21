@@ -7,18 +7,16 @@ public class GameLifetimeScope : LifetimeScope {
         builder.RegisterInstance(Camera.main);
             builder.Register<PlayScreen>(Lifetime.Singleton)
                 .AsSelf()
+                .WithParameter("camera", Camera.main)
                 .WithParameter("column", 8)
                 .WithParameter("row", 10)
                 .WithParameter("padding", 0.9f);
 
-
-
-        builder.RegisterComponentInHierarchy<PlayerController>();
         builder.RegisterComponentInHierarchy<SpawnController>();
+        builder.RegisterComponentInHierarchy<PlayerController>();
 
-        builder.RegisterComponentInHierarchy<BallManager>();
         builder.RegisterComponentInHierarchy<BrickManager>();
-
+        builder.RegisterComponentInHierarchy<BallManager>();
 
         builder.Register<BallScript>(Lifetime.Transient);
     }

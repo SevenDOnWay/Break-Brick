@@ -8,8 +8,9 @@ public class BallManager : MonoBehaviour {
 
     SelectState selectState;
     CharacterEntry characterEntry;
+    PlayerController playerController;
+    [Inject] IObjectResolver resolver;
     [Inject, HideInInspector] public PlayScreen playScreen;
-    [Inject] PlayerController playerController;
 
     private Dictionary<string, float> properties = new Dictionary<string, float> {
         {"Speed", 5},
@@ -36,11 +37,13 @@ public class BallManager : MonoBehaviour {
     public event Action OnAllBallsDone;
 
     private void Start() {
+
         selectState = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
         characterEntry = GameObject.FindGameObjectWithTag("Character Entry").GetComponent<CharacterEntry>();
 
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
 
+        playerController = resolver.Resolve<PlayerController>();
 
         //characterEntry.characters[selectState.characterIndex].Apply();
 

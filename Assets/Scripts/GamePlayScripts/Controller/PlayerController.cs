@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour {
         //TODO: Set up ball base on character selection
 
         if ( playScreen == null ) {
-            Debug.LogError("PlayScreen is not initialized.");
+            Debug.LogError("PlayScreen is not initialized1.  ");
             return;
         }
 
