@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering.VirtualTexturing;
 using VContainer;
 using VContainer.Unity;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 using static UnityEngine.GraphicsBuffer;
 
 public class SpawnController : MonoBehaviour {
@@ -31,10 +32,9 @@ public class SpawnController : MonoBehaviour {
 
     [SerializeField] GameObject BrickPrefab;
     [SerializeField] GameObject Pool;
-    List<GameObject> listBricks = new List<GameObject>();
 
     [SerializeField] GameObject ballPrefab;
-
+    [SerializeField] GameObject BackGround;
 
     int difficult;
 
@@ -47,7 +47,7 @@ public class SpawnController : MonoBehaviour {
         difficult = selectstate.difficultyIndex;
 
         InitializeBrick();
-        
+
         SpawnBall(1); // Spawn initial ball
 
         ballManager.NotifyAddBall += SpawnBall;
@@ -58,9 +58,9 @@ public class SpawnController : MonoBehaviour {
 
     void ScalePrefab() {
         // ===== Scale Brick_Visual =====
-        var spriteRenderer = BrickPrefab.GetComponentInChildren<SpriteRenderer>();
+        var brickSpriteRenderer = BrickPrefab.GetComponentInChildren<SpriteRenderer>();
 
-        if ( spriteRenderer == null ) {
+        if ( brickSpriteRenderer == null ) {
             Debug.LogError("Prefab does not have a SpriteRenderer component.");
             return;
         }
@@ -70,18 +70,32 @@ public class SpawnController : MonoBehaviour {
             return;
         }
 
-        var TargetSize = playScreen.squareSize / spriteRenderer.sprite.bounds.size.x;
-        spriteRenderer.transform.localScale = new Vector3(TargetSize, TargetSize, 1f);
+        // ===== Scale BrickScript =====
+        var TargetSquareSize = playScreen.squareSize / brickSpriteRenderer.sprite.bounds.size.x;
+        brickSpriteRenderer.transform.localScale = new Vector3(TargetSquareSize, TargetSquareSize, 1f);
 
-        // ===== Scale BrickScript Raycast =====
         if ( !BrickPrefab.TryGetComponent<BoxCollider2D>(out var boxCollider) ) {
             Debug.LogError("Prefab does not have a BoxCollider2D component.");
             return;
         }
-        boxCollider.size = new Vector2(TargetSize, TargetSize);
+        boxCollider.size = new Vector2(TargetSquareSize, TargetSquareSize);
+
+        // ===== Scale BackGround =====
+        var backGroundSpriteRenderer = BackGround.GetComponent<SpriteRenderer>();
+
+        float screenWidth = playScreen.squareSize * 8;
+        float screenHeight = playScreen.squareSize * 11;
+
+        // Calculate scale factor to fit both width & height
+        float scaleX = screenWidth / backGroundSpriteRenderer.sprite.bounds.size.x;
+        float scaleY = screenHeight / backGroundSpriteRenderer.sprite.bounds.size.y;
+
+        BackGround.transform.localScale = new Vector3(scaleX, scaleY, 1f);
+
     }
 
     void SetUpScreen() {
+        CreateBackGround();
         CreateTriggerLine();
         CreateWall("TopWall", new Vector2(0, playScreen.squareSize * 5), new Vector2(playScreen.squareSize * 8, 0.1f));
         CreateWall("BottomWall", new Vector2(0, -playScreen.squareSize * 6), new Vector2(playScreen.squareSize * 8, 0.1f));
@@ -89,6 +103,15 @@ public class SpawnController : MonoBehaviour {
         CreateWall("RightWall", new Vector2(playScreen.squareSize * 4, 0), new Vector2(0.1f, playScreen.squareSize * 12));
 
     }
+
+    void CreateBackGround() {
+        GameObject backGround = Instantiate(BackGround, Vector3.zero, Quaternion.identity);
+        backGround.transform.parent = transform;
+        backGround.tag = "BackGround";
+
+        backGround.transform.position = new Vector3(0, -playScreen.squareSize / 2);
+    }
+
     void CreateTriggerLine() {
         Vector2 start = new Vector2(-playScreen.squareSize * 4, -playScreen.squareSize * 5);
         Vector2 end = new Vector2(playScreen.squareSize * 4, -playScreen.squareSize * 5);
@@ -159,8 +182,8 @@ public class SpawnController : MonoBehaviour {
 
     #endregion
 
-    void SpawnBall(int extraballs) {
-        for(int i = 0; i < extraballs; i++ ) {
+    void SpawnBall( int extraballs ) {
+        for ( int i = 0; i < extraballs; i++ ) {
             var temp = resolver.Instantiate(ballPrefab, ballManager.ballPos, Quaternion.identity);
             temp.transform.position = ballManager.ballPos;
 

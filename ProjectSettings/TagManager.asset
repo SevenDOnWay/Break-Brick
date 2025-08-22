@@ -9,6 +9,7 @@ TagManager:
   - Brick
   - Select State
   - Character Entry
+  - BackGround
   layers:
   - Default
   - TransparentFX
