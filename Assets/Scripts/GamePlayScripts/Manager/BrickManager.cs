@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class BrickManager : MonoBehaviour {
 
@@ -12,10 +11,12 @@ public class BrickManager : MonoBehaviour {
 
     //int row = 10;
     //int column = 8;
+    int waveIndex = 0;
+    [SerializeField] AnimationCurve curve; //handle health of the brick
+    
 
-
-    List<GameObject> bricks = new List<GameObject>();
-    public IReadOnlyList<GameObject> Bricks => bricks;
+    List<BrickScript> bricks = new List<BrickScript>();
+    public IReadOnlyList<BrickScript> Bricks => bricks;
 
     void Start() {
         ballManager.OnAllBallsDone += MoveBrick;
@@ -23,20 +24,34 @@ public class BrickManager : MonoBehaviour {
 
     
     
-    public void RegisterBrick( GameObject gameobject ) {
-        bricks.Add(gameobject);
+    public void RegisterBrick(GameObject gameobject) {
+
+        var brick = gameobject.GetComponent<BrickScript>();
+
+
+        float value = curve.Evaluate(waveIndex);
+        int health = Mathf.CeilToInt(value);
+
+        brick.Init(health);
+        brick.OnBrickDestroyed += HandleBrickDestroyed;
+
+        bricks.Add(brick);
+    }
+
+    private void HandleBrickDestroyed( BrickScript brick ) {
+        brick.OnBrickDestroyed -= HandleBrickDestroyed;
+        bricks.Remove(brick);
     }
 
 
-
     void MoveBrick() {
-        Debug.Log($"Moving {bricks.Count} bricks down");
-        foreach ( GameObject brick in bricks ) {
+        foreach ( var brick in bricks ) {
             if ( brick == null ) continue; // Skip if the brick is null
             brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
 
 
         }
+        waveIndex++;
     }
 
     //TODO Create method handle health, and add variation to brick (brick spawn with x2 health, when die spawn smaller brick...) 

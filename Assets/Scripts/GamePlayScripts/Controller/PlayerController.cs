@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour {
         }
         else if ( Input.GetMouseButtonUp(0) ) {
             line.enabled = false;
-            //isBallMoving = true;
+            isBallMoving = true;
 
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 direction = (mousePos - ballManager.ballPos).normalized;

@@ -13,7 +13,7 @@ public class BallManager : MonoBehaviour {
     [Inject, HideInInspector] public PlayScreen playScreen;
 
     private Dictionary<string, float> properties = new Dictionary<string, float> {
-        {"Speed", 5},
+        {"Speed", 5}, 
         {"CritChance", 0},
         {"CritMultiplier", 2},
         {"FireChance", 0},
@@ -45,12 +45,11 @@ public class BallManager : MonoBehaviour {
 
         playerController = resolver.Resolve<PlayerController>();
 
+        playerController.NotifyLauchBall += LaunchBall;
+    }
 
-        //characterEntry.characters[selectState.characterIndex].Apply();
-
-
-
-        playerController.NotifyLauchBall += LaunchBall; 
+    void Start() {
+        characterEntry.characters[selectState.characterIndex].Apply(gameObject.GetComponent<BallManager>());
     }
 
     public void AddBall(int extraballs) {
@@ -65,8 +64,6 @@ public class BallManager : MonoBehaviour {
             Debug.LogWarning($"Property {key} not found!");
             return;
         }
-
-
         // propagate to all existing balls
 
     }

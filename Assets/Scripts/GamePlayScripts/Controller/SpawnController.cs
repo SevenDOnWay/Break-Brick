@@ -125,6 +125,7 @@ public class SpawnController : MonoBehaviour {
         edge.points = new Vector2[] { start, end };
     }
 
+    //TODO: Find solution if ball move to fast wall will not be detected
     void CreateWall( string name, Vector2 position, Vector2 size ) {
         GameObject wall = new GameObject(name);
         wall.transform.parent = transform;
@@ -189,6 +190,7 @@ public class SpawnController : MonoBehaviour {
 
             ballManager.RegisterBall(temp);
         }
+        Debug.Log("Spawned " + extraballs + " balls.");
     }
     void SpawnBrick() {
         float startX = ((column - 1) * playScreen.squareSize) / 2f;
@@ -197,16 +199,16 @@ public class SpawnController : MonoBehaviour {
         float spawnChance;
         switch ( difficult ) {
             case 0: // Easy
-                spawnChance = 0.5f;
+                spawnChance = 0.3f;
                 break;
             case 1: // Normal
-                spawnChance = 0.75f;
+                spawnChance = 0.5f;
                 break;
             case 2: // Hard
-                spawnChance = 0.9f;
+                spawnChance = 0.75f;
                 break;
             default:
-                spawnChance = 0.75f;
+                spawnChance = 0.5f;
                 break;
         }
 

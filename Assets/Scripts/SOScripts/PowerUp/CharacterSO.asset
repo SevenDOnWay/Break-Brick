@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b51f2f87ae4d98e4db09d9844f178c11, type: 3}
   m_Name: CharacterSO
   m_EditorClassIdentifier: 
-  primaryValue: 0
+  upgradeName: +3 ball
+  upgradeType: 0
+  primaryValue: 3
   secondaryValue: 0
