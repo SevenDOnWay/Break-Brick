@@ -155,8 +155,6 @@ public class SpawnController : MonoBehaviour {
                 brickManager.RegisterBrick(brick);
             }
         }
-
-        Debug.Log($"Spawned {column * row} bricks in the pool.");
     }
 
     #endregion

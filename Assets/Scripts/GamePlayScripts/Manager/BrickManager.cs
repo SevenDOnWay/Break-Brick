@@ -6,8 +6,8 @@ using static UnityEngine.Rendering.DebugUI.Table;
 public class BrickManager : MonoBehaviour {
 
 
-    [Inject] PlayerController playerController;
     [Inject] PlayScreen playScreen;
+    [Inject] PlayerController playerController;
     [Inject] BallManager ballManager;
 
     //int row = 10;
@@ -24,13 +24,14 @@ public class BrickManager : MonoBehaviour {
     
     
     public void RegisterBrick( GameObject gameobject ) {
-        bricks.Add(gameObject);
+        bricks.Add(gameobject);
     }
 
 
 
     void MoveBrick() {
-        foreach ( var brick in bricks ) {
+        Debug.Log($"Moving {bricks.Count} bricks down");
+        foreach ( GameObject brick in bricks ) {
             if ( brick == null ) continue; // Skip if the brick is null
             brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
 
