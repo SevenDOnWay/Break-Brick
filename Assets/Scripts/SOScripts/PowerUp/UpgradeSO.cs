@@ -25,7 +25,7 @@ public class UpgradeSO : ScriptableObject {
     public virtual void Apply( BallManager ballManager ) {
         switch ( upgradeType ) { 
             case (UpgradeType.ExtraBalls):
-                ballManager.AddBall((int)primaryValue);
+                ballManager.RequestExtraBall((int)primaryValue);
                 break;
             case (UpgradeType.Crit):
                 ballManager.ModifyProperty("CritChance", primaryValue);

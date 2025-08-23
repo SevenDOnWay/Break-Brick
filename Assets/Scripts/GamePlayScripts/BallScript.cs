@@ -16,12 +16,10 @@ public class BallScript : MonoBehaviour {
 
     public event Action<BallScript> OnBallFinished;
 
-    void Awake() {
-        rb = GetComponent<Rigidbody2D>();
-    }
-
     void Start() {
+        rb = GetComponent<Rigidbody2D>();
         NewLauch();
+
     }
 
     void NewLauch() {
@@ -66,7 +64,6 @@ public class BallScript : MonoBehaviour {
     void ResetVelocityAndPosition() {
         transform.position = ballManager.ballPos;
 
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.linearVelocity = Vector2.zero;
     }
 

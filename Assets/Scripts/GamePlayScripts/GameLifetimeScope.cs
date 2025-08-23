@@ -12,12 +12,20 @@ public class GameLifetimeScope : LifetimeScope {
                 .WithParameter("row", 10)
                 .WithParameter("padding", 0.9f);
 
+        builder.RegisterComponentInHierarchy<GameStateManager>()
+                                           .As<IStartable>()
+                                           .AsSelf();
+
+
         builder.RegisterComponentInHierarchy<SpawnController>();
         builder.RegisterComponentInHierarchy<PlayerController>();
 
         builder.RegisterComponentInHierarchy<BrickManager>();
         builder.RegisterComponentInHierarchy<BallManager>();
 
+       
+
         builder.Register<BallScript>(Lifetime.Transient);
+
     }
 }

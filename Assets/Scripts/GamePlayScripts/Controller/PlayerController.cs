@@ -10,32 +10,18 @@ public class PlayerController : MonoBehaviour {
     [Inject,HideInInspector] PlayScreen playScreen;
     [Inject] BallManager ballManager;
 
+
     private bool isBallMoving = false;
 
     [SerializeField] float speed;
     LineRenderer line;
 
-
-
-
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();
 
-    public event Action<Vector2> NotifyLauchBall;
+    public event Action<Vector2> OnBallLaunch;
 
-
-
-
-    void Start() {
-        //TODO: Set up ball base on character selection
-
-        if ( playScreen == null ) {
-            Debug.LogError("PlayScreen is not initialized1.  ");
-            return;
-        }
-
+    public void StartGame() {
         SpawnLine();
-        ballManager.OnAllBallsDone += HandleAllBallsDone;
-
     }
 
 
@@ -47,6 +33,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     void Update() {
+
         if ( isBallMoving ) return;
 
         if ( Input.GetMouseButtonDown(0) ) {
@@ -62,7 +49,7 @@ public class PlayerController : MonoBehaviour {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 direction = (mousePos - ballManager.ballPos).normalized;
 
-            NotifyLauchBall?.Invoke(direction);
+            OnBallLaunch?.Invoke(direction);
         }
 
     }
@@ -79,7 +66,7 @@ public class PlayerController : MonoBehaviour {
         line.SetPosition(1, targetPosScreen);
     }
 
-    private void HandleAllBallsDone() {
+    public void HandleAllBallsDone() {
         isBallMoving = false;
     }
 

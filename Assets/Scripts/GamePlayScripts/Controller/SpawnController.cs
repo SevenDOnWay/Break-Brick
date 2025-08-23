@@ -1,12 +1,6 @@
-using DG.Tweening;
-using NUnit.Framework;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.VirtualTexturing;
 using VContainer;
 using VContainer.Unity;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
-using static UnityEngine.GraphicsBuffer;
 
 public class SpawnController : MonoBehaviour {
 
@@ -20,12 +14,10 @@ public class SpawnController : MonoBehaviour {
     }
 
     */
-    [Inject] IObjectResolver resolver;
-    [Inject] PlayScreen playScreen;
-    [Inject] PlayerController playerController;
-    [Inject] BallManager ballManager;
-    [Inject] BrickManager brickManager;
     SelectState selectstate;
+    [Inject] PlayScreen playScreen;
+    [Inject] IObjectResolver resolver;
+    [Inject] BrickManager brickManager;
 
     int row = 10;
     int column = 8;
@@ -39,7 +31,7 @@ public class SpawnController : MonoBehaviour {
     int difficult;
 
 
-    void Start() {
+    public void StartGame() {
         ScalePrefab();
         SetUpScreen();
 
@@ -47,14 +39,9 @@ public class SpawnController : MonoBehaviour {
         difficult = selectstate.difficultyIndex;
 
         InitializeBrick();
-
-        SpawnBall(1); // Spawn initial ball
-
-        ballManager.NotifyAddBall += SpawnBall;
-        ballManager.OnAllBallsDone += SpawnBrick;
     }
 
-    #region initialize_Screen
+    #region Initialize_Screen
 
     void ScalePrefab() {
         // ===== Scale Brick_Visual =====
@@ -183,16 +170,13 @@ public class SpawnController : MonoBehaviour {
 
     #endregion
 
-    void SpawnBall( int extraballs ) {
-        for ( int i = 0; i < extraballs; i++ ) {
-            var temp = resolver.Instantiate(ballPrefab, ballManager.ballPos, Quaternion.identity);
-            temp.transform.position = ballManager.ballPos;
+    public GameObject SpawnBall( Vector2 ballPos, int extraBall = 1 ) {
+        var temp = resolver.Instantiate(ballPrefab, ballPos, Quaternion.identity);
+        temp.transform.position = ballPos;
 
-            ballManager.RegisterBall(temp);
-        }
-        Debug.Log("Spawned " + extraballs + " balls.");
+        return temp;
     }
-    void SpawnBrick() {
+    public void SpawnBrick() {
         float startX = ((column - 1) * playScreen.squareSize) / 2f;
         float startY = ((row - 1) * playScreen.squareSize) / 2f;
 

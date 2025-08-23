@@ -18,11 +18,9 @@ public class BrickManager : MonoBehaviour {
     List<BrickScript> bricks = new List<BrickScript>();
     public IReadOnlyList<BrickScript> Bricks => bricks;
 
-    void Start() {
-        ballManager.OnAllBallsDone += MoveBrick;
-    }
-
-    
+    public void StartGame() {
+        
+    }    
     
     public void RegisterBrick(GameObject gameobject) {
 
@@ -44,7 +42,7 @@ public class BrickManager : MonoBehaviour {
     }
 
 
-    void MoveBrick() {
+    public void MoveBrick() {
         foreach ( var brick in bricks ) {
             if ( brick == null ) continue; // Skip if the brick is null
             brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);

@@ -8,12 +8,11 @@ public class BallManager : MonoBehaviour {
 
     SelectState selectState;
     CharacterEntry characterEntry;
-    PlayerController playerController;
-    [Inject] IObjectResolver resolver;
     [Inject, HideInInspector] public PlayScreen playScreen;
 
+
     private Dictionary<string, float> properties = new Dictionary<string, float> {
-        {"Speed", 5}, 
+        {"Speed", 5},
         {"CritChance", 0},
         {"CritMultiplier", 2},
         {"FireChance", 0},
@@ -22,41 +21,33 @@ public class BallManager : MonoBehaviour {
     };
     List<GameObject> balls = new List<GameObject>();
 
-    public IReadOnlyDictionary<string, float> GetProperties() => properties;
-    public IReadOnlyList<GameObject> Balls => balls;
+    //public IReadOnlyDictionary<string, float> GetProperties() => properties;
 
-
+    public delegate GameObject RequestBall();
+    public RequestBall requestBall;
+    public event Action OnAllBallsDone;
 
     [HideInInspector] public Vector2 ballPos;
     bool ballPosLocked = false;
 
 
-
-
-    public event Action<int> NotifyAddBall;
-    public event Action OnAllBallsDone;
-
-    private void Awake() {
+    public void StartGame() {
 
         selectState = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
         characterEntry = GameObject.FindGameObjectWithTag("Character Entry").GetComponent<CharacterEntry>();
 
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
 
-        playerController = resolver.Resolve<PlayerController>();
+        RequestExtraBall();
 
-        playerController.NotifyLauchBall += LaunchBall;
-    }
-
-    void Start() {
         characterEntry.characters[selectState.characterIndex].Apply(gameObject.GetComponent<BallManager>());
     }
 
-    public void AddBall(int extraballs) {
-        NotifyAddBall?.Invoke(extraballs);
-    }
-    public void RegisterBall( GameObject ball ) {
-        balls.Add(ball);
+    #region Upgrade_Logic
+    public void RequestExtraBall( int extraballs = 1 ) {
+        for ( int i = 0; i < extraballs; i++ ) {
+            balls.Add(requestBall());
+        }
     }
 
     public void ModifyProperty( string key, float value ) {
@@ -67,24 +58,26 @@ public class BallManager : MonoBehaviour {
         // propagate to all existing balls
 
     }
+    #endregion
 
-
-    private void LaunchBall( Vector2 direction ) {
+    public void LaunchBall( Vector2 direction ) {
         UnlockBallPos();
         StartCoroutine(LaunchSequence(direction));
+        Debug.Log($"Balls in list: {balls.Count}");
     }
 
-    private IEnumerator LaunchSequence( Vector2 direction ) {
+    IEnumerator LaunchSequence( Vector2 direction ) {
         float speed = properties["Speed"];
         foreach ( var ball in balls ) {
             ball.GetComponent<Rigidbody2D>().AddForce(direction * speed, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f); // stagger launch
+            Debug.Log("Ball launched with direction: " + direction);
         }
 
         yield return WaitAllBalls();
     }
 
-    private IEnumerator WaitAllBalls() {
+    IEnumerator WaitAllBalls() {
         int finishedCount = 0;
         int totalBalls = balls.Count;
 
@@ -106,6 +99,7 @@ public class BallManager : MonoBehaviour {
         }
 
         OnAllBallsDone?.Invoke();
+
         Debug.Log("All balls are done!");
     }
 
