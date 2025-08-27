@@ -22,10 +22,11 @@ public class GameLifetimeScope : LifetimeScope {
 
         builder.RegisterComponentInHierarchy<BrickManager>();
         builder.RegisterComponentInHierarchy<BallManager>();
+        builder.RegisterComponentInHierarchy<LevelManager>();
 
-       
 
         builder.Register<BallScript>(Lifetime.Transient);
+        builder.Register<BrickScript>(Lifetime.Transient);
 
     }
 }

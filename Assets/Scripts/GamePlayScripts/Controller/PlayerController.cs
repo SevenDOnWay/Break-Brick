@@ -13,7 +13,6 @@ public class PlayerController : MonoBehaviour {
 
     private bool isBallMoving = false;
 
-    [SerializeField] float speed;
     LineRenderer line;
 
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();

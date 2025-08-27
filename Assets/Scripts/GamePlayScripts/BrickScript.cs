@@ -1,12 +1,14 @@
 using System;
 using TMPro;
 using UnityEngine;
+using VContainer;
 
 public class BrickScript : MonoBehaviour {
     private int health;
+    [Inject] LevelManager levelManager;
 
     [SerializeField] TextMeshPro healText;
-    //TODO: Add color variation to the brick
+    //TODO: Add color, and type variation to the brick
 
     public event Action<BrickScript> OnBrickDestroyed;
 
@@ -16,9 +18,10 @@ public class BrickScript : MonoBehaviour {
     }
 
     public void TakeDamage( int damage ) {
-        Debug.Log($"Taking damage: {damage}");
+        //Debug.Log($"Taking damage: {damage}");
         health -= damage;
         healText.text = health.ToString();
+        levelManager.AddExp(damage);
 
         if ( health <= 0 ) {
             Destroy(gameObject);
@@ -30,6 +33,12 @@ public class BrickScript : MonoBehaviour {
     private void DestroyBrick() {
         OnBrickDestroyed?.Invoke(this);
         Destroy(gameObject);
+    }
+
+    private void OnTriggerEnter2D( Collider2D collision ) {
+        if ( collision.CompareTag("EndLine") ) {
+            Debug.Log("Brick hit the end line!");
+        }
     }
 
 }

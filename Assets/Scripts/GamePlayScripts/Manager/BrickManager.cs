@@ -6,8 +6,6 @@ public class BrickManager : MonoBehaviour {
 
 
     [Inject] PlayScreen playScreen;
-    [Inject] PlayerController playerController;
-    [Inject] BallManager ballManager;
 
     //int row = 10;
     //int column = 8;

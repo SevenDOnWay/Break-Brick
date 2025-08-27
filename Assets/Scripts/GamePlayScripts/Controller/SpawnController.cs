@@ -161,7 +161,7 @@ public class SpawnController : MonoBehaviour {
                                                startY - j * playScreen.squareSize,
                                                0);
 
-                GameObject brick = Instantiate(BrickPrefab, position, Quaternion.identity);
+                GameObject brick = resolver.Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.transform.SetParent(Pool.transform, true);
                 brickManager.RegisterBrick(brick);
             }
@@ -204,7 +204,7 @@ public class SpawnController : MonoBehaviour {
                     0
                 );
 
-            GameObject brick = Instantiate(BrickPrefab, position, Quaternion.identity);
+            GameObject brick = resolver.Instantiate(BrickPrefab, position, Quaternion.identity);
             brick.transform.SetParent(Pool.transform, true);
             brickManager.RegisterBrick(brick);
         }

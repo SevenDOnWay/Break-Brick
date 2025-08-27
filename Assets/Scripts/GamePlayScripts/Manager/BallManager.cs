@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using VContainer;
 
@@ -27,7 +28,8 @@ public class BallManager : MonoBehaviour {
     public RequestBall requestBall;
     public event Action OnAllBallsDone;
 
-    [HideInInspector] public Vector2 ballPos;
+    public Vector2 ballPos;
+    [SerializeField] TextMeshProUGUI t_BallCount;
     bool ballPosLocked = false;
 
 
@@ -41,6 +43,8 @@ public class BallManager : MonoBehaviour {
         RequestExtraBall();
 
         characterEntry.characters[selectState.characterIndex].Apply(gameObject.GetComponent<BallManager>());
+
+        UpdateText();
     }
 
     #region Upgrade_Logic
@@ -71,7 +75,6 @@ public class BallManager : MonoBehaviour {
         foreach ( var ball in balls ) {
             ball.GetComponent<Rigidbody2D>().AddForce(direction * speed, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f); // stagger launch
-            Debug.Log("Ball launched with direction: " + direction);
         }
 
         yield return WaitAllBalls();
@@ -100,7 +103,22 @@ public class BallManager : MonoBehaviour {
 
         OnAllBallsDone?.Invoke();
 
+        UpdateText();
         Debug.Log("All balls are done!");
+    }
+
+    void UpdateText() {
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(ballPos);
+
+        if ( ballPos.x > 0 ) {
+            t_BallCount.transform.position = screenPos + new Vector3(-20, 150, 0);
+        }
+        else {
+            t_BallCount.transform.position = screenPos + new Vector3(20, 150, 0);
+        }
+
+
+        t_BallCount.text = balls.Count.ToString();
     }
 
     public void ResetBallPos( Vector2 newPos ) {

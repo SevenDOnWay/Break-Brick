@@ -8,6 +8,7 @@ public class GameStateManager : MonoBehaviour, IStartable {
     [Inject] SpawnController spawnController;
     [Inject] BallManager ballManager;
     [Inject] BrickManager brickManager;
+    [Inject] LevelManager levelManager;
 
 
     void IStartable.Start() {
@@ -29,6 +30,7 @@ public class GameStateManager : MonoBehaviour, IStartable {
         ballManager.requestBall += RequestBall;
         ballManager.OnAllBallsDone += HandleAllBallsDone;
         playerController.OnBallLaunch += NotifyLaunchBall;
+        levelManager.OnLevelUp += LevelUp;
 
         spawnController.StartGame();
         ballManager.StartGame();
@@ -48,6 +50,14 @@ public class GameStateManager : MonoBehaviour, IStartable {
 
     public GameObject RequestBall() {
         return spawnController.SpawnBall(ballManager.ballPos);
+    }
+
+    public void LevelUp() {
+        //TODO: Add level up logic here +1 upgrade.
+
+        ballManager.RequestExtraBall();
+
+
     }
 
 
