@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -13,6 +14,7 @@ public class BallScript : MonoBehaviour {
     int bounceTime;
     int endLineTriggerCount = 0;
     const int maxEndLineTriggers = 2;
+    float duration = 0.5f; // duration for moving back to start position
 
     public event Action<BallScript> OnBallFinished;
 
@@ -62,13 +64,19 @@ public class BallScript : MonoBehaviour {
     }
 
     void ResetVelocityAndPosition() {
-        transform.position = ballManager.ballPos;
-
+        //rb.bodyType = RigidbodyType2D.Static;
         rb.linearVelocity = Vector2.zero;
+
+        transform.DOMove(ballManager.ballPos, duration).SetEase(Ease.InOutBack);
+
+        //transform.position = ballManager.ballPos;
+
+
+
     }
 
     public void SetProperties( Dictionary<string, float> properties ) {
-        // If you need per-ball state later, you can cache properties here
+        // need per-ball state later, can cache properties here
     }
 
 }
