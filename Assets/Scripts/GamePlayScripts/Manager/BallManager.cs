@@ -52,6 +52,10 @@ public class BallManager : MonoBehaviour {
         for ( int i = 0; i < extraballs; i++ ) {
             balls.Add(requestBall());
         }
+
+        //TODO: Update text in here for now.
+
+        UpdateText();
     }
 
     public void ModifyProperty( string key, float value ) {

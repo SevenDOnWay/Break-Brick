@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -10,6 +11,7 @@ public class GameStateManager : MonoBehaviour, IStartable {
     [Inject] BrickManager brickManager;
     [Inject] LevelManager levelManager;
 
+    bool isPlaying = false;
 
     void IStartable.Start() {
 
@@ -37,27 +39,35 @@ public class GameStateManager : MonoBehaviour, IStartable {
         playerController.StartGame();
         //brickManager.StartGame(); nothing for now
     }
+    public void NotifyLaunchBall( Vector2 dir ) {
+        ballManager.LaunchBall(dir);
+
+        isPlaying = true;
+    }
+
     public void HandleAllBallsDone() {
         brickManager.MoveBrick();
         spawnController.SpawnBrick();
         playerController.HandleAllBallsDone();
-    }
 
-    public void NotifyLaunchBall( Vector2 dir ) {
-        ballManager.LaunchBall(dir);
+        isPlaying = false;
     }
-
 
     public GameObject RequestBall() {
         return spawnController.SpawnBall(ballManager.ballPos);
     }
 
     public void LevelUp() {
-        //TODO: Add level up logic here +1 upgrade.
+        StartCoroutine(LevelUpRoutine());
+    }
+
+    private IEnumerator LevelUpRoutine() {
+        yield return new WaitUntil(() => !isPlaying);
+
+        // TODO: Add upgade here
+
 
         ballManager.RequestExtraBall();
-
-
     }
 
 

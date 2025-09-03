@@ -18,10 +18,14 @@ public class LevelManager : MonoBehaviour {
             levelSlider.value = (float)currentExp / levelProgession.Evaluate(currentLevel); 
         }
         else {
+            
             exp -= (int)(levelProgession.Evaluate(currentLevel) - currentExp);
 
             currentExp = 0;
             currentLevel++;
+
+            //TODO: Level up 2 time lead to bug, need to fix
+
             LevelUp();
 
             AddExp(exp); // Recursively add the remaining exp after leveling up

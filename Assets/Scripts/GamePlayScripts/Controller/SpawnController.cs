@@ -176,6 +176,7 @@ public class SpawnController : MonoBehaviour {
 
         return temp;
     }
+
     public void SpawnBrick() {
         float startX = ((column - 1) * playScreen.squareSize) / 2f;
         float startY = ((row - 1) * playScreen.squareSize) / 2f;
