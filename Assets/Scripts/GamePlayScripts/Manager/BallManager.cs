@@ -87,6 +87,7 @@ public class BallManager : MonoBehaviour {
     IEnumerator WaitAllBalls() {
         int finishedCount = 0;
         int totalBalls = balls.Count;
+        float beginTime = Time.time;
 
         Action<BallScript> onBallFinished = (ball) => finishedCount++;
 
@@ -94,6 +95,18 @@ public class BallManager : MonoBehaviour {
         foreach ( var ball in balls ) {
             var script = ball.GetComponent<BallScript>();
             script.OnBallFinished += onBallFinished;
+        }
+
+        while ( finishedCount < totalBalls ) {
+            if ( Time.time > beginTime + 5f ) {
+                Debug.Log("Too long, speed up balls");
+                foreach ( var ball in balls ) {
+                    BallScript script = ball.GetComponent<BallScript>();
+                    script.rb.linearVelocity *= 3;
+                }
+                beginTime += 10f;
+            }
+            yield return null; // wait 1 frame
         }
 
         // Wait until all balls are finished

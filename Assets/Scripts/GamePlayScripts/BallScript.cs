@@ -9,7 +9,7 @@ public class BallScript : MonoBehaviour {
     [Inject] BallManager ballManager;
 
 
-    private Rigidbody2D rb;
+    [HideInInspector] public Rigidbody2D rb;
     int bounceTime;
     int endLineTriggerCount = 0;
     const int maxEndLineTriggers = 2;
