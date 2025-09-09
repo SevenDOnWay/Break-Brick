@@ -67,7 +67,7 @@ public class BallScript : MonoBehaviour {
         //rb.bodyType = RigidbodyType2D.Static;
         rb.linearVelocity = Vector2.zero;
 
-        transform.DOMove(ballManager.ballPos, duration).SetEase(Ease.InOutBack);
+        transform.DOMove(ballManager.ballPos, duration).SetEase(Ease.OutQuart);
 
         //transform.position = ballManager.ballPos;
 

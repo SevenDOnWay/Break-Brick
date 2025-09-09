@@ -71,7 +71,7 @@ public class BallManager : MonoBehaviour {
     public void LaunchBall( Vector2 direction ) {
         UnlockBallPos();
         StartCoroutine(LaunchSequence(direction));
-        Debug.Log($"Balls in list: {balls.Count}");
+        //Debug.Log($"Balls in list: {balls.Count}");
     }
 
     IEnumerator LaunchSequence( Vector2 direction ) {   

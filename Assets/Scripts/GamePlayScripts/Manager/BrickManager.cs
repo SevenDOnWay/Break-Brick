@@ -9,7 +9,7 @@ public class BrickManager : MonoBehaviour {
 
     //int row = 10;
     //int column = 8;
-    int waveIndex = 0;
+    [Inject] WaveScript waveScript;
     [SerializeField] AnimationCurve curve; //handle health of the brick
     
 
@@ -25,7 +25,7 @@ public class BrickManager : MonoBehaviour {
         var brick = gameobject.GetComponent<BrickScript>();
 
 
-        float value = curve.Evaluate(waveIndex);
+        float value = curve.Evaluate(waveScript.GetWaveIndex());
         int health = Mathf.CeilToInt(value);
 
         brick.Init(health);
@@ -45,9 +45,7 @@ public class BrickManager : MonoBehaviour {
             if ( brick == null ) continue; // Skip if the brick is null
             brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
 
-
         }
-        waveIndex++;
     }
 
     //TODO Create method handle health, and add variation to brick (brick spawn with x2 health, when die spawn smaller brick...) 

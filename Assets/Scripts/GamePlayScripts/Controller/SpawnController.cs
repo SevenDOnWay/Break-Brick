@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -15,21 +17,36 @@ public class SpawnController : MonoBehaviour {
 
     */
     SelectState selectstate;
-    [Inject] PlayScreen playScreen;
     [Inject] IObjectResolver resolver;
+    [Inject] PlayScreen playScreen;
+    [Inject] WaveScript waveScript;
     [Inject] BrickManager brickManager;
 
     int row = 10;
     int column = 8;
 
-    [SerializeField] GameObject BrickPrefab;
+    [System.Serializable]
+    public class Brick {
+        [SerializeField] public GameObject prefab;
+        [SerializeField] public int minWave; //the minimum wave this brick can appear
+        [SerializeField, Range(0f,1f)] public float baseChance; // base chance to spawn
+        [SerializeField, Range(0f,0.1f)] public float growthPerWave; // how much chance increase per wave
+    }
+
+
+
+    //[SerializeField] float[] brickWeights;
+
+    //[SerializeField] GameObject BrickPrefab;
+
+    [SerializeField] Brick[] bricks;
+
     [SerializeField] GameObject Pool;
 
     [SerializeField] GameObject ballPrefab;
     [SerializeField] GameObject BackGround;
 
     int difficult;
-
 
     public void StartGame() {
         ScalePrefab();
@@ -44,29 +61,34 @@ public class SpawnController : MonoBehaviour {
     #region Initialize_Screen
 
     void ScalePrefab() {
-        // ===== Scale Brick_Visual =====
-        var brickSpriteRenderer = BrickPrefab.GetComponentInChildren<SpriteRenderer>();
-
-        if ( brickSpriteRenderer == null ) {
-            Debug.LogError("Prefab does not have a SpriteRenderer component.");
-            return;
-        }
-
         if ( playScreen == null ) {
             Debug.LogError("PlayScreen is not initialized2.");
             return;
         }
 
-        // ===== Scale BrickScript =====
-        var TargetSquareSize = playScreen.squareSize / brickSpriteRenderer.sprite.bounds.size.x;
-        brickSpriteRenderer.transform.localScale = new Vector3(TargetSquareSize, TargetSquareSize, 1f);
+        // ===== Scale Brick_Visual =====
 
-        if ( !BrickPrefab.TryGetComponent<BoxCollider2D>(out var boxCollider) ) {
-            Debug.LogError("Prefab does not have a BoxCollider2D component.");
-            return;
+        foreach ( var brick in bricks ) {
+
+            var brickSpriteRenderer = brick.prefab.GetComponentInChildren<SpriteRenderer>();
+
+            if ( brickSpriteRenderer == null ) {
+                Debug.LogError("Prefab does not have a SpriteRenderer component.");
+                return;
+            }
+
+
+
+            // ===== Scale BrickScript =====
+            var TargetSquareSize = playScreen.squareSize / brickSpriteRenderer.sprite.bounds.size.x;
+            brickSpriteRenderer.transform.localScale = new Vector3(TargetSquareSize, TargetSquareSize, 1f);
+
+            if ( !brick.prefab.TryGetComponent<BoxCollider2D>(out var boxCollider) ) {
+                Debug.LogError("Prefab does not have a BoxCollider2D component.");
+                return;
+            }
+            boxCollider.size = new Vector2(TargetSquareSize, TargetSquareSize);
         }
-        boxCollider.size = new Vector2(TargetSquareSize, TargetSquareSize);
-
         // ===== Scale BackGround =====
         var backGroundSpriteRenderer = BackGround.GetComponent<SpriteRenderer>();
 
@@ -161,6 +183,8 @@ public class SpawnController : MonoBehaviour {
                                                startY - j * playScreen.squareSize,
                                                0);
 
+                GameObject BrickPrefab = GetRandomBrick();
+
                 GameObject brick = resolver.Instantiate(BrickPrefab, position, Quaternion.identity);
                 brick.transform.SetParent(Pool.transform, true);
                 brickManager.RegisterBrick(brick);
@@ -184,7 +208,7 @@ public class SpawnController : MonoBehaviour {
         float spawnChance;
         switch ( difficult ) {
             case 0: // Easy
-                spawnChance = 0.3f;
+                spawnChance = 0.4f;
                 break;
             case 1: // Normal
                 spawnChance = 0.5f;
@@ -199,11 +223,14 @@ public class SpawnController : MonoBehaviour {
 
         for ( int i = 0; i < column; i++ ) {
             if ( Random.value > spawnChance ) continue;
+
             Vector3 position = new Vector3(
                     startX - i * playScreen.squareSize,
                     startY,
                     0
-                );
+            );
+
+            GameObject BrickPrefab = GetRandomBrick();
 
             GameObject brick = resolver.Instantiate(BrickPrefab, position, Quaternion.identity);
             brick.transform.SetParent(Pool.transform, true);
@@ -211,9 +238,43 @@ public class SpawnController : MonoBehaviour {
         }
     }
 
+    GameObject GetRandomBrick() {
+        int waveIndex = waveScript.GetWaveIndex();
+        var eligibleBricks = bricks.Where(b => waveIndex >= b.minWave).ToList();
+
+        if ( eligibleBricks.Count == 0 ) {
+            Debug.LogError("No eligible bricks found for the current wave index.");
+            return null;
+        }
+
+        List<float> chances = new List<float>();
+        foreach ( var b in eligibleBricks ) {
+            float waveBonus = (waveIndex - b.minWave) * b.growthPerWave;
+            chances.Add(b.baseChance + waveBonus);
+        }
+
+        // Normalize chances
+        float total = chances.Sum();
+        List<float> normalized = chances.Select(ch => ch / total).ToList();
+
+        Debug.Log($"Eligible Bricks size: {eligibleBricks.Count}");
+
+        // Weighted random selection
+        float rand = Random.value;
+        float cumulative = 0f;
+        for ( int i = 0; i < eligibleBricks.Count; i++ ) {
+            cumulative += normalized[i];
+            if ( rand <= cumulative ) {
+                return eligibleBricks[i].prefab;
+            }
+        }
 
 
-    //TODO: move to brickmanager
+        // Fallback
+        Debug.LogWarning("Weighted random selection failed, returning last eligible brick.");
+        return eligibleBricks.Last().prefab;
+    }
+
 
 
 }

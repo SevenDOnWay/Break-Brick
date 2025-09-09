@@ -5,6 +5,7 @@ using VContainer;
 using VContainer.Unity;
 
 public class GameStateManager : MonoBehaviour, IStartable {
+    [Inject] WaveScript waveScript;
     [Inject] PlayerController playerController;
     [Inject] SpawnController spawnController;
     [Inject] BallManager ballManager;
@@ -50,6 +51,8 @@ public class GameStateManager : MonoBehaviour, IStartable {
         spawnController.SpawnBrick();
         playerController.HandleAllBallsDone();
 
+        waveScript.IncreaseWave();
+
         isPlaying = false;
     }
 
@@ -64,8 +67,9 @@ public class GameStateManager : MonoBehaviour, IStartable {
     private IEnumerator LevelUpRoutine() {
         yield return new WaitUntil(() => !isPlaying);
 
-        // TODO: Add upgade here
+        yield return new WaitForSeconds(1f); // ensure all balls effect are done
 
+        // TODO: Add upgade here
 
         ballManager.RequestExtraBall();
     }

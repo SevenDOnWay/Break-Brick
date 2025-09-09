@@ -5,16 +5,19 @@ using VContainer.Unity;
 public class GameLifetimeScope : LifetimeScope {
     protected override void Configure( IContainerBuilder builder ) {
         builder.RegisterInstance(Camera.main);
-            builder.Register<PlayScreen>(Lifetime.Singleton)
-                .AsSelf()
-                .WithParameter("camera", Camera.main)
-                .WithParameter("column", 8)
-                .WithParameter("row", 10)
-                .WithParameter("padding", 0.9f);
+        builder.Register<PlayScreen>(Lifetime.Singleton)
+            .AsSelf()
+            .WithParameter("camera", Camera.main)
+            .WithParameter("column", 8)
+            .WithParameter("row", 10)
+            .WithParameter("padding", 0.9f);
+
+        builder.RegisterComponentInHierarchy<WaveScript>();
 
         builder.RegisterComponentInHierarchy<GameStateManager>()
                                            .As<IStartable>()
                                            .AsSelf();
+
 
 
         builder.RegisterComponentInHierarchy<SpawnController>();
