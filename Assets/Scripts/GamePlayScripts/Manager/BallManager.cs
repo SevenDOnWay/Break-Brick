@@ -74,7 +74,7 @@ public class BallManager : MonoBehaviour {
         Debug.Log($"Balls in list: {balls.Count}");
     }
 
-    IEnumerator LaunchSequence( Vector2 direction ) {
+    IEnumerator LaunchSequence( Vector2 direction ) {   
         float speed = properties["Speed"];
         foreach ( var ball in balls ) {
             ball.GetComponent<Rigidbody2D>().AddForce(direction * speed, ForceMode2D.Impulse);
