@@ -27,10 +27,5 @@ public class ShopItemUI : MonoBehaviour
         Debug.Log($"Purchased {shopItemData.name}");
         //TODO: Handle purchase logic, e.g., deduct currency, add item to inventory
 
-        // Activate item effects
-        foreach (var effect in shopItemData.effects)
-        {
-            effect.Activate();
-        }
     }
 }
