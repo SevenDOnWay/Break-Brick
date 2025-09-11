@@ -13,19 +13,13 @@ public class ShopManager : MonoBehaviour
 
     private void Awake()
     {
-        
+        rollButton.onClick.AddListener(RollItems);
     }
 
 
     void Start()
     {
-        foreach (var item in items)
-        {
-            GameObject obj = Instantiate(itemUIPrefab, grid.transform);
-            ShopItemUI ui = obj.GetComponent<ShopItemUI>();
-            ui.SetData(item);
-
-        }
+        RollItems();
     }
 
     public void OpenShop()
@@ -38,4 +32,23 @@ public class ShopManager : MonoBehaviour
     {
         gameObject.SetActive(true);
     }
+
+    public void RollItems()
+    {
+        Debug.Log("Rolling new items...");
+
+        // Clear existing items
+        foreach (Transform child in grid.transform)
+        {
+            Destroy(child.gameObject);
+        }
+ 
+        foreach (var item in items.GetRandomElements(6))
+        {
+            GameObject obj = Instantiate(itemUIPrefab, grid.transform);
+            ShopItemUI ui = obj.GetComponent<ShopItemUI>();
+            ui.SetData(item);
+        }   
+    }
+
 }

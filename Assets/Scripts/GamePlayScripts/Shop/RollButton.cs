@@ -5,7 +5,6 @@ public class RollButton : MonoBehaviour
 {
     private void Awake()
     {
-        transform.GetComponent<Button>().onClick.AddListener(OnRoll);
     }
 
     void Start()
@@ -13,8 +12,4 @@ public class RollButton : MonoBehaviour
         
     }
 
-    private void OnRoll()
-    {
-        Debug.Log("Rolled the shop items!");
-    }
 }
