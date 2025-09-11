@@ -912,6 +912,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: eeeb45594436a5c4da2fe9f96cd0e63c, type: 2}
   itemUIPrefab: {fileID: 2081450759571043064, guid: bb55e85c63a01c140a51facae0be2b0c, type: 3}
   grid: {fileID: 1630550364}
+  rollButton: {fileID: 15289100}
 --- !u!1 &838964554
 GameObject:
   m_ObjectHideFlags: 0
