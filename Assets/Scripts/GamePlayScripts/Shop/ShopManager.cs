@@ -9,6 +9,8 @@ public class ShopManager : MonoBehaviour
 
     [SerializeField] private GameObject grid;
 
+    [SerializeField] private Button rollButton;
+
     private void Awake()
     {
         
@@ -26,4 +28,14 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    public void OpenShop()
+    {
+        gameObject.SetActive(true);
+    }
+
+
+    public void CloseShop()
+    {
+        gameObject.SetActive(true);
+    }
 }
