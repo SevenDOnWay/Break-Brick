@@ -29,13 +29,11 @@ public class BrickManager : MonoBehaviour {
         int health = Mathf.CeilToInt(value);
 
         brick.Init(health);
-        brick.OnBrickDestroyed += HandleBrickDestroyed;
 
         bricks.Add(brick);
     }
 
     private void HandleBrickDestroyed( BrickScript brick ) {
-        brick.OnBrickDestroyed -= HandleBrickDestroyed;
         bricks.Remove(brick);
     }
 

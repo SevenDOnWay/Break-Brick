@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -238,6 +239,14 @@ public class SpawnController : MonoBehaviour {
         }
     }
 
+    public void SpawnBrickAt( Vector2 pos ) {
+        if ( pos.x > playScreen.squareSize * 4 || pos.x < -playScreen.squareSize * 4 ) return;
+
+        GameObject brick = resolver.Instantiate(bricks[0].prefab, pos, Quaternion.identity);
+        brick.transform.SetParent(Pool.transform, true);
+        brickManager.RegisterBrick(brick);
+    }
+
     GameObject GetRandomBrick() {
         int waveIndex = waveScript.GetWaveIndex();
         var eligibleBricks = bricks.Where(b => waveIndex >= b.minWave).ToList();
@@ -257,8 +266,6 @@ public class SpawnController : MonoBehaviour {
         float total = chances.Sum();
         List<float> normalized = chances.Select(ch => ch / total).ToList();
 
-        Debug.Log($"Eligible Bricks size: {eligibleBricks.Count}");
-
         // Weighted random selection
         float rand = Random.value;
         float cumulative = 0f;
@@ -274,6 +281,8 @@ public class SpawnController : MonoBehaviour {
         Debug.LogWarning("Weighted random selection failed, returning last eligible brick.");
         return eligibleBricks.Last().prefab;
     }
+
+
 
 
 

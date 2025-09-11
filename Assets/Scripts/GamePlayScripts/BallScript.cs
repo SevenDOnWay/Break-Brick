@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
@@ -59,20 +60,13 @@ public class BallScript : MonoBehaviour {
 
     void FinishBall() {
         NewLauch();
-        ResetVelocityAndPosition();
-        OnBallFinished?.Invoke(this); // notify controller
+        StartCoroutine(ResetVelocityCoroutine());
     }
 
-    void ResetVelocityAndPosition() {
-        //rb.bodyType = RigidbodyType2D.Static;
+    IEnumerator ResetVelocityCoroutine() {
         rb.linearVelocity = Vector2.zero;
-
-        transform.DOMove(ballManager.ballPos, duration).SetEase(Ease.OutQuart);
-
-        //transform.position = ballManager.ballPos;
-
-
-
+        yield return transform.DOMove(ballManager.ballPos, duration).WaitForCompletion();
+        OnBallFinished?.Invoke(this);
     }
 
     public void SetProperties( Dictionary<string, float> properties ) {

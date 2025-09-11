@@ -76,6 +76,7 @@ public class BallManager : MonoBehaviour {
 
     IEnumerator LaunchSequence( Vector2 direction ) {   
         float speed = properties["Speed"];
+        //TODO: wait for done level up
         foreach ( var ball in balls ) {
             ball.GetComponent<Rigidbody2D>().AddForce(direction * speed, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f); // stagger launch

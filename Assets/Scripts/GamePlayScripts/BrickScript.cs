@@ -4,13 +4,11 @@ using UnityEngine;
 using VContainer;
 
 public class BrickScript : MonoBehaviour {
-    private int health;
+    [HideInInspector] public int health;
     [Inject] LevelManager levelManager;
 
     [SerializeField] TextMeshPro healText;
     //TODO: Add color, and type variation to the brick
-
-    public event Action<BrickScript> OnBrickDestroyed;
 
     public void Init( int health ) {
         this.health = health;
@@ -24,16 +22,24 @@ public class BrickScript : MonoBehaviour {
         levelManager.AddExp(damage);
 
         if ( health <= 0 ) {
-            Destroy(gameObject);
+            DestroyBrick();
+        }
+    }
+
+    void DestroyBrick() {
+        //Call all variants BEFORE destroying this brick
+        foreach ( var variant in GetComponents<IBrickVariant>() ) {
+            try {
+                variant.OnDie(this);
+            }
+            catch ( Exception e ) {
+                Debug.LogException(e);
+            }
         }
 
-
-    }
-
-    private void DestroyBrick() {
-        OnBrickDestroyed?.Invoke(this);
         Destroy(gameObject);
     }
+
 
     private void OnTriggerEnter2D( Collider2D collision ) {
         if ( collision.CompareTag("EndLine") ) {

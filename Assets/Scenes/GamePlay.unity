@@ -906,8 +906,12 @@ MonoBehaviour:
     minWave: 0
     baseChance: 1
     growthPerWave: 0
-  - prefab: {fileID: 2650383072811567308, guid: 173b7ce461cddbf438c55399fca90b2b, type: 3}
-    minWave: 3
+  - prefab: {fileID: 7710773107683314135, guid: 2950904f7d7a2dd4f8587aff3c9fa3c8, type: 3}
+    minWave: 20
+    baseChance: 0.25
+    growthPerWave: 0.01
+  - prefab: {fileID: 685578362987215932, guid: c82a53985a34be247ba5df89275f9598, type: 3}
+    minWave: 30
     baseChance: 0.25
     growthPerWave: 0.05
   Pool: {fileID: 600349753}
