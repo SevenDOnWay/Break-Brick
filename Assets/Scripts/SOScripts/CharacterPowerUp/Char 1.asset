@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96e8272f0bcad06458d9eed8e43ce127, type: 3}
+  m_Name: Char 1
+  m_EditorClassIdentifier: 
+  characterName: char 1
+  icon: {fileID: 3768298933040644959, guid: 1687971a4563f334d8621ebbec4bd9b3, type: 3}
+  description: 'Start with 3 ball '
+  upgrade: {fileID: 11400000, guid: 3c58f87a4e5fc0e41b95abbb5e6bcada, type: 2}

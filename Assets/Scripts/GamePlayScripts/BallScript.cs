@@ -1,23 +1,28 @@
+using DG.Tweening;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 using VContainer;
 
 public class BallScript : MonoBehaviour {
 
-    [Inject] PlayerController playerController;
+    [Inject] BallManager ballManager;
 
+
+    [HideInInspector] public Rigidbody2D rb;
     int bounceTime;
     int endLineTriggerCount = 0;
     const int maxEndLineTriggers = 2;
+    float duration = 0.5f; // duration for moving back to start position
 
+    public event Action<BallScript> OnBallFinished;
 
     void Start() {
+        rb = GetComponent<Rigidbody2D>();
         NewLauch();
-        if ( playerController == null ) {
-            Debug.LogError("PlayerController is not injected into BallScript.");
-            return;
-        }
-        playerController.OnLauchBall += NewLauch; 
+
     }
 
     void NewLauch() {
@@ -29,36 +34,43 @@ public class BallScript : MonoBehaviour {
         // ===== Wall Collision Logic =====
         if ( collision.gameObject.CompareTag("Wall") ) {
             bounceTime++;
-            if ( bounceTime > 6 ) {
-                transform.position = playerController.ballPos;
-                bounceTime = 0;
-                ResetVelocity();
+            if ( bounceTime > 5 ) {
+                FinishBall();
             }
         }
 
         // ===== BrickScript Collision Logic =====
-        if (collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick)){ 
-            Debug.Log("BrickScript Hit");
+        if ( collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick) ) {
             brick.TakeDamage(1);
             bounceTime = 0;
         }
     }
 
     private void OnTriggerEnter2D( Collider2D collision ) {
-        if ( collision.gameObject.CompareTag("EndLine")) {
-            Debug.Log("EndLine Triggered");
+        if ( collision.gameObject.CompareTag("EndLine") ) {
             endLineTriggerCount++;
             if ( endLineTriggerCount <= maxEndLineTriggers ) return;
-            ResetVelocity();
 
-            playerController.ballPos = transform.position;
+            Vector2 newPos = new Vector2(transform.position.x, -ballManager.playScreen.squareSize * 6);
+            ballManager.ResetBallPos(newPos);
 
+            FinishBall();
         }
     }
 
-    void ResetVelocity() {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+    void FinishBall() {
+        NewLauch();
+        StartCoroutine(ResetVelocityCoroutine());
+    }
+
+    IEnumerator ResetVelocityCoroutine() {
         rb.linearVelocity = Vector2.zero;
+        yield return transform.DOMove(ballManager.ballPos, duration).WaitForCompletion();
+        OnBallFinished?.Invoke(this);
+    }
+
+    public void SetProperties( Dictionary<string, float> properties ) {
+        // need per-ball state later, can cache properties here
     }
 
 }

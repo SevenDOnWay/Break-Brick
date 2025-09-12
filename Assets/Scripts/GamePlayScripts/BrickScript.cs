@@ -1,32 +1,50 @@
 using System;
+using TMPro;
 using UnityEngine;
+using VContainer;
 
-public class BrickScript : MonoBehaviour
-{
-    [SerializeField] private int health = 1;
+public class BrickScript : MonoBehaviour {
+    [HideInInspector] public int health;
+    [Inject] LevelManager levelManager;
 
-    public static event EventHandler OnBrickDestroyed;
-    public static event EventHandler OnBrickHit;
+    [SerializeField] TextMeshPro healText;
+    //TODO: Add color, and type variation to the brick
 
-
-    public void TakeDamage(int damage)
-    {
-        Debug.Log($"Taking damage: {damage}");
-        health -= damage;
-
-        if (health <= 0)
-        {
-            Debug.Log("Brick destroyed");
-            OnBrickDestroyed?.Invoke(this, EventArgs.Empty);
-            Destroy(gameObject);
-            
-        }
-        else
-        {
-            OnBrickHit?.Invoke(this, EventArgs.Empty);
-        }
-
-        Debug.Log($"Brick health remaining: {health}");
-
+    public void Init( int health ) {
+        this.health = health;
+        healText.text = $"{health}";
     }
+
+    public void TakeDamage( int damage ) {
+        //Debug.Log($"Taking damage: {damage}");
+        health -= damage;
+        healText.text = health.ToString();
+        levelManager.AddExp(damage);
+
+        if ( health <= 0 ) {
+            DestroyBrick();
+        }
+    }
+
+    void DestroyBrick() {
+        //Call all variants BEFORE destroying this brick
+        foreach ( var variant in GetComponents<IBrickVariant>() ) {
+            try {
+                variant.OnDie(this);
+            }
+            catch ( Exception e ) {
+                Debug.LogException(e);
+            }
+        }
+
+        Destroy(gameObject);
+    }
+
+
+    private void OnTriggerEnter2D( Collider2D collision ) {
+        if ( collision.CompareTag("EndLine") ) {
+            Debug.Log("Brick hit the end line!");
+        }
+    }
+
 }
