@@ -8,7 +8,9 @@ public class BrickScript : MonoBehaviour {
     [Inject] LevelManager levelManager;
 
     [SerializeField] TextMeshPro healText;
-    //TODO: Add color, and type variation to the brick
+
+    public static event EventHandler OnBrickDestroyed;
+    public static event EventHandler OnBrickHit;
 
     public void Init( int health ) {
         this.health = health;
