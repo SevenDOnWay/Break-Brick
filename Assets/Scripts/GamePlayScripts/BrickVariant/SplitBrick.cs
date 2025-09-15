@@ -22,6 +22,10 @@ public class SplitBrick : MonoBehaviour, IBrickVariant {
         spawnController.SpawnBrickAt(new Vector2(pos.x + playScreen.squareSize, pos.y));
     }
 
+    public BrickData.BrickType GetBrickType( ) {
+        return BrickData.BrickType.Split;
+    }
+
     public void OnSpawn( BrickScript brickScript ) {}
     public void OnHit( BrickScript brickScript ) {}
     public void OnEndTurn( BrickScript brickScript ) {}
