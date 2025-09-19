@@ -4,11 +4,6 @@ using UnityEngine;
 
 [System.Serializable]
 public class BrickData {
-    public enum BrickType {
-        Normal,
-        Split,
-        x2health,
-    }
 
     public int col;
     public int row;

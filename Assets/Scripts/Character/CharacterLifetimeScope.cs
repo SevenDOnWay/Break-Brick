@@ -9,6 +9,6 @@ public class CharacterLifetimeScope : LifetimeScope {
         builder.RegisterComponentInHierarchy<DescriptionPanel>();
         builder.RegisterComponentInHierarchy<DifficultPanel>();
         builder.RegisterComponentInHierarchy<CharacterController>();
-        builder.RegisterComponentInHierarchy<SelectState>();
+        //builder.RegisterComponentInHierarchy<SelectState>();
     }
 }

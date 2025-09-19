@@ -1,11 +1,15 @@
 using System;
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VContainer;
+using VContainer.Unity;
 
 public class SelectCharacter : MonoBehaviour {
     [Inject] CharacterEntry characterEntry;
+
     private int currentCharacterIndex = 0;
 
     [SerializeField] Button nextDifficulty;
@@ -22,6 +26,7 @@ public class SelectCharacter : MonoBehaviour {
         //TODO : Load the current player and difficulty from playerdata or settings
         SetActiveCharacter(currentCharacterIndex);
         CheckButtonDifficulty();
+
     }
 
     public void OnClicNextDifficulty() {
@@ -47,13 +52,12 @@ public class SelectCharacter : MonoBehaviour {
         OnCharacterChange?.Invoke(currentCharacterIndex);
     }
 
-    public void OnClickPlay() {
-        //TODO: Implement the logic to start the game with the selected player and difficulty
+    public async void OnClickPlay() {
         OnPlay?.Invoke();
 
+        await RunDataManager.Instance.NewRun(currentCharacterIndex, characterEntry.characters[currentCharacterIndex]);
 
-        //TODO: Save the current player and difficulty to playerdata or settings
-        SceneManager.LoadScene(2); 
+        await SceneManager.LoadSceneAsync(2);
     }
 
     void SetActiveCharacter( int index ) {

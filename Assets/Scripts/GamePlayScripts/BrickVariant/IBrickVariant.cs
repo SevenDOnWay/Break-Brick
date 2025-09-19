@@ -5,5 +5,11 @@ public interface IBrickVariant {
     void OnHit( BrickScript brickScript );
     void OnEndTurn( BrickScript brickScript );
     void OnDie( BrickScript brickScript );
-    BrickData.BrickType GetBrickType();
+    BrickType GetBrickType();
+}
+
+public enum BrickType {
+    Normal,
+    Split,
+    x2health,
 }

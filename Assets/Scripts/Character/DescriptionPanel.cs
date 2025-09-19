@@ -60,7 +60,7 @@ public class DescriptionPanel : MonoBehaviour {
     }
 
     void SetDescription( int index ) {
-        descriptionText.text = characterEntry.characters[index].description;
+        descriptionText.text = characterEntry.characters[index].GetUpgrade().GetDescription();
     }
 
     void SetActiveDot( int index ) {

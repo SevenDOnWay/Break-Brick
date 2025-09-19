@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: char 2
   icon: {fileID: 3768298933040644959, guid: 1687971a4563f334d8621ebbec4bd9b3, type: 3}
-  description: Have small chance to crit
-  upgrade: {fileID: 0}
+  upgrade: {fileID: 11400000, guid: 75cf8ba8c0767bd42ba46e3998b728fb, type: 2}

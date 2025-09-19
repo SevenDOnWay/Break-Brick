@@ -5,8 +5,8 @@ public class x2Brick : MonoBehaviour, IBrickVariant {
         brickScript.health *= 2;
     }
 
-    public BrickData.BrickType GetBrickType() {
-        return BrickData.BrickType.x2health;
+    public BrickType GetBrickType() {
+        return BrickType.x2health;
     }
 
     public void OnDie( BrickScript brickScript ) { }
