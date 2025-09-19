@@ -5,7 +5,8 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class SpawnController : MonoBehaviour {
+public class SpawnController : MonoBehaviour
+{
 
     /*
      * enum Difficulties for the game.
@@ -23,15 +24,16 @@ public class SpawnController : MonoBehaviour {
     [Inject] WaveScript waveScript;
     [Inject] BrickManager brickManager;
 
-    int row = 10;
+    int row = 10; // TODO: set const 
     int column = 8;
 
     [System.Serializable]
-    public class Brick {
+    public class Brick
+    {
         [SerializeField] public GameObject prefab;
         [SerializeField] public int minWave; //the minimum wave this brick can appear
-        [SerializeField, Range(0f,1f)] public float baseChance; // base chance to spawn
-        [SerializeField, Range(0f,0.1f)] public float growthPerWave; // how much chance increase per wave
+        [SerializeField, Range(0f, 1f)] public float baseChance; // base chance to spawn
+        [SerializeField, Range(0f, 0.1f)] public float growthPerWave; // how much chance increase per wave
     }
 
 
@@ -49,7 +51,8 @@ public class SpawnController : MonoBehaviour {
 
     int difficult;
 
-    public void StartGame() {
+    public void StartGame()
+    {
         ScalePrefab();
         SetUpScreen();
 
@@ -61,19 +64,23 @@ public class SpawnController : MonoBehaviour {
 
     #region Initialize_Screen
 
-    void ScalePrefab() {
-        if ( playScreen == null ) {
+    void ScalePrefab()
+    {
+        if (playScreen == null)
+        {
             Debug.LogError("PlayScreen is not initialized2.");
             return;
         }
 
         // ===== Scale Brick_Visual =====
 
-        foreach ( var brick in bricks ) {
+        foreach (var brick in bricks)
+        {
 
             var brickSpriteRenderer = brick.prefab.GetComponentInChildren<SpriteRenderer>();
 
-            if ( brickSpriteRenderer == null ) {
+            if (brickSpriteRenderer == null)
+            {
                 Debug.LogError("Prefab does not have a SpriteRenderer component.");
                 return;
             }
@@ -84,7 +91,8 @@ public class SpawnController : MonoBehaviour {
             var TargetSquareSize = playScreen.squareSize / brickSpriteRenderer.sprite.bounds.size.x;
             brickSpriteRenderer.transform.localScale = new Vector3(TargetSquareSize, TargetSquareSize, 1f);
 
-            if ( !brick.prefab.TryGetComponent<BoxCollider2D>(out var boxCollider) ) {
+            if (!brick.prefab.TryGetComponent<BoxCollider2D>(out var boxCollider))
+            {
                 Debug.LogError("Prefab does not have a BoxCollider2D component.");
                 return;
             }
@@ -104,7 +112,8 @@ public class SpawnController : MonoBehaviour {
 
     }
 
-    void SetUpScreen() {
+    void SetUpScreen()
+    {
         CreateBackGround();
         CreateTriggerLine();
         CreateWall("TopWall", new Vector2(0, playScreen.squareSize * 5), new Vector2(playScreen.squareSize * 8, 0.1f));
@@ -114,7 +123,8 @@ public class SpawnController : MonoBehaviour {
 
     }
 
-    void CreateBackGround() {
+    void CreateBackGround()
+    {
         GameObject backGround = Instantiate(BackGround, Vector3.zero, Quaternion.identity);
         backGround.transform.parent = transform;
         backGround.tag = "BackGround";
@@ -122,7 +132,8 @@ public class SpawnController : MonoBehaviour {
         backGround.transform.position = new Vector3(0, -playScreen.squareSize / 2);
     }
 
-    void CreateTriggerLine() {
+    void CreateTriggerLine()
+    {
         Vector2 start = new Vector2(-playScreen.squareSize * 4, -playScreen.squareSize * 5);
         Vector2 end = new Vector2(playScreen.squareSize * 4, -playScreen.squareSize * 5);
 
@@ -136,7 +147,8 @@ public class SpawnController : MonoBehaviour {
     }
 
     //TODO: Find solution if ball move to fast wall will not be detected
-    void CreateWall( string name, Vector2 position, Vector2 size ) {
+    void CreateWall(string name, Vector2 position, Vector2 size)
+    {
         GameObject wall = new GameObject(name);
         wall.transform.parent = transform;
         wall.tag = "Wall";
@@ -147,17 +159,19 @@ public class SpawnController : MonoBehaviour {
         col.isTrigger = false;
     }
 
-    void InitializeBrick() {
+    void InitializeBrick()
+    {
 
         //TODO: add a strucure to handle different difficulties
 
-        float startX = ((column - 1) * playScreen.squareSize) / 2f;
-        float startY = ((row - 1) * playScreen.squareSize) / 2f;
+        // float startX = ((column - 1) * playScreen.squareSize) / 2f;
+        // float startY = ((row - 1) * playScreen.squareSize) / 2f;
 
         int target;
         float spawnChance;
 
-        switch ( difficult ) {
+        switch (difficult)
+        {
             case 0:
                 target = 3;
                 spawnChance = 0.5f;
@@ -177,37 +191,49 @@ public class SpawnController : MonoBehaviour {
                 break;
         }
 
-        for ( int i = 0; i < column; i++ ) {
-            for ( int j = 0; j < target; j++ ) {
-                if ( Random.value > spawnChance ) continue;
-                Vector3 position = new Vector3(startX - i * playScreen.squareSize,
-                                               startY - j * playScreen.squareSize,
-                                               0);
+        for (int i = 0; i < column; i++)
+        {
+            for (int j = 0; j < target; j++)
+            {
+                if (Random.value > spawnChance) continue;
+                // Vector3 position = new Vector3(startX - i * playScreen.squareSize,
+                //                                startY - j * playScreen.squareSize,
+                //                                0);
+                // Debug.Log($"$InitializeBrick {i}, {j}");
+                // Debug.Log($"InitializeBrick {startX - i * playScreen.squareSize}, {startY - j * playScreen.squareSize}");
+                Vector2Int spawnPost = new(i, j);
+
+                Vector3 worldPos = GetBrickWorldPosition(spawnPost);
 
                 GameObject BrickPrefab = GetRandomBrick();
 
-                GameObject brick = resolver.Instantiate(BrickPrefab, position, Quaternion.identity);
+                GameObject brick = resolver.Instantiate(BrickPrefab, worldPos, Quaternion.identity);
+                brick.name = $"Brick {i}, {j}";
                 brick.transform.SetParent(Pool.transform, true);
-                brickManager.RegisterBrick(brick);
+                brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPost);
             }
         }
     }
 
     #endregion
 
-    public GameObject SpawnBall( Vector2 ballPos, int extraBall = 1 ) {
+    public GameObject SpawnBall(Vector2 ballPos, int extraBall = 1)
+    {
         var temp = resolver.Instantiate(ballPrefab, ballPos, Quaternion.identity);
         temp.transform.position = ballPos;
 
         return temp;
     }
 
-    public void SpawnBrick() {
-        float startX = ((column - 1) * playScreen.squareSize) / 2f;
-        float startY = ((row - 1) * playScreen.squareSize) / 2f;
+    public void SpawnBrick()
+    {
+        // float startX = ((column - 1) * playScreen.squareSize) / 2f;
+        // float startY = ((row - 1) * playScreen.squareSize) / 2f;
+
 
         float spawnChance;
-        switch ( difficult ) {
+        switch (difficult)
+        {
             case 0: // Easy
                 spawnChance = 0.4f;
                 break;
@@ -222,42 +248,52 @@ public class SpawnController : MonoBehaviour {
                 break;
         }
 
-        for ( int i = 0; i < column; i++ ) {
-            if ( Random.value > spawnChance ) continue;
+        for (int i = 0; i < column; i++)
+        {
+            if (Random.value > spawnChance) continue;
 
-            Vector3 position = new Vector3(
-                    startX - i * playScreen.squareSize,
-                    startY,
-                    0
-            );
+            // Vector3 spawnPos = new Vector3(
+            //         startX - i * playScreen.squareSize,
+            //         startY,
+            //         0
+            // );
+            Vector2Int spawnPos = new(i, 0);
+            Vector3 worldPos = GetBrickWorldPosition(spawnPos);
 
             GameObject BrickPrefab = GetRandomBrick();
 
-            GameObject brick = resolver.Instantiate(BrickPrefab, position, Quaternion.identity);
+            GameObject brick = resolver.Instantiate(BrickPrefab, worldPos, Quaternion.identity);
             brick.transform.SetParent(Pool.transform, true);
-            brickManager.RegisterBrick(brick);
+            brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPos);
         }
     }
 
-    public void SpawnBrickAt( Vector2 pos ) {
-        if ( pos.x > playScreen.squareSize * 4 || pos.x < -playScreen.squareSize * 4 ) return;
+    public void SpawnBrickAt(Vector2Int pos)
+    {
 
-        GameObject brick = resolver.Instantiate(bricks[0].prefab, pos, Quaternion.identity);
+        if (pos.x > playScreen.squareSize * 4 || pos.x < -playScreen.squareSize * 4) return; // TODO: fix to match logic
+
+        Vector3 worldPos = GetBrickWorldPosition(pos);
+
+        GameObject brick = resolver.Instantiate(bricks[0].prefab, worldPos, Quaternion.identity);
         brick.transform.SetParent(Pool.transform, true);
-        brickManager.RegisterBrick(brick);
+        brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), pos);
     }
 
-    GameObject GetRandomBrick() {
+    GameObject GetRandomBrick()
+    {
         int waveIndex = waveScript.GetWaveIndex();
         var eligibleBricks = bricks.Where(b => waveIndex >= b.minWave).ToList();
 
-        if ( eligibleBricks.Count == 0 ) {
+        if (eligibleBricks.Count == 0)
+        {
             Debug.LogError("No eligible bricks found for the current wave index.");
             return null;
         }
 
         List<float> chances = new List<float>();
-        foreach ( var b in eligibleBricks ) {
+        foreach (var b in eligibleBricks)
+        {
             float waveBonus = (waveIndex - b.minWave) * b.growthPerWave;
             chances.Add(b.baseChance + waveBonus);
         }
@@ -269,9 +305,11 @@ public class SpawnController : MonoBehaviour {
         // Weighted random selection
         float rand = Random.value;
         float cumulative = 0f;
-        for ( int i = 0; i < eligibleBricks.Count; i++ ) {
+        for (int i = 0; i < eligibleBricks.Count; i++)
+        {
             cumulative += normalized[i];
-            if ( rand <= cumulative ) {
+            if (rand <= cumulative)
+            {
                 return eligibleBricks[i].prefab;
             }
         }
@@ -282,8 +320,27 @@ public class SpawnController : MonoBehaviour {
         return eligibleBricks.Last().prefab;
     }
 
+    public Vector3 GetBrickWorldPosition(Vector2Int pos)
+    {
+        float startX = (column - 1) * playScreen.squareSize / 2f;
+        float startY = (row - 1) * playScreen.squareSize / 2f;
 
+        return new Vector3(
+            -startX + pos.x * playScreen.squareSize,
+            startY - pos.y * playScreen.squareSize,
+            0
+        );
+    }
 
+    public Vector2Int GetBrickGridIndex(Vector3 worldPos)
+    {
+        float startX = (column - 1) * playScreen.squareSize / 2f;
+        float startY = (row - 1) * playScreen.squareSize / 2f;
 
+        int x = Mathf.RoundToInt((worldPos.x + startX) / playScreen.squareSize);
+        int y = Mathf.RoundToInt((startY - worldPos.y) / playScreen.squareSize);
+
+        return new Vector2Int(x, y);
+    }
 
 }

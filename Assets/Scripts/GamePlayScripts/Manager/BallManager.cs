@@ -5,7 +5,8 @@ using TMPro;
 using UnityEngine;
 using VContainer;
 
-public class BallManager : MonoBehaviour {
+public class BallManager : MonoBehaviour
+{
 
     SelectState selectState;
     CharacterEntry characterEntry;
@@ -33,7 +34,8 @@ public class BallManager : MonoBehaviour {
     bool ballPosLocked = false;
 
 
-    public void StartGame() {
+    public void StartGame()
+    {
 
         selectState = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
         characterEntry = GameObject.FindGameObjectWithTag("Character Entry").GetComponent<CharacterEntry>();
@@ -48,8 +50,10 @@ public class BallManager : MonoBehaviour {
     }
 
     #region Upgrade_Logic
-    public void RequestExtraBall( int extraballs = 1 ) {
-        for ( int i = 0; i < extraballs; i++ ) {
+    public void RequestExtraBall(int extraballs = 1)
+    {
+        for (int i = 0; i < extraballs; i++)
+        {
             balls.Add(requestBall());
         }
 
@@ -58,8 +62,10 @@ public class BallManager : MonoBehaviour {
         UpdateText();
     }
 
-    public void ModifyProperty( string key, float value ) {
-        if ( !properties.ContainsKey(key) ) {
+    public void ModifyProperty(string key, float value)
+    {
+        if (!properties.ContainsKey(key))
+        {
             Debug.LogWarning($"Property {key} not found!");
             return;
         }
@@ -68,16 +74,19 @@ public class BallManager : MonoBehaviour {
     }
     #endregion
 
-    public void LaunchBall( Vector2 direction ) {
+    public void LaunchBall(Vector2 direction)
+    {
         UnlockBallPos();
         StartCoroutine(LaunchSequence(direction));
         //Debug.Log($"Balls in list: {balls.Count}");
     }
 
-    IEnumerator LaunchSequence( Vector2 direction ) {   
+    IEnumerator LaunchSequence(Vector2 direction)
+    {
         float speed = properties["Speed"];
         //TODO: wait for done level up
-        foreach ( var ball in balls ) {
+        foreach (var ball in balls)
+        {
             ball.GetComponent<Rigidbody2D>().AddForce(direction * speed, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f); // stagger launch
         }
@@ -85,7 +94,8 @@ public class BallManager : MonoBehaviour {
         yield return WaitAllBalls();
     }
 
-    IEnumerator WaitAllBalls() {
+    IEnumerator WaitAllBalls()
+    {
         int finishedCount = 0;
         int totalBalls = balls.Count;
         float beginTime = Time.time;
@@ -93,15 +103,19 @@ public class BallManager : MonoBehaviour {
         Action<BallScript> onBallFinished = (ball) => finishedCount++;
 
         // Subscribe
-        foreach ( var ball in balls ) {
+        foreach (var ball in balls)
+        {
             var script = ball.GetComponent<BallScript>();
             script.OnBallFinished += onBallFinished;
         }
 
-        while ( finishedCount < totalBalls ) {
-            if ( Time.time > beginTime + 5f ) {
+        while (finishedCount < totalBalls)
+        {
+            if (Time.time > beginTime + 5f)
+            {
                 Debug.Log("Too long, speed up balls");
-                foreach ( var ball in balls ) {
+                foreach (var ball in balls)
+                {
                     BallScript script = ball.GetComponent<BallScript>();
                     script.rb.linearVelocity *= 3;
                 }
@@ -114,7 +128,8 @@ public class BallManager : MonoBehaviour {
         yield return new WaitUntil(() => finishedCount >= totalBalls);
 
         // Unsubscribe
-        foreach ( var ball in balls ) {
+        foreach (var ball in balls)
+        {
             BallScript script = ball.GetComponent<BallScript>();
             script.OnBallFinished -= onBallFinished;
         }
@@ -125,13 +140,16 @@ public class BallManager : MonoBehaviour {
         Debug.Log("All balls are done!");
     }
 
-    void UpdateText() {
+    void UpdateText()
+    {
         Vector3 screenPos = Camera.main.WorldToScreenPoint(ballPos);
 
-        if ( ballPos.x > 0 ) {
+        if (ballPos.x > 0)
+        {
             t_BallCount.transform.position = screenPos + new Vector3(-20, 150, 0);
         }
-        else {
+        else
+        {
             t_BallCount.transform.position = screenPos + new Vector3(20, 150, 0);
         }
 
@@ -139,14 +157,17 @@ public class BallManager : MonoBehaviour {
         t_BallCount.text = balls.Count.ToString();
     }
 
-    public void ResetBallPos( Vector2 newPos ) {
-        if ( !ballPosLocked ) {
+    public void ResetBallPos(Vector2 newPos)
+    {
+        if (!ballPosLocked)
+        {
             ballPos = newPos;
             ballPosLocked = true; // only first ball can update
         }
     }
 
-    public void UnlockBallPos() {
+    public void UnlockBallPos()
+    {
         ballPosLocked = false;
     }
 
