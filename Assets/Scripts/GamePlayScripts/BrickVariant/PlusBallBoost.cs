@@ -6,7 +6,7 @@ public class PlusBallBoost : MonoBehaviour, IBrickVariant
     [Inject] BallManager ballManager;
     public void OnHit(BrickScript brickScript)
     {
-        ballManager.RequestExtraBall();
+
     }
 
     public void OnSpawn(BrickScript brickScript)
@@ -19,6 +19,6 @@ public class PlusBallBoost : MonoBehaviour, IBrickVariant
     }
     public void OnDie(BrickScript brickScript)
     {
-
+        ballManager.RequestExtraBall();
     }
 }

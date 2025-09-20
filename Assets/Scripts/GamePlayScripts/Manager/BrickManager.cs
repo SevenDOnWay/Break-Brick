@@ -72,6 +72,31 @@ public class BrickManager : MonoBehaviour
         }
     }
 
+    public void DealDamageHorizontal(int rowIndex)
+    {
+        for (int i = 0; i < column; i++)
+        {
+            var brick = bricks[i, rowIndex];
+
+            if (brick == null) continue;
+
+            brick.TakeDamage(1);
+        }
+    }
+
+    public void DealDamageVertical(int colIndex)
+    {
+        for (int j = 0; j < row; j++)
+        {
+            var brick = bricks[colIndex, j];
+
+            if (brick == null) continue;
+
+            brick.TakeDamage(1);
+        }
+    }
+
+
     //TODO Create method handle health, and add variation to brick (brick spawn with x2 health, when die spawn smaller brick...) 
 
     public Vector2Int? FindBrickPosition(BrickScript target)

@@ -208,7 +208,8 @@ public class SpawnController : MonoBehaviour
                 GameObject BrickPrefab = GetRandomBrick();
 
                 GameObject brick = resolver.Instantiate(BrickPrefab, worldPos, Quaternion.identity);
-                brick.name = $"Brick {i}, {j}";
+                brick.name = BrickPrefab.name;
+                // brick.name = $"Brick {i}, {j}";
                 brick.transform.SetParent(Pool.transform, true);
                 brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPost);
             }
@@ -263,6 +264,7 @@ public class SpawnController : MonoBehaviour
             GameObject BrickPrefab = GetRandomBrick();
 
             GameObject brick = resolver.Instantiate(BrickPrefab, worldPos, Quaternion.identity);
+            brick.name = BrickPrefab.name;
             brick.transform.SetParent(Pool.transform, true);
             brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPos);
         }
@@ -270,12 +272,13 @@ public class SpawnController : MonoBehaviour
 
     public void SpawnBrickAt(Vector2Int pos)
     {
-
+        Debug.Log($"SpawnBrickAt {pos}");
         if (pos.x > playScreen.squareSize * 4 || pos.x < -playScreen.squareSize * 4) return; // TODO: fix to match logic
 
         Vector3 worldPos = GetBrickWorldPosition(pos);
 
         GameObject brick = resolver.Instantiate(bricks[0].prefab, worldPos, Quaternion.identity);
+
         brick.transform.SetParent(Pool.transform, true);
         brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), pos);
     }
