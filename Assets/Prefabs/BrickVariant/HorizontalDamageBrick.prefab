@@ -13,9 +13,10 @@ GameObject:
   - component: {fileID: 277803453277663477}
   - component: {fileID: 3807615638287977886}
   - component: {fileID: 3480952670723734403}
-  - component: {fileID: 8371980151064936369}
+  - component: {fileID: 1070457286933290047}
+  - component: {fileID: -559484278676588169}
   m_Layer: 0
-  m_Name: Brick
+  m_Name: HorizontalDamageBrick
   m_TagString: Brick
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -112,7 +113,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.8433382, y: 0.8433382}
+  m_Size: {x: 0.5196749, y: 0.5196749}
   m_EdgeRadius: 0
 --- !u!23 &3807615638287977886
 MeshRenderer:
@@ -253,7 +254,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3807615638287977886}
   m_maskType: 0
---- !u!114 &8371980151064936369
+--- !u!114 &1070457286933290047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4896636833092869423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48214f8dd8002c040b1e6f97daf9e85b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-559484278676588169
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -294,7 +307,7 @@ RectTransform:
   m_GameObject: {fileID: 7993908005931335561}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8433382, y: 0.8433382, z: 1}
+  m_LocalScale: {x: 0.101499006, y: 0.101499006, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2486126062699124628}
@@ -348,12 +361,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: -5070187524288771578, guid: 2d356ce8c87d87e47abbf5aa44af2ff6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 5.12, y: 5.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

@@ -3,8 +3,7 @@ using TMPro;
 using UnityEngine;
 using VContainer;
 
-public class BrickScript : MonoBehaviour
-{
+public class BrickScript : MonoBehaviour {
     [HideInInspector] public int health;
     [Inject] LevelManager levelManager;
 
@@ -13,36 +12,43 @@ public class BrickScript : MonoBehaviour
     public static event EventHandler OnBrickDestroyed;
     public static event EventHandler OnBrickHit;
 
-    public void Init(int health)
-    {
+    public void Init( int health ) {
         this.health = health;
-        healText.text = $"{health}";
+
+        foreach ( var variant in GetComponents<IBrickVariant>() ) {
+            try {
+                variant.OnSpawn(this);
+            }
+            catch ( Exception e ) {
+                Debug.LogException(e);
+            }
+        }
+
+        UpdateHealthText();
     }
 
-    public void TakeDamage(int damage)
-    {
+    public void UpdateHealthText() {
+        healText.text = health.ToString();
+    }
+
+    public void TakeDamage( int damage ) {
         //Debug.Log($"Taking damage: {damage}");
         health -= damage;
-        healText.text = health.ToString();
+        UpdateHealthText();
         levelManager.AddExp(damage);
-
-        if (health <= 0)
-        {
+            
+        if ( health <= 0 ) {
             DestroyBrick();
         }
     }
 
-    void DestroyBrick()
-    {
+    void DestroyBrick() {
         //Call all variants BEFORE destroying this brick
-        foreach (var variant in GetComponents<IBrickVariant>())
-        {
-            try
-            {
+        foreach ( var variant in GetComponents<IBrickVariant>() ) {
+            try {
                 variant.OnDie(this);
             }
-            catch (Exception e)
-            {
+            catch ( Exception e ) {
                 Debug.LogException(e);
             }
         }
@@ -51,10 +57,8 @@ public class BrickScript : MonoBehaviour
     }
 
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("EndLine"))
-        {
+    private void OnTriggerEnter2D( Collider2D collision ) {
+        if ( collision.CompareTag("EndLine") ) {
             Debug.Log("Brick hit the end line!");
         }
     }

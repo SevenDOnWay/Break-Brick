@@ -1203,6 +1203,10 @@ MonoBehaviour:
     minWave: 2
     baseChance: 0.434
     growthPerWave: 0.0609
+  - prefab: {fileID: 942642231873179046, guid: ba32536dac0fee643a99b6d19444eae2, type: 3}
+    minWave: 2
+    baseChance: 0.434
+    growthPerWave: 0.0609
   Pool: {fileID: 600349753}
   ballPrefab: {fileID: 7441496029052621378, guid: 7b9a505aec9b8f149aa03d51c479e789, type: 3}
   BackGround: {fileID: 5146959177787210160, guid: 9a5354e78eb7055448d45293d50b2c5f, type: 3}

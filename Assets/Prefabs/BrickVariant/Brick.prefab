@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 277803453277663477}
   - component: {fileID: 3807615638287977886}
   - component: {fileID: 3480952670723734403}
-  - component: {fileID: 1070457286933290047}
+  - component: {fileID: 8371980151064936369}
   m_Layer: 0
-  m_Name: HorizontalDamageBrick
+  m_Name: Brick
   m_TagString: Brick
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -112,7 +112,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.8433382, y: 0.8433382}
+  m_Size: {x: 0.5196749, y: 0.5196749}
   m_EdgeRadius: 0
 --- !u!23 &3807615638287977886
 MeshRenderer:
@@ -253,7 +253,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3807615638287977886}
   m_maskType: 0
---- !u!114 &1070457286933290047
+--- !u!114 &8371980151064936369
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -262,9 +262,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4896636833092869423}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48214f8dd8002c040b1e6f97daf9e85b, type: 3}
+  m_Script: {fileID: 11500000, guid: 066ab13325830bd4092809012a5f4747, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 0
+  healText: {fileID: 3480952670723734403}
 --- !u!1 &7993908005931335561
 GameObject:
   m_ObjectHideFlags: 0
@@ -292,7 +294,7 @@ RectTransform:
   m_GameObject: {fileID: 7993908005931335561}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8433382, y: 0.8433382, z: 1}
+  m_LocalScale: {x: 0.5196749, y: 0.5196749, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2486126062699124628}

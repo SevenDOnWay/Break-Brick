@@ -1,38 +1,19 @@
 using UnityEngine;
 using VContainer;
-public class VerticalDamageBoost : MonoBehaviour, IBrickVariant
-{
+public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
     [Inject] BrickManager brickManager;
-    [Inject] SpawnController spawnController;
 
-    private BrickScript brickScript;
+    public void OnEndTurn( BrickScript brickScript ) { }
+    public void OnHit( BrickScript brickScript ) { }
+    public void OnSpawn( BrickScript brickScript ) { }
 
-    void OnEnable()
-    {
-        brickScript = gameObject.GetComponent<BrickScript>();
-    }
-    public void OnDie(BrickScript brickScript)
-    {
-        var pos = spawnController.GetBrickGridIndex(brickScript.transform.position);
-        DealDamageVertical(pos);
+
+    public void OnDie( BrickScript brickScript ) {
+        var pos = brickManager.GetBrickGridIndex(brickScript.transform.position);
+        DealDamage(pos);
     }
 
-    public void OnEndTurn(BrickScript brickScript)
-    {
-
-    }
-
-    public void OnHit(BrickScript brickScript)
-    {
-
-    }
-
-    public void OnSpawn(BrickScript brickScript)
-    {
-    }
-
-    private void DealDamageVertical(Vector2Int pos)
-    {
-        brickManager.DealDamageVertical(pos.y);
+    private void DealDamage( Vector2Int pos ) {
+        brickManager.DealDamageVertical(pos);
     }
 }
