@@ -17,7 +17,6 @@ public class SpawnController : MonoBehaviour {
     }
 
     */
-    SelectState selectstate;
     [Inject] IObjectResolver resolver;
     [Inject] PlayScreen playScreen;
     [Inject] WaveScript waveScript;
@@ -29,18 +28,19 @@ public class SpawnController : MonoBehaviour {
     [System.Serializable]
     public class Brick {
         [SerializeField] public GameObject prefab;
+        [SerializeField] public BrickType type;
         [SerializeField] public int minWave; //the minimum wave this brick can appear
         [SerializeField, Range(0f, 1f)] public float baseChance; // base chance to spawn
         [SerializeField, Range(0f, 0.1f)] public float growthPerWave; // how much chance increase per wave
     }
 
+    [SerializeField] Brick[] bricks;
 
 
     //[SerializeField] float[] brickWeights;
 
     //[SerializeField] GameObject BrickPrefab;
 
-    [SerializeField] Brick[] bricks;
 
     [SerializeField] GameObject Pool;
 
@@ -50,13 +50,17 @@ public class SpawnController : MonoBehaviour {
     int difficult;
 
     public void StartGame() {
+        SetUpGame();
+
+        InitializeBrick();
+    }
+
+    public void SetUpGame() {
         ScalePrefab();
         SetUpScreen();
 
-        selectstate = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
-        difficult = selectstate.difficultyIndex;
+        difficult = RunDataManager.Instance.runData.GetDifficultIndex();
 
-        InitializeBrick();
     }
 
     #region Initialize_Screen
@@ -120,7 +124,7 @@ public class SpawnController : MonoBehaviour {
     void CreateBackGround() {
         GameObject backGround = Instantiate(BackGround, Vector3.zero, Quaternion.identity);
         backGround.transform.parent = transform;
-        backGround.tag = "BackGround";
+        backGround.tag = "Background";
 
         backGround.transform.position = new Vector3(0, -playScreen.squareSize / 2);
     }
@@ -148,6 +152,19 @@ public class SpawnController : MonoBehaviour {
         BoxCollider2D col = wall.AddComponent<BoxCollider2D>();
         col.size = size;
         col.isTrigger = false;
+
+        Vector2 offset = Vector2.zero;
+
+        if ( name.Contains("Top") )
+            offset = new Vector2(0, size.y / 2f);
+        else if ( name.Contains("Bottom") )
+            offset = new Vector2(0, -size.y / 2f);
+        else if ( name.Contains("Left") )
+            offset = new Vector2(-size.x / 2f, 0);
+        else if ( name.Contains("Right") )
+            offset = new Vector2(size.x / 2f, 0);
+
+        wall.transform.position = position + offset;
     }
 
     void InitializeBrick() {
@@ -199,6 +216,28 @@ public class SpawnController : MonoBehaviour {
                 brick.transform.SetParent(Pool.transform, true);
                 brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPost);
             }
+        }
+    }
+
+    #endregion
+
+    #region Restore_Data
+
+    public void RestoreBrick( List<BrickData> bricksData ) {
+        foreach ( var brickdata in bricksData ) {
+
+            Vector3 position = new Vector3(
+                    brickdata.col * playScreen.squareSize,
+                    brickdata.row * playScreen.squareSize,
+                    0
+            );
+
+            GameObject brickPrefab = GetBrickPrefabFromType(brickdata.type); 
+            GameObject brick = resolver.Instantiate(brickPrefab, position, Quaternion.identity);
+            brick.transform.SetParent(Pool.transform, true);
+
+            brickManager.RegisterBrick(brick, brickdata.health);
+
         }
     }
 
@@ -323,6 +362,16 @@ public class SpawnController : MonoBehaviour {
     //{
     //    float startX = (column - 1) * playScreen.squareSize / 2f;
     //    float startY = (row - 1) * playScreen.squareSize / 2f;
+    public GameObject GetBrickPrefabFromType( BrickType type ) {
+        foreach ( var brick in bricks ) {
+            if ( brick.type == type ) {
+                return brick.prefab;
+            }
+        }
+        Debug.LogError($"Brick type {type} not found, returning default brick.");
+        return bricks[0].prefab;
+    }
+
 
     //    int x = Mathf.RoundToInt((worldPos.x + startX) / playScreen.squareSize);
     //    int y = Mathf.RoundToInt((startY - worldPos.y) / playScreen.squareSize);

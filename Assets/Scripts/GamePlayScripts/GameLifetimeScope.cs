@@ -27,6 +27,8 @@ public class GameLifetimeScope : LifetimeScope {
         builder.RegisterComponentInHierarchy<BallManager>();
         builder.RegisterComponentInHierarchy<LevelManager>();
 
+        builder.RegisterComponentInHierarchy<QuitScript>();
+
 
         builder.Register<BallScript>(Lifetime.Transient);
         builder.Register<BrickScript>(Lifetime.Transient);

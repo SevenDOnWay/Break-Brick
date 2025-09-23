@@ -16,3 +16,4 @@ MonoBehaviour:
   upgradeType: 0
   primaryValue: 3
   secondaryValue: 0
+  description: begin with +3 balls

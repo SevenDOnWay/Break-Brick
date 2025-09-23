@@ -19,8 +19,16 @@ public class WaveScript : MonoBehaviour {
         t_waveIndex.text = waveIndex.ToString();
     }
 
+    public void SetWave(int waveIndex) {
+        t_waveIndex.text = waveIndex.ToString();
+    }
+
     public void OnDestroy() {
         waveIndex = 0;
+    }
+
+    public void SaveWaveIndex() {
+        RunDataManager.Instance.runData.OverwriteWaveIndex(waveIndex);
     }
 
 }

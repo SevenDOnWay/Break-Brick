@@ -20,7 +20,11 @@ public class SplitBrick : MonoBehaviour, IBrickVariant {
         spawnController.SpawnBrickAt(new Vector2Int(pos.x + 1, pos.y));
     }
 
-    public void OnSpawn( BrickScript brickScript ) { }
-    public void OnHit( BrickScript brickScript ) { }
-    public void OnEndTurn( BrickScript brickScript ) { }
+    public BrickType GetBrickType( ) {
+        return BrickType.Split;
+    }
+
+    public void OnSpawn( BrickScript brickScript ) {}
+    public void OnHit( BrickScript brickScript ) {}
+    public void OnEndTurn( BrickScript brickScript ) {}
 }

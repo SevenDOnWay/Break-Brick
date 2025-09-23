@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour {
     [Inject,HideInInspector] PlayScreen playScreen;
     [Inject] BallManager ballManager;
 
+    [SerializeField] GameObject optionPanel;
 
     private bool isBallMoving = false;
 
@@ -21,34 +22,60 @@ public class PlayerController : MonoBehaviour {
 
     public void StartGame() {
         SpawnLine();
+
+        if ( optionPanel == null ) {
+            Debug.LogWarning("PlayerController: Missing OptionPanel.");
+        }
+
+        if ( line == null ) {
+            Debug.LogWarning("PlayerController: Missing Line.");
+        }
+        if ( ballManager == null ) {
+            Debug.LogWarning("PlayerController: Missing ballmanger.");
+        }
     }
 
 
 
-    void SpawnLine() {
-        line = new GameObject("Line").gameObject.AddComponent<LineRenderer>();
+    public void SpawnLine() {
+        line = new GameObject("Line").AddComponent<LineRenderer>();
         line.transform.parent = transform;
         line.startWidth = 0.1f;
     }
 
     void Update() {
-
         if ( isBallMoving ) return;
 
-        if ( Input.GetMouseButtonDown(0) ) {
-            DrawLine(Input.mousePosition);
-        }
-        else if ( Input.GetMouseButton(0) ) {
-            DrawLine(Input.mousePosition);
-        }
-        else if ( Input.GetMouseButtonUp(0) ) {
-            line.enabled = false;
-            isBallMoving = true;
 
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 direction = (mousePos - ballManager.ballPos).normalized;
 
-            OnBallLaunch?.Invoke(direction);
+
+        if ( Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0) ) {
+            // Convert mouse position to world
+            Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            // Raycast at mouse position
+            RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
+
+            if ( optionPanel == null  || ballManager == null ) return;
+
+            // Check if we hit background
+            if ( optionPanel.activeSelf ) return;
+            if ( hit.collider != null && hit.collider.CompareTag("Background") ) {
+                // ---- Handle input only inside background ----
+                if ( Input.GetMouseButtonDown(0) ) {
+                    DrawLine(Input.mousePosition);
+                }
+                else if ( Input.GetMouseButton(0) ) {
+                    DrawLine(Input.mousePosition);
+                }
+                else if ( Input.GetMouseButtonUp(0) ) {
+                    line.enabled = false;
+                    isBallMoving = true;
+
+                    Vector2 direction = (worldPos - ballManager.ballPos).normalized;
+                    OnBallLaunch?.Invoke(direction);
+                }
+            }
         }
 
     }

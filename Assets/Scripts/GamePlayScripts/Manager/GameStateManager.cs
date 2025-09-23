@@ -5,12 +5,29 @@ using VContainer;
 using VContainer.Unity;
 
 public class GameStateManager : MonoBehaviour, IStartable {
-    [Inject] WaveScript waveScript;
-    [Inject] PlayerController playerController;
-    [Inject] SpawnController spawnController;
-    [Inject] BallManager ballManager;
-    [Inject] BrickManager brickManager;
-    [Inject] LevelManager levelManager;
+    WaveScript waveScript;
+    PlayerController playerController;
+    SpawnController spawnController;
+    BallManager ballManager;
+    BrickManager brickManager;
+    LevelManager levelManager;
+
+    [Inject]
+    public void Constructor(
+         WaveScript waveScript,
+         PlayerController playerController,
+         SpawnController spawnController,
+         BallManager ballManager,
+         BrickManager brickManager,
+         LevelManager levelManager
+     ) {
+        this.waveScript = waveScript;
+        this.playerController = playerController;
+        this.spawnController = spawnController;
+        this.ballManager = ballManager;
+        this.brickManager = brickManager;
+        this.levelManager = levelManager;
+    }
 
     bool isPlaying = false;
 
@@ -35,15 +52,42 @@ public class GameStateManager : MonoBehaviour, IStartable {
         playerController.OnBallLaunch += NotifyLaunchBall;
         levelManager.OnLevelUp += LevelUp;
 
+        var runData = RunDataManager.Instance.runData;
+
+        if ( runData != null && runData.isContinuing ) {
+            Debug.Log("Resuming from saved RunData...");
+            ContinueGame(runData);
+        }
+        else {
+            Debug.Log("Starting a fresh run...");
+            StartNewGame();
+        }
+
+        //spawnController.StartGame();
+        //ballManager.StartGame();
+        //playerController.StartGame();
+        //brickManager.StartGame(); nothing for now
+    }
+
+    void StartNewGame() {
         spawnController.StartGame();
         ballManager.StartGame();
         playerController.StartGame();
-        //brickManager.StartGame(); nothing for now
+    }
+
+    void ContinueGame( RunData runData ) {
+        // Restore bricks
+        spawnController.RestoreBrick(runData.GetBricksData());
+        ballManager.Restore();
+
+        spawnController.SetUpGame();
+
+        waveScript.SetWave(runData.GetWaveIndex());
+        playerController.SpawnLine();
     }
     public void NotifyLaunchBall( Vector2 dir ) {
         ballManager.LaunchBall(dir);
 
-        isPlaying = true;
     }
 
     public void HandleAllBallsDone() {

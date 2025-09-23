@@ -9,7 +9,8 @@ TagManager:
   - Brick
   - Select State
   - Character Entry
-  - BackGround
+  - Background
+  - OptionPanel
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - 
   - Ball
   - 
-  - 
+  - Background
   - 
   - 
   - 

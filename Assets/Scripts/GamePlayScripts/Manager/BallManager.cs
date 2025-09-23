@@ -8,8 +8,8 @@ using VContainer;
 public class BallManager : MonoBehaviour
 {
 
-    SelectState selectState;
-    CharacterEntry characterEntry;
+    //SelectState selectState;
+    //CharacterEntry characterEntry;
     [Inject, HideInInspector] public PlayScreen playScreen;
 
 
@@ -25,35 +25,41 @@ public class BallManager : MonoBehaviour
 
     //public IReadOnlyDictionary<string, float> GetProperties() => properties;
 
+    [SerializeField] TextMeshProUGUI t_BallCount;
+    public Vector2 ballPos;
+    bool ballPosLocked = false;
+
+    CharacterSO characterSO;
+
+
     public delegate GameObject RequestBall();
     public RequestBall requestBall;
     public event Action OnAllBallsDone;
 
-    public Vector2 ballPos;
-    [SerializeField] TextMeshProUGUI t_BallCount;
-    bool ballPosLocked = false;
 
 
-    public void StartGame()
-    {
 
-        selectState = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
-        characterEntry = GameObject.FindGameObjectWithTag("Character Entry").GetComponent<CharacterEntry>();
+    public void StartGame() {
+
+        //selectState = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
+        //characterEntry = GameObject.FindGameObjectWithTag("Character Entry").GetComponent<CharacterEntry>();
+        //characterEntry.characters[selectState.characterIndex].Apply(gameObject.GetComponent<BallManager>());
 
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
 
-        RequestExtraBall();
+        RequestExtraBall(); // init ball for play
 
-        characterEntry.characters[selectState.characterIndex].Apply(gameObject.GetComponent<BallManager>());
+
+        var data = RunDataManager.Instance.runData.GetCharacterUpgradeData();
+        data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
 
         UpdateText();
     }
 
     #region Upgrade_Logic
-    public void RequestExtraBall(int extraballs = 1)
-    {
-        for (int i = 0; i < extraballs; i++)
-        {
+
+    public void RequestExtraBall( int extraballs = 1 ) {
+        for ( int i = 0; i < extraballs; i++ ) {
             balls.Add(requestBall());
         }
 
@@ -81,8 +87,7 @@ public class BallManager : MonoBehaviour
         //Debug.Log($"Balls in list: {balls.Count}");
     }
 
-    IEnumerator LaunchSequence(Vector2 direction)
-    {
+    IEnumerator LaunchSequence( Vector2 direction ) {
         float speed = properties["Speed"];
         //TODO: wait for done level up
         foreach (var ball in balls)
@@ -140,17 +145,14 @@ public class BallManager : MonoBehaviour
         Debug.Log("All balls are done!");
     }
 
-    void UpdateText()
-    {
+    void UpdateText() {
         Vector3 screenPos = Camera.main.WorldToScreenPoint(ballPos);
 
-        if (ballPos.x > 0)
-        {
-            t_BallCount.transform.position = screenPos + new Vector3(-20, 150, 0);
+        if ( ballPos.x > 0 ) {
+            t_BallCount.transform.position += new Vector3(-20, 150, 0);
         }
-        else
-        {
-            t_BallCount.transform.position = screenPos + new Vector3(20, 150, 0);
+        else {
+            t_BallCount.transform.position += new Vector3(20, 150, 0);
         }
 
 
@@ -171,6 +173,45 @@ public class BallManager : MonoBehaviour
         ballPosLocked = false;
     }
 
+    #region Save
+
+    public void Save() {
+        SaveBallData();
+        SaveBallPos();
+    }
+
+    public void SaveBallData() {
+        RunDataManager.Instance.runData.OverwriteBallCount(balls.Count);
+    }
+
+    public void SaveBallPos() {
+        RunDataManager.Instance.runData.OverwriteBallPos(ballPos);
+    }
+
+    #endregion
 
 
+    public void Restore() {
+        RestoreBallPos();
+        RestoreBall();
+        RestoreUpgrade();
+    }
+
+    public void RestoreBallPos() {
+        ballPos = RunDataManager.Instance.runData.GetBallPos();
+    }
+
+    public void RestoreBall() {
+        RequestExtraBall(RunDataManager.Instance.runData.GetBallCount());
+    }
+
+    public void RestoreUpgrade() {
+        var data = RunDataManager.Instance.runData.GetCharacterUpgradeData();
+        if ( data.upgradeType == UpgradeType.ExtraBalls ) {
+            Debug.Log("Skip if upgrade extra ball");
+            return;
+        }
+
+        data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
+    }
 }

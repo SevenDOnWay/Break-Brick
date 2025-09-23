@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using VContainer;
+using static BrickData;
 using static UnityEditor.PlayerSettings;
 
 public class BrickManager : MonoBehaviour {
 
 
     [Inject] PlayScreen playScreen;
+    [Inject] WaveScript waveScript;
 
     const int row = 10;
     const int column = 8;
@@ -20,17 +23,27 @@ public class BrickManager : MonoBehaviour {
     public BrickScript[,] bricks = new BrickScript[column, row];
     // public IReadOnlyList<BrickScript> Bricks => bricks;
 
+    public void Start() {
+        squareSize = playScreen.squareSize;
+    }
+
     public void StartGame() {
 
     }
 
-    public void RegisterBrick( BrickScript brick, Vector2Int pos ) {
+    public void RegisterBrick( BrickScript brick, Vector2Int pos, int? savedHealth = null ) {
 
         // var brick = gameobject.GetComponent<BrickScript>();
 
+        int health;
 
-        float value = curve.Evaluate(waveScript.GetWaveIndex());
-        int health = Mathf.CeilToInt(value);
+        if ( savedHealth.HasValue ) {
+            health = savedHealth.Value;
+        }
+        else {
+            float value = curve.Evaluate(waveScript.GetWaveIndex());
+            health = Mathf.CeilToInt(value);
+        }
 
         brick.Init(health);
 
@@ -79,6 +92,24 @@ public class BrickManager : MonoBehaviour {
             brick.TakeDamage(1);
         }
     }
+
+    public void SaveBrick() {
+
+        List<BrickData> newBricks = new List<BrickData>();
+
+        foreach ( var brick in bricks ) {
+            try {
+                if ( brick == null ) throw new System.Exception("brick null");
+
+                int col = (int)(brick.transform.position.x / squareSize);
+                int row = (int)(brick.transform.position.y / squareSize);
+                int hp = brick.health;
+
+                BrickType type = BrickType.Normal;
+
+                if ( brick.TryGetComponent<IBrickVariant>(out var brickType) ) {
+                    type = brickType.GetBrickType();
+                }
 
     public void DealDamageVertical( Vector2Int pos ) {
         int colIndex = pos.x;

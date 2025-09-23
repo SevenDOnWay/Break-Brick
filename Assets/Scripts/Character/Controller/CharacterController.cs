@@ -17,9 +17,9 @@ public class CharacterController : MonoBehaviour {
 
     void InitializeCharacter() {
         foreach(var character in characterEntry.characters ) {
-            GameObject temp = new GameObject(character.characterName);
+            GameObject temp = new GameObject(character.GetCharacterName());
             temp.AddComponent<SpriteRenderer>();
-            temp.GetComponent<SpriteRenderer>().sprite = character.icon;
+            temp.GetComponent<SpriteRenderer>().sprite = character.GetIcon();
 
             characters.Add(temp);
         }
