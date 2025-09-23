@@ -14,15 +14,29 @@ public class BrickScript : MonoBehaviour {
 
     public void Init( int health ) {
         this.health = health;
-        healText.text = $"{health}";
+
+        foreach ( var variant in GetComponents<IBrickVariant>() ) {
+            try {
+                variant.OnSpawn(this);
+            }
+            catch ( Exception e ) {
+                Debug.LogException(e);
+            }
+        }
+
+        UpdateHealthText();
+    }
+
+    public void UpdateHealthText() {
+        healText.text = health.ToString();
     }
 
     public void TakeDamage( int damage ) {
         //Debug.Log($"Taking damage: {damage}");
         health -= damage;
-        healText.text = health.ToString();
+        UpdateHealthText();
         levelManager.AddExp(damage);
-
+            
         if ( health <= 0 ) {
             DestroyBrick();
         }
