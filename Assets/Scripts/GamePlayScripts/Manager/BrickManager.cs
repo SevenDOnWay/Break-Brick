@@ -15,13 +15,14 @@ public class BrickManager : MonoBehaviour {
     const int row = 10;
     const int column = 8;
 
-    [Inject] WaveScript waveScript;
     [SerializeField] AnimationCurve curve; //handle health of the brick
 
 
     // List<BrickScript> bricks = new List<BrickScript>();
     public BrickScript[,] bricks = new BrickScript[column, row];
     // public IReadOnlyList<BrickScript> Bricks => bricks;
+
+    private float squareSize;
 
     public void Start() {
         squareSize = playScreen.squareSize;
@@ -70,7 +71,7 @@ public class BrickManager : MonoBehaviour {
                 var brick = bricks[x, y];
 
                 if ( brick == null ) continue; // Skip if the brick is null
-                Debug.Log($"{x}, {y}");
+                //Debug.Log($"{x}, {y}");
                 brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
                 bricks[x, y + 1] = brick;
 
@@ -97,19 +98,30 @@ public class BrickManager : MonoBehaviour {
 
         List<BrickData> newBricks = new List<BrickData>();
 
-        foreach ( var brick in bricks ) {
-            try {
-                if ( brick == null ) throw new System.Exception("brick null");
+        for ( int col = 0; col < column; col++ ) {
+            for ( int r = 0; r < row; r++ ) {
+                var brick = bricks[col, r];
+                if ( brick == null ) continue; // skip empty grid slots
 
-                int col = (int)(brick.transform.position.x / squareSize);
-                int row = (int)(brick.transform.position.y / squareSize);
-                int hp = brick.health;
+                try {
+                    int hp = brick.health;
 
-                BrickType type = BrickType.Normal;
+                    BrickType type = BrickType.Normal;
+                    if ( brick.TryGetComponent<IBrickVariant>(out var brickType) ) {
+                        type = brickType.GetBrickType();
+                    }
 
-                if ( brick.TryGetComponent<IBrickVariant>(out var brickType) ) {
-                    type = brickType.GetBrickType();
+                    newBricks.Add(new BrickData(col, r, hp, type));
                 }
+                catch ( System.Exception e ) {
+                    Debug.LogWarning($"Error saving brick at [{col},{row}]: {e.Message}");
+                    continue;
+                }
+            }
+        }
+
+        RunDataManager.Instance.runData.OverwriteBricksData(newBricks);
+    }
 
     public void DealDamageVertical( Vector2Int pos ) {
         int colIndex = pos.x;
@@ -128,18 +140,7 @@ public class BrickManager : MonoBehaviour {
 
     //TODO Create method handle health, and add variation to brick (brick spawn with x2 health, when die spawn smaller brick...) 
 
-    //public Vector2Int? FindBrickPosition( BrickScript target ) {
 
-
-    //    for ( int x = 0; x < column; x++ ) {
-    //        for ( int y = 0; y < row; y++ ) {
-    //            if ( bricks[x, y] == target ) {
-    //                return new Vector2Int(x, y); // Found
-    //            }
-    //        }
-    //    }
-    //    return null; // Not Found
-    //}
 
 
     public Vector2Int GetBrickGridIndex( Vector3 worldPos ) {
@@ -160,4 +161,17 @@ public class BrickManager : MonoBehaviour {
         }
         return bricks[pos.x, pos.y] != null;
     }
+
+    //public Vector2Int? FindBrickPosition( BrickScript target ) {
+
+
+    //    for ( int x = 0; x < column; x++ ) {
+    //        for ( int y = 0; y < row; y++ ) {
+    //            if ( bricks[x, y] == target ) {
+    //                return new Vector2Int(x, y); // Found
+    //            }
+    //        }
+    //    }
+    //    return null; // Not Found
+    //}
 }

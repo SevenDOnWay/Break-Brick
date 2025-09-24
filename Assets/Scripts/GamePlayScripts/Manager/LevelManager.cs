@@ -94,7 +94,7 @@ public class LevelManager : MonoBehaviour {
         levelSlider.value = 0f;
     }
 
-    #region fade_logic
+    #region Fade_logic
     private IEnumerator FadeInOut() {
         // Fade In
         isShowingExp = true;

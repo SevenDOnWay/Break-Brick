@@ -12,4 +12,7 @@ public enum BrickType {
     Normal,
     Split,
     x2health,
+    HorizontalDamageBoost,
+    VerticalDamageBoost,
+    PlusBallBoost
 }

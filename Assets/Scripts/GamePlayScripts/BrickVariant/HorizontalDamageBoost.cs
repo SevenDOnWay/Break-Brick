@@ -15,4 +15,8 @@ public class HorizontalDamageBoost : MonoBehaviour, IBrickVariant {
     private void DealDamage( BrickScript brickScript, Vector2Int pos ) {
         brickManager.DealDamageHorizontal(pos);
     }
+
+    public BrickType GetBrickType() {
+        return BrickType.HorizontalDamageBoost;
+    }
 }

@@ -22,7 +22,7 @@ public class SpawnController : MonoBehaviour {
     [Inject] WaveScript waveScript;
     [Inject] BrickManager brickManager;
 
-    const int row = 10; // TODO: set const 
+    const int row = 10; 
     const int column = 8;
 
     [System.Serializable]
@@ -34,7 +34,13 @@ public class SpawnController : MonoBehaviour {
         [SerializeField, Range(0f, 0.1f)] public float growthPerWave; // how much chance increase per wave
     }
 
+    public class MiniBossBrick {
+        [SerializeField] public GameObject prefab;
+        [SerializeField] public MiniBossBrickType type;
+    }
+
     [SerializeField] Brick[] bricks;
+    [SerializeField] MiniBossBrick[] miniBossBricks;
 
 
     //[SerializeField] float[] brickWeights;
@@ -224,19 +230,18 @@ public class SpawnController : MonoBehaviour {
     #region Restore_Data
 
     public void RestoreBrick( List<BrickData> bricksData ) {
+
         foreach ( var brickdata in bricksData ) {
 
-            Vector3 position = new Vector3(
-                    brickdata.col * playScreen.squareSize,
-                    brickdata.row * playScreen.squareSize,
-                    0
-            );
 
-            GameObject brickPrefab = GetBrickPrefabFromType(brickdata.type); 
+            Vector2Int positionIndex = new Vector2Int(brickdata.col, brickdata.row);
+            Vector3 position = GetBrickWorldPosition(positionIndex);
+
+            GameObject brickPrefab = GetBrickPrefabFromType(brickdata.type);
             GameObject brick = resolver.Instantiate(brickPrefab, position, Quaternion.identity);
             brick.transform.SetParent(Pool.transform, true);
 
-            brickManager.RegisterBrick(brick, brickdata.health);
+            brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), positionIndex, brickdata.health);
 
         }
     }
@@ -295,7 +300,6 @@ public class SpawnController : MonoBehaviour {
     /// use to spawn brick at specific position (split brick)
     /// </summary>
     /// <param name="pos"></param>
-
     public void SpawnBrickAt( Vector2Int pos ) {
         Debug.Log($"SpawnBrickAt {pos}");
 
@@ -358,10 +362,7 @@ public class SpawnController : MonoBehaviour {
         );
     }
 
-    //public Vector2Int GetBrickGridIndex(Vector3 worldPos)
-    //{
-    //    float startX = (column - 1) * playScreen.squareSize / 2f;
-    //    float startY = (row - 1) * playScreen.squareSize / 2f;
+
     public GameObject GetBrickPrefabFromType( BrickType type ) {
         foreach ( var brick in bricks ) {
             if ( brick.type == type ) {
@@ -372,6 +373,10 @@ public class SpawnController : MonoBehaviour {
         return bricks[0].prefab;
     }
 
+    //public Vector2Int GetBrickGridIndex(Vector3 worldPos)
+    //{
+    //    float startX = (column - 1) * playScreen.squareSize / 2f;
+    //    float startY = (row - 1) * playScreen.squareSize / 2f;
 
     //    int x = Mathf.RoundToInt((worldPos.x + startX) / playScreen.squareSize);
     //    int y = Mathf.RoundToInt((startY - worldPos.y) / playScreen.squareSize);

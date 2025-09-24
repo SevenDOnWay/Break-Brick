@@ -1498,18 +1498,22 @@ MonoBehaviour:
     baseChance: 0.072
     growthPerWave: 0.0069
   - prefab: {fileID: 7710773107683314135, guid: 2950904f7d7a2dd4f8587aff3c9fa3c8, type: 3}
+    type: 0
     minWave: 0
     baseChance: 0.25
     growthPerWave: 0.025
   - prefab: {fileID: 685578362987215932, guid: c82a53985a34be247ba5df89275f9598, type: 3}
+    type: 0
     minWave: 30
     baseChance: 0.25
     growthPerWave: 0.0259
   - prefab: {fileID: 4896636833092869423, guid: d8881137086707e48b49478b552a1d53, type: 3}
+    type: 0
     minWave: 2
     baseChance: 0.434
     growthPerWave: 0.0609
   - prefab: {fileID: 942642231873179046, guid: ba32536dac0fee643a99b6d19444eae2, type: 3}
+    type: 0
     minWave: 2
     baseChance: 0.434
     growthPerWave: 0.0609
@@ -2995,8 +2999,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e18ec17a71aea345b1224c130bf15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballPos: {x: 0, y: 0}
   t_BallCount: {fileID: 1895585857}
+  ballPos: {x: 0, y: 0}
 --- !u!4 &1529638263
 Transform:
   m_ObjectHideFlags: 0
@@ -4245,7 +4249,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2026752734
 MonoBehaviour:
   m_ObjectHideFlags: 0

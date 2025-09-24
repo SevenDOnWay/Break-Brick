@@ -16,4 +16,8 @@ public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
     private void DealDamage( Vector2Int pos ) {
         brickManager.DealDamageVertical(pos);
     }
+
+    public BrickType GetBrickType() {
+        return BrickType.VerticalDamageBoost;
+    }
 }
