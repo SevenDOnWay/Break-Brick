@@ -113,7 +113,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.5196749, y: 0.5196749}
+  m_Size: {x: 0.84333825, y: 0.84333825}
   m_EdgeRadius: 0
 --- !u!23 &3807615638287977886
 MeshRenderer:
@@ -307,7 +307,7 @@ RectTransform:
   m_GameObject: {fileID: 7993908005931335561}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.101499006, y: 0.101499006, z: 1}
+  m_LocalScale: {x: 0.1647145, y: 0.1647145, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2486126062699124628}

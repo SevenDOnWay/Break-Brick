@@ -4,10 +4,11 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
 
 
-    [Inject,HideInInspector] PlayScreen playScreen;
+    [Inject, HideInInspector] PlayScreen playScreen;
     [Inject] BallManager ballManager;
 
     [SerializeField] GameObject optionPanel;
@@ -20,55 +21,84 @@ public class PlayerController : MonoBehaviour {
 
     public event Action<Vector2> OnBallLaunch;
 
-    public void StartGame() {
+    public void StartGame()
+    {
         SpawnLine();
 
-        if ( optionPanel == null ) {
+        if (optionPanel == null)
+        {
             Debug.LogWarning("PlayerController: Missing OptionPanel.");
         }
 
-        if ( line == null ) {
+        if (line == null)
+        {
             Debug.LogWarning("PlayerController: Missing Line.");
         }
-        if ( ballManager == null ) {
+        if (ballManager == null)
+        {
             Debug.LogWarning("PlayerController: Missing ballmanger.");
         }
     }
 
 
 
-    public void SpawnLine() {
-        line = new GameObject("Line").AddComponent<LineRenderer>();
+    public void SpawnLine()
+    {
+        line = new GameObject("TrajectoryLine").AddComponent<LineRenderer>();
         line.transform.parent = transform;
+
         line.startWidth = 0.1f;
+        line.endWidth = 0.02f;
+
+
+        line.material = new Material(Shader.Find("Sprites/Default"));
+
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] {
+            new GradientColorKey(Color.white, 0.0f),
+            new GradientColorKey(Color.white, 1.0f)
+            },
+            new GradientAlphaKey[] {
+            new GradientAlphaKey(1.0f, 0.0f),
+            new GradientAlphaKey(0.0f, 1.0f)
+            }
+        );
+        line.colorGradient = gradient;
+
+        line.enabled = false;
     }
 
-    void Update() {
-        if ( isBallMoving ) return;
+    void Update()
+    {
+        if (isBallMoving) return;
 
 
-
-
-        if ( Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0) ) {
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
+        {
             // Convert mouse position to world
             Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             // Raycast at mouse position
             RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
 
-            if ( optionPanel == null  || ballManager == null ) return;
+            if (optionPanel == null || ballManager == null) return;
 
             // Check if we hit background
-            if ( optionPanel.activeSelf ) return;
-            if ( hit.collider != null && hit.collider.CompareTag("Background") ) {
+            if (optionPanel.activeSelf) return;
+            if (hit.collider != null && hit.collider.CompareTag("Background"))
+            {
                 // ---- Handle input only inside background ----
-                if ( Input.GetMouseButtonDown(0) ) {
+                if (Input.GetMouseButtonDown(0))
+                {
                     DrawLine(Input.mousePosition);
                 }
-                else if ( Input.GetMouseButton(0) ) {
+                else if (Input.GetMouseButton(0))
+                {
                     DrawLine(Input.mousePosition);
                 }
-                else if ( Input.GetMouseButtonUp(0) ) {
+                else if (Input.GetMouseButtonUp(0))
+                {
                     line.enabled = false;
                     isBallMoving = true;
 
@@ -83,16 +113,23 @@ public class PlayerController : MonoBehaviour {
 
 
 
-    void DrawLine( Vector2 pos ) {
+    void DrawLine(Vector2 pos)
+    {
         line.enabled = true;
+
         var target = Camera.main.ScreenToWorldPoint(pos);
         Vector2 direction = (target - new Vector3(ballManager.ballPos.x, ballManager.ballPos.y, 0)).normalized;
+
+
         var targetPosScreen = ballManager.ballPos + direction * Mathf.Max(Screen.width, Screen.height);
+
+        line.positionCount = 2;
         line.SetPosition(0, ballManager.ballPos);
         line.SetPosition(1, targetPosScreen);
     }
 
-    public void HandleAllBallsDone() {
+    public void HandleAllBallsDone()
+    {
         isBallMoving = false;
     }
 
