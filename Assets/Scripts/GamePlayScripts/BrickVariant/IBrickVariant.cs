@@ -7,12 +7,3 @@ public interface IBrickVariant {
     void OnDie( BrickScript brickScript );
     BrickType GetBrickType();
 }
-
-public enum BrickType {
-    Normal,
-    Split,
-    x2health,
-    HorizontalDamageBoost,
-    VerticalDamageBoost,
-    PlusBallBoost
-}

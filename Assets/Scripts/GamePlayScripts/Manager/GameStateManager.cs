@@ -76,7 +76,7 @@ public class GameStateManager : MonoBehaviour, IStartable {
     }
 
     void ContinueGame( RunData runData ) {
-        // Restore bricks
+
         spawnController.RestoreBrick(runData.GetBricksData());
         ballManager.Restore();
 
@@ -85,6 +85,7 @@ public class GameStateManager : MonoBehaviour, IStartable {
         waveScript.SetWave(runData.GetWaveIndex());
         playerController.SpawnLine();
     }
+
     public void NotifyLaunchBall( Vector2 dir ) {
         ballManager.LaunchBall(dir);
 
@@ -98,6 +99,10 @@ public class GameStateManager : MonoBehaviour, IStartable {
         waveScript.IncreaseWave();
 
         isPlaying = false;
+
+        if(waveScript.GetWaveIndex() % 50 == 0) {
+            spawnController.SpawnMiniBoss();
+        }
     }
 
     public GameObject RequestBall() {
@@ -117,8 +122,5 @@ public class GameStateManager : MonoBehaviour, IStartable {
 
         ballManager.RequestExtraBall();
     }
-
-
-
 
 }

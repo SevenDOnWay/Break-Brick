@@ -1487,36 +1487,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bricks:
-  - prefab: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
-    type: 0
+  - type: 0
+    prefab: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
     minWave: 0
     baseChance: 1
     growthPerWave: 0
-  - prefab: {fileID: 7710773107683314135, guid: 2950904f7d7a2dd4f8587aff3c9fa3c8, type: 3}
-    type: 1
+    isMiniBoss: 0
+  - type: 1
+    prefab: {fileID: 7710773107683314135, guid: 2950904f7d7a2dd4f8587aff3c9fa3c8, type: 3}
     minWave: 20
     baseChance: 0.072
     growthPerWave: 0.0069
-  - prefab: {fileID: 7710773107683314135, guid: 2950904f7d7a2dd4f8587aff3c9fa3c8, type: 3}
-    type: 0
-    minWave: 0
-    baseChance: 0.25
-    growthPerWave: 0.025
-  - prefab: {fileID: 685578362987215932, guid: c82a53985a34be247ba5df89275f9598, type: 3}
-    type: 0
+    isMiniBoss: 0
+  - type: 2
+    prefab: {fileID: 685578362987215932, guid: c82a53985a34be247ba5df89275f9598, type: 3}
     minWave: 30
     baseChance: 0.25
     growthPerWave: 0.0259
-  - prefab: {fileID: 4896636833092869423, guid: d8881137086707e48b49478b552a1d53, type: 3}
-    type: 0
+    isMiniBoss: 0
+  - type: 3
+    prefab: {fileID: 4896636833092869423, guid: d8881137086707e48b49478b552a1d53, type: 3}
     minWave: 2
     baseChance: 0.434
     growthPerWave: 0.0609
-  - prefab: {fileID: 942642231873179046, guid: ba32536dac0fee643a99b6d19444eae2, type: 3}
-    type: 0
+    isMiniBoss: 0
+  - type: 4
+    prefab: {fileID: 942642231873179046, guid: ba32536dac0fee643a99b6d19444eae2, type: 3}
     minWave: 2
     baseChance: 0.434
     growthPerWave: 0.0609
+    isMiniBoss: 0
   Pool: {fileID: 600349753}
   ballPrefab: {fileID: 7441496029052621378, guid: 7b9a505aec9b8f149aa03d51c479e789, type: 3}
   BackGround: {fileID: 5146959177787210160, guid: 9a5354e78eb7055448d45293d50b2c5f, type: 3}
