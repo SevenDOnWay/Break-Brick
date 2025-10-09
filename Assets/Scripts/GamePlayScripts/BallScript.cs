@@ -41,8 +41,6 @@ public class BallScript : MonoBehaviour
 
     void TrailInitialize()
     {
-        trail.material = new Material(Shader.Find("Sprites/Default"));
-
         trail.time = 0.2f;
         trail.startWidth = 0.15f;
         trail.endWidth = 0.05f;

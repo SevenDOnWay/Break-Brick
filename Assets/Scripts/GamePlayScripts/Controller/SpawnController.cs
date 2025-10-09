@@ -301,7 +301,7 @@ public class SpawnController : MonoBehaviour {
     /// </summary>
     /// <param name="pos"></param>
     public void SpawnBrickAt( Vector2Int pos ) {
-        Debug.Log($"SpawnBrickAt {pos}");
+        //Debug.Log($"SpawnBrickAt {pos}");
 
         if ( brickManager.IsPositionOccupied(pos) ) return; // already occupied
 
@@ -361,7 +361,6 @@ public class SpawnController : MonoBehaviour {
             0
         );
     }
-
 
     public GameObject GetBrickPrefabFromType( BrickType type ) {
         foreach ( var brick in bricks ) {

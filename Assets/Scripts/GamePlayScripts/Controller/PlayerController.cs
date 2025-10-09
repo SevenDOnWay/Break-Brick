@@ -86,7 +86,7 @@ public class PlayerController : MonoBehaviour
 
             // Check if we hit background
             if (optionPanel.activeSelf) return;
-            if (hit.collider != null && hit.collider.CompareTag("Background"))
+            if ( hit.collider != null && (hit.collider.CompareTag("Background") || hit.collider.CompareTag("Brick")))
             {
                 // ---- Handle input only inside background ----
                 if (Input.GetMouseButtonDown(0))
