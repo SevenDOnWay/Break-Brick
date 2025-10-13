@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
@@ -13,6 +14,7 @@ public class BallScript : MonoBehaviour
 
 
     [HideInInspector] public Rigidbody2D rb;
+    Collider2D collider2D;
     int bounceTime;
     int endLineTriggerCount = 0;
     const int maxEndLineTriggers = 2;
@@ -24,6 +26,7 @@ public class BallScript : MonoBehaviour
 
     private void Awake()
     {
+        collider2D = GetComponent<Collider2D>();
         trail = GetComponent<TrailRenderer>();
         rb = GetComponent<Rigidbody2D>();
     }
@@ -62,6 +65,7 @@ public class BallScript : MonoBehaviour
 
     void NewLauch()
     {
+        collider2D.enabled = true;
         bounceTime = 0;
         endLineTriggerCount = 0;
         EnableTrail(true);
@@ -101,17 +105,20 @@ public class BallScript : MonoBehaviour
         }
     }
 
-    void FinishBall()
+    async void FinishBall()
     {
         EnableTrail(false);
+        await ResetVelocityCoroutine();
         NewLauch();
-        StartCoroutine(ResetVelocityCoroutine());
     }
 
-    IEnumerator ResetVelocityCoroutine()
+    async Task ResetVelocityCoroutine()
     {
+        collider2D.enabled = false;
         rb.linearVelocity = Vector2.zero;
-        yield return transform.DOMove(ballManager.ballPos, duration).WaitForCompletion();
+        await transform.DOMove(ballManager.ballPos, duration).SetEase(Ease.InOutSine)
+            .AsyncWaitForCompletion();
+
         OnBallFinished?.Invoke(this);
     }
 

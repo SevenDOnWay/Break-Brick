@@ -86,7 +86,11 @@ public class GameStateManager : MonoBehaviour, IStartable {
         playerController.SpawnLine();
     }
     public void NotifyLaunchBall( Vector2 dir ) {
+
+        if ( isPlaying ) return; // prevent multiple launch
         ballManager.LaunchBall(dir);
+
+        isPlaying = true;
 
     }
 
@@ -110,8 +114,6 @@ public class GameStateManager : MonoBehaviour, IStartable {
 
     private IEnumerator LevelUpRoutine() {
         yield return new WaitUntil(() => !isPlaying);
-
-        yield return new WaitForSeconds(1f); // ensure all balls effect are done
 
         // TODO: Add upgade here
 

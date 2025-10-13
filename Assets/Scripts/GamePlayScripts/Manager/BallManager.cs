@@ -132,9 +132,6 @@ public class BallManager : MonoBehaviour
             yield return null; // wait 1 frame
         }
 
-        // Wait until all balls are finished
-        yield return new WaitUntil(() => finishedCount >= totalBalls);
-
         // Unsubscribe
         foreach (var ball in balls)
         {
@@ -205,6 +202,7 @@ public class BallManager : MonoBehaviour
 
     #endregion
 
+    #region Restore
 
     public void Restore() {
         RestoreBallPos();
@@ -229,4 +227,5 @@ public class BallManager : MonoBehaviour
 
         data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
     }
+    #endregion
 }
