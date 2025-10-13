@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,6 +29,8 @@ public class BallManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI t_BallCount;
     public Vector2 ballPos;
     bool ballPosLocked = false;
+    [SerializeField] float xOffset = 50;
+    [SerializeField] float yOffset = 20;
 
     CharacterSO characterSO;
 
@@ -146,14 +149,26 @@ public class BallManager : MonoBehaviour
     }
 
     void UpdateText() {
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(ballPos);
+        Vector2 screenPos = Camera.main.WorldToScreenPoint(ballPos);
 
-        if ( ballPos.x > 0 ) {
-            t_BallCount.transform.position += new Vector3(-20, 150, 0);
-        }
-        else {
-            t_BallCount.transform.position += new Vector3(20, 150, 0);
-        }
+        RectTransform canvasRect = t_BallCount.canvas.GetComponent<RectTransform>();
+        RectTransform textRect = t_BallCount.GetComponent<RectTransform>();
+
+        Vector2 anchoredPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPos,
+            Camera.main,
+            out anchoredPos
+        );
+
+        // Now apply your offset logic in canvas space
+        if ( ballPos.x > 0 )
+            anchoredPos += new Vector2(-20, 150);
+        else
+            anchoredPos += new Vector2(20, 150);
+
+        textRect.anchoredPosition = anchoredPos;
 
 
         t_BallCount.text = balls.Count.ToString();
