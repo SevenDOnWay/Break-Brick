@@ -928,6 +928,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   optionPanel: {fileID: 1152629732}
+  lineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1 &600349753
 GameObject:
   m_ObjectHideFlags: 0
@@ -2555,7 +2556,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!120 &1240185879
 LineRenderer:
   serializedVersion: 2
@@ -3919,6 +3920,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1885120351}
   - component: {fileID: 1855249662}
+  - component: {fileID: 1885120352}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -3945,6 +3947,38 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1885120352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885120347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92ad4cc1e84641e43968a8436296772d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <BrickDestroyedSFX>k__BackingField:
+  - Guid:
+      Data1: -1196826405
+      Data2: 1287104221
+      Data3: 632213638
+      Data4: 833811640
+    Path: event:/BrickDestroyed1
+  <BrickHitSFX>k__BackingField:
+  - Guid:
+      Data1: 1795175355
+      Data2: 1105571035
+      Data3: 792315569
+      Data4: 643302342
+    Path: event:/BrickHit1
+  - Guid:
+      Data1: -1848375845
+      Data2: 1323808630
+      Data3: -373468522
+      Data4: 1759796071
+    Path: event:/BrickHit4
 --- !u!1 &1922520546
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,11 +14,11 @@ public class BrickScript : MonoBehaviour {
     //TODO: Find a better way to manage colors, and better color scheme
     Dictionary<int, string> colors = new Dictionary<int, string>{
             { 0, "#FFFFFF" },
-            { 100, "#3939CC" },
-            { 200, "#49C5CC" },
-            { 300, "#45CC45" },
-            { 400, "#E6E077" },
-            { 500, "#E6463E" }
+            { 25, "#3939CC" },
+            { 50, "#49C5CC" },
+            { 75, "#45CC45" },
+            { 100, "#E6E077" },
+            { 150, "#E6463E" }
     };
 
     
@@ -47,10 +47,10 @@ public class BrickScript : MonoBehaviour {
         //Debug.Log($"Taking damage: {damage}");
         health -= damage;
 
+        OnBrickHit.Invoke(this, EventArgs.Empty);
+
         levelManager.AddExp(damage);
         UpdateBrickVisual();
-
-        Debug.Log($"health now {health}");
 
         if ( health <= 0 ) {
             Debug.Log($"will be destroyed");

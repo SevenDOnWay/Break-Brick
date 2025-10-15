@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     private bool isBallMoving = false;
 
     LineRenderer line;
+    [SerializeField] Material lineMaterial;
 
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();
 
@@ -51,7 +52,7 @@ public class PlayerController : MonoBehaviour
         line.endWidth = 0.02f;
 
 
-        line.material = new Material(Shader.Find("Sprites/Default"));
+        line.material = lineMaterial;
 
         Gradient gradient = new Gradient();
         gradient.SetKeys(
@@ -133,4 +134,17 @@ public class PlayerController : MonoBehaviour
         isBallMoving = false;
     }
 
+    //ensure to clean up the line renderer when the object is destroyed
+    void OnDestroy() {
+        if ( line != null ) {
+            if ( Application.isPlaying ) {
+                Destroy(line.material);
+                Destroy(line.gameObject);
+            }
+            else {
+                DestroyImmediate(line.material);
+                DestroyImmediate(line.gameObject);
+            }
+        }
+    }
 }
