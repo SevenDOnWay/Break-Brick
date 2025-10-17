@@ -88,6 +88,7 @@ public class GameStateManager : MonoBehaviour, IStartable {
     public void NotifyLaunchBall( Vector2 dir ) {
 
         if ( isPlaying ) return; // prevent multiple launch
+
         ballManager.LaunchBall(dir);
 
         isPlaying = true;

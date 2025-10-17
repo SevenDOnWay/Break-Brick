@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CharacterEntry : MonoBehaviour {
 
-    public CharacterSO[] characters;
+    //public CharacterSO[] characters;
 
-    private void Start() {
-        DontDestroyOnLoad(gameObject);
-    }
+    //private void Start() {
+    //    DontDestroyOnLoad(gameObject);
+    //}
 }

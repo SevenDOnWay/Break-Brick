@@ -2,27 +2,28 @@
 using UnityEngine.UI;
 
 [RequireComponent(typeof(GridLayoutGroup))]
-public class GridAutoFit : MonoBehaviour
-{
-    public int columns = 3;
-    public int rows = 2;
+public class GridAutoFit : MonoBehaviour {
+    [SerializeField] int columns = 3;
+    [SerializeField] int rows = 2;
+
+    [SerializeField] bool updateInGame;
+    RectTransform rt;
 
     private GridLayoutGroup grid;
 
-    void Start()
-    {
+    void Start() {
         grid = GetComponent<GridLayoutGroup>();
+        rt = GetComponent<RectTransform>();
         UpdateCellSize();
     }
 
-    void Update()
-    {
-        UpdateCellSize();
+    void Update() {
+        if ( updateInGame ) UpdateCellSize();
     }
 
-    void UpdateCellSize()
-    {
-        RectTransform rt = GetComponent<RectTransform>();
+    void UpdateCellSize() {
+        if ( updateInGame ) rt = GetComponent<RectTransform>();
+
         float width = rt.rect.width;
         float height = rt.rect.height;
 
