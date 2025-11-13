@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.IO;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using VContainer.Unity;
 
 [System.Serializable]
 public class RunDataManager : MonoBehaviour {
-
-    public static RunDataManager Instance { get; private set; }
 
     public RunData runData;
 
@@ -17,12 +18,7 @@ public class RunDataManager : MonoBehaviour {
 
     JsonSerializerOptions option;
 
-    private async void Awake() {
-        if ( Instance != null && Instance != this ) {
-            Destroy(this.gameObject);
-        }
-        Instance = this;
-        DontDestroyOnLoad(this.gameObject);
+    void Awake() {
 
         savePath = Path.Combine(Application.persistentDataPath, "rundata.dat");
 
@@ -32,7 +28,10 @@ public class RunDataManager : MonoBehaviour {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
-        runData = await Load();
+        _ = InitializeAsync();
+
+        Debug.Log($"RunDataManager Awake. SavePath: {savePath}");
+
         if ( runData != null ) {
             Debug.Log("Previous run loaded!");
         }
@@ -41,12 +40,18 @@ public class RunDataManager : MonoBehaviour {
         }
     }
 
+    private async Task InitializeAsync() {
+        runData = await Load();
+
+        if ( runData != null )
+            Debug.Log("Previous run loaded!");
+        else
+            Debug.Log("No previous run found.");
+    }
+
     public async Task Save() {
         if ( runData == null ) return;
-
         try {
-
-
             string json = JsonSerializer.Serialize(runData, option);
             byte[] bytes = Encoding.UTF8.GetBytes(json);
             byte[] encrypted = XorUtility.XorEncrypt(bytes);
@@ -64,7 +69,7 @@ public class RunDataManager : MonoBehaviour {
         }
     }
 
-    public async Task<RunData> Load() {
+    public async Task<RunData> Load( CancellationToken token = default ) {
         try {
             if ( File.Exists(savePath) ) {
                 RunData loaded = await Task.Run(() => {
@@ -90,25 +95,30 @@ public class RunDataManager : MonoBehaviour {
             Debug.LogWarning($"Failed to load RunData: {e.Message}");
         }
 
-        // fallback: always return a fresh RunData so it's never null
+        // fallback
         return null;
     }
 
-    public async Task NewRun( int difficult, CharacterUpgradeData characterUpgradeData ) {
+    //public async Task NewRun( int difficult, CharacterUpgradeData characterUpgradeData ) {
+    //    runData = new RunData(difficult, characterUpgradeData);
 
-        runData = new RunData(difficult, characterUpgradeData);
+    //    await Save();
+    //}
 
-        await Save();
+    //public async Task NewRun( int difficult, CharacterSO characterSO ) {
+
+    //    runData = new RunData(difficult, new CharacterUpgradeData(characterSO));
+
+    //    await Save();
+    //}
+
+
+    public void CreateNewRun( int characterIndex, string characterId ) {
+        runData = new RunData(characterIndex, characterId);
+        Debug.Log("New RunData created.");
     }
 
-    public async Task NewRun( int difficult, CharacterSO characterSO ) {
-
-        runData = new RunData(difficult, new CharacterUpgradeData(characterSO));
-
-        await Save();
-    }
-
-    public void ClearRun() {
+    public void DeleteRun() {
         runData = null;
         if ( File.Exists(savePath) ) File.Delete(savePath);
         Debug.Log("RunData cleared.");

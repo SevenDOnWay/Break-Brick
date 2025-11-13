@@ -1,7 +1,12 @@
 using UnityEngine;
 using VContainer;
 public class HorizontalDamageBoost : MonoBehaviour, IBrickVariant {
-    [Inject] BrickManager brickManager;
+    BrickManager brickManager;
+
+    [Inject]
+    void Constructor( BrickManager brickManager ) {
+        this.brickManager = brickManager;
+    }
 
     public void OnHit( BrickScript brickScript ) { }
     public void OnSpawn( BrickScript brickScript ) { }

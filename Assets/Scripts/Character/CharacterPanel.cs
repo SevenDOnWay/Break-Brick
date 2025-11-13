@@ -11,8 +11,8 @@ using VContainer;
 public class CharacterPanel : MonoBehaviour {
 
     //[Inject] CharacterEntry characterEntry;
-    [Inject] CharacterManager characterManager;
-    [Inject] SelectCharacter selectCharacter;
+    CharacterDataBase characterManager;
+    SelectCharacter selectCharacter;
 
     [SerializeField] TextMeshProUGUI descriptionText;
     [SerializeField] GameObject indexPanel;
@@ -25,6 +25,15 @@ public class CharacterPanel : MonoBehaviour {
 
     List<Image> dots;
     List<GameObject> chracters;
+
+    [Inject]
+    public void Constructor(
+        CharacterDataBase characterManager,
+        SelectCharacter selectCharacter
+     ) {
+        this.characterManager = characterManager;
+        this.selectCharacter = selectCharacter;
+    }
 
     async void Start() {
 
@@ -91,7 +100,7 @@ public class CharacterPanel : MonoBehaviour {
     }
 
     void SetDescription( int index ) {
-        descriptionText.text = characterSOs[index].GetUpgrade().GetDescription();
+        descriptionText.text = characterSOs[index].GetDescription();
     }
 
     void SetActiveDot( int index ) {

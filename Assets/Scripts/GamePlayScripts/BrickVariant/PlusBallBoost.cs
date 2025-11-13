@@ -2,7 +2,12 @@ using UnityEngine;
 using VContainer;
 
 public class PlusBallBoost : MonoBehaviour, IBrickVariant {
-    [Inject] BallManager ballManager;
+    BallManager ballManager;
+
+    [Inject]
+    void Constructor( BallManager ballManager ) {
+        this.ballManager = ballManager;
+    }
     public void OnHit( BrickScript brickScript ) {
 
     }

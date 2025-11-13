@@ -6,11 +6,8 @@ using VContainer.Unity;
 public class MainMenuLifeTimeScope : LifetimeScope {
 
     protected override void Configure( IContainerBuilder builder) {
-    }
+        builder.RegisterComponentInHierarchy<MainMenuManager>();
 
-    protected override void Awake() {
-        base.Awake();
-        DontDestroyOnLoad(this.gameObject);
     }
 
 

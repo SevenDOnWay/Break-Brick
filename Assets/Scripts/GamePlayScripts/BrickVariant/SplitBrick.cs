@@ -2,11 +2,22 @@ using UnityEngine;
 using VContainer;
 
 public class SplitBrick : MonoBehaviour, IBrickVariant {
-    [Inject] PlayScreen playScreen;
-    [Inject] BrickManager brickManager;
-    [Inject] SpawnController spawnController;
+    PlayScreen playScreen;
+    BrickManager brickManager;
+    SpawnController spawnController;
 
     Vector2Int pos;
+
+    [Inject]
+    void Constructor(
+        PlayScreen playScreen,
+        BrickManager brickManager,
+        SpawnController spawnController
+    ) {
+        this.playScreen = playScreen;
+        this.brickManager = brickManager;
+        this.spawnController = spawnController;
+    }
 
     public void OnDie( BrickScript brickScript ) {
         pos = brickManager.GetBrickGridIndex(brickScript.transform.position);

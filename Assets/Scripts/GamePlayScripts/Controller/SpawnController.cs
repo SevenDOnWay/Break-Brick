@@ -17,13 +17,26 @@ public class SpawnController : MonoBehaviour {
     }
 
     */
-    [Inject] IObjectResolver resolver;
-    [Inject] PlayScreen playScreen;
-    [Inject] WaveScript waveScript;
-    [Inject] BrickManager brickManager;
+    IObjectResolver resolver;
+    RunDataManager runDataManager;
+    PlayScreen playScreen;
+    WaveScript waveScript;
+    BrickManager brickManager;
 
-    const int row = 10; 
-    const int column = 8;
+    [Inject]
+    public void Constructor(
+        IObjectResolver resolver,
+        RunDataManager runDataManager,
+        PlayScreen playScreen,
+        WaveScript waveScript,
+        BrickManager brickManager
+     ) {
+        this.resolver = resolver;
+        this.playScreen = playScreen;
+        this.waveScript = waveScript;
+        this.brickManager = brickManager;
+        this.runDataManager = runDataManager;
+    }
 
     [System.Serializable]
     public class Brick {
@@ -38,6 +51,9 @@ public class SpawnController : MonoBehaviour {
         [SerializeField] public GameObject prefab;
         [SerializeField] public MiniBossBrickType type;
     }
+
+    const int row = 10;
+    const int column = 8;
 
     [SerializeField] Brick[] bricks;
     [SerializeField] MiniBossBrick[] miniBossBricks;
@@ -65,7 +81,10 @@ public class SpawnController : MonoBehaviour {
         ScalePrefab();
         SetUpScreen();
 
-        difficult = RunDataManager.Instance.runData.GetDifficultIndex();
+        if(runDataManager == null) Debug.LogError("runDataManager is null in SpawnController.");
+        if ( runDataManager.runData == null ) Debug.LogError("runData is null in SpawnController.");
+
+        difficult = runDataManager.runData.GetDifficultIndex();
 
     }
 

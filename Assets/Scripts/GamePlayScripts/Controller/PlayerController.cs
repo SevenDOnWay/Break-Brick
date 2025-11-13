@@ -7,8 +7,8 @@ using VContainer.Unity;
 public class PlayerController : MonoBehaviour {
 
 
-    [Inject, HideInInspector] PlayScreen playScreen;
-    [Inject] BallManager ballManager;
+    PlayScreen playScreen;
+    BallManager ballManager;
 
     [SerializeField] GameObject optionPanel;
 
@@ -20,6 +20,15 @@ public class PlayerController : MonoBehaviour {
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();
 
     public event Action<Vector2> OnBallLaunch;
+
+    [Inject]
+    void Constructor(
+        PlayScreen playScreen,
+        BallManager ballManager
+     ) {
+        this.playScreen = playScreen;
+        this.ballManager = ballManager;
+    }
 
     public void StartGame() {
         SpawnLine();

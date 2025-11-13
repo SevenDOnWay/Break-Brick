@@ -18,4 +18,6 @@ public class PlayScreen {
 
     }
 
+    public float GetSquareSize() => squareSize;
+
 }

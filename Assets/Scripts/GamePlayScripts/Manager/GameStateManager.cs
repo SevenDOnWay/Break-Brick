@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class GameStateManager : MonoBehaviour, IStartable {
+public class GameStateManager : MonoBehaviour {
+    RunDataManager runDataManager;
     WaveScript waveScript;
     PlayerController playerController;
     SpawnController spawnController;
@@ -14,13 +16,15 @@ public class GameStateManager : MonoBehaviour, IStartable {
 
     [Inject]
     public void Constructor(
-         WaveScript waveScript,
-         PlayerController playerController,
-         SpawnController spawnController,
-         BallManager ballManager,
-         BrickManager brickManager,
-         LevelManager levelManager
+        RunDataManager runDataManager,
+        WaveScript waveScript,
+        PlayerController playerController,
+        SpawnController spawnController,
+        BallManager ballManager,
+        BrickManager brickManager,
+        LevelManager levelManager
      ) {
+        this.runDataManager = runDataManager;
         this.waveScript = waveScript;
         this.playerController = playerController;
         this.spawnController = spawnController;
@@ -31,8 +35,7 @@ public class GameStateManager : MonoBehaviour, IStartable {
 
     bool isPlaying = false;
 
-    void IStartable.Start() {
-
+    void Start() {
 
         if ( ballManager == null ) {
             Debug.LogError("BallManager is null in GameStateManager.");
@@ -47,14 +50,11 @@ public class GameStateManager : MonoBehaviour, IStartable {
             return;
         }
 
-        ballManager.requestBall += RequestBall;
-        ballManager.OnAllBallsDone += HandleAllBallsDone;
-        playerController.OnBallLaunch += NotifyLaunchBall;
-        levelManager.OnLevelUp += LevelUp;
+        SetUpObserver();
 
-        var runData = RunDataManager.Instance.runData;
+        var runData = runDataManager.runData;
 
-        if ( runData != null && runData.isContinuing ) {
+        if ( runData != null && runData.GetIsContinuing() ) {
             Debug.Log("Resuming from saved RunData...");
             ContinueGame(runData);
         }
@@ -67,6 +67,13 @@ public class GameStateManager : MonoBehaviour, IStartable {
         //ballManager.StartGame();
         //playerController.StartGame();
         //brickManager.StartGame(); nothing for now
+    }
+
+    private void SetUpObserver() {
+        ballManager.requestBall += RequestBall;
+        ballManager.OnAllBallsDone += HandleAllBallsDone;
+        playerController.OnBallLaunch += NotifyLaunchBall;
+        levelManager.OnLevelUp += LevelUp;
     }
 
     void StartNewGame() {
@@ -110,7 +117,8 @@ public class GameStateManager : MonoBehaviour, IStartable {
     }
 
     public void LevelUp() {
-        StartCoroutine(LevelUpRoutine());
+        //if()
+        // var task = StartCoroutine(LevelUpRoutine());
     }
 
     private IEnumerator LevelUpRoutine() {

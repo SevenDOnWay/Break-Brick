@@ -6,7 +6,7 @@ using VContainer;
 
 public class BrickScript : MonoBehaviour {
     public int health;
-    [Inject] LevelManager levelManager;
+    LevelManager levelManager;
 
     [SerializeField] TextMeshPro healText;
     SpriteRenderer spriteRenderer;
@@ -24,6 +24,11 @@ public class BrickScript : MonoBehaviour {
     
     public static event EventHandler OnBrickDestroyed;
     public static event EventHandler OnBrickHit;
+
+    [Inject]
+    public void Constructor(LevelManager levelManager) {
+        this.levelManager = levelManager;
+    }
 
     public void Init( int health ) {
         this.health = health;

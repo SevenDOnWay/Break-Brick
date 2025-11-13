@@ -8,9 +8,9 @@ using static UnityEditor.PlayerSettings;
 
 public class BrickManager : MonoBehaviour {
 
-
-    [Inject] PlayScreen playScreen;
-    [Inject] WaveScript waveScript;
+    RunDataManager runDataManager;
+    PlayScreen playScreen;
+    WaveScript waveScript;
 
     const int row = 10;
     const int column = 8;
@@ -23,6 +23,18 @@ public class BrickManager : MonoBehaviour {
     // public IReadOnlyList<BrickScript> Bricks => bricks;
 
     private float squareSize;
+
+    [Inject]
+    public void Constructor(
+        RunDataManager runDataManager,
+        PlayScreen playScreen,
+        WaveScript waveScript
+     ) {
+        this.runDataManager = runDataManager;
+        this.playScreen = playScreen;
+        this.waveScript = waveScript;
+    }
+
 
     public void Start() {
         squareSize = playScreen.squareSize;
@@ -122,7 +134,7 @@ public class BrickManager : MonoBehaviour {
             }
         }
 
-        RunDataManager.Instance.runData.OverwriteBricksData(newBricks);
+        runDataManager.runData.OverwriteBricksData(newBricks);
     }
 
     public void DealDamageVertical( Vector2Int pos ) {

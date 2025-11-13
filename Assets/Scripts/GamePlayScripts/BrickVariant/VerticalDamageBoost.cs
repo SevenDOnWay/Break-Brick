@@ -1,7 +1,12 @@
 using UnityEngine;
 using VContainer;
 public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
-    [Inject] BrickManager brickManager;
+    BrickManager brickManager;
+
+    [Inject]
+    void Constructor( BrickManager brickManager ) {
+        this.brickManager = brickManager;
+    }
 
     public void OnEndTurn( BrickScript brickScript ) { }
     public void OnHit( BrickScript brickScript ) { }

@@ -14,9 +14,7 @@ public class GameLifetimeScope : LifetimeScope {
 
         builder.RegisterComponentInHierarchy<WaveScript>();
 
-        builder.RegisterComponentInHierarchy<GameStateManager>()
-                                           .As<IStartable>()
-                                           .AsSelf();
+        builder.RegisterComponentInHierarchy<GameStateManager>();
 
 
 

@@ -7,9 +7,24 @@ using VContainer;
 
 public class QuitScript : MonoBehaviour {
 
-    [Inject] BrickManager brickManager;
-    [Inject] BallManager ballManager;
-    [Inject] WaveScript waveScript;
+    RunDataManager runDataManager;
+    BrickManager brickManager;
+    BallManager ballManager;
+    WaveScript waveScript;
+
+
+    [Inject]
+    void Constructor(
+        RunDataManager runDataManager,
+        BrickManager brickManager,
+        BallManager ballManager,
+        WaveScript waveScript
+     ) {
+        this.runDataManager = runDataManager;
+        this.brickManager = brickManager;
+        this.ballManager = ballManager;
+        this.waveScript = waveScript;
+    }
 
     public void OnEnable() {
         Button temp = gameObject.GetComponent<Button>();
@@ -24,7 +39,7 @@ public class QuitScript : MonoBehaviour {
         brickManager.SaveBrick();
         ballManager.Save();
         waveScript.SaveWaveIndex();
-        await RunDataManager.Instance.Save();
+        await runDataManager.Save();
 
         await SceneManager.LoadSceneAsync(0);
     }

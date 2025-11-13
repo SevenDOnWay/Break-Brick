@@ -7,9 +7,8 @@ using UnityEngine;
 using VContainer;
 
 public class BallManager : MonoBehaviour {
-
-    [Inject, HideInInspector] public PlayScreen playScreen;
-
+    RunDataManager runDataManager;
+    PlayScreen playScreen;
 
     private Dictionary<string, float> properties = new Dictionary<string, float> {
         {"Speed", 5},
@@ -36,19 +35,24 @@ public class BallManager : MonoBehaviour {
     public RequestBall requestBall;
     public event Action OnAllBallsDone;
 
-
-
+    [Inject]
+    public void Constructor(
+        RunDataManager runDataManager,
+        PlayScreen playScreen
+     ) {
+        this.runDataManager = runDataManager;
+        this.playScreen = playScreen;
+    }
 
     public void StartGame() {
-
-
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
 
         RequestExtraBall(); // init ball for play
 
+        //TODO: get upgrade from run data
 
-        var data = RunDataManager.Instance.runData.GetCharacterUpgradeData();
-        data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
+        //var data = runDataManager.runData.GetCharacterUpgradeData();
+        //data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
 
         UpdateText();
     }
@@ -110,7 +114,7 @@ public class BallManager : MonoBehaviour {
                 Debug.Log("Too long, speed up balls");
                 foreach ( var ball in balls ) {
                     BallScript script = ball.GetComponent<BallScript>();
-                    script.rb.linearVelocity *= 3;
+                    script.rb.linearVelocity *= 2;
                 }
                 beginTime += 10f;
             }
@@ -174,11 +178,11 @@ public class BallManager : MonoBehaviour {
     }
 
     public void SaveBallData() {
-        RunDataManager.Instance.runData.OverwriteBallCount(balls.Count);
+        runDataManager.runData.OverwriteBallCount(balls.Count);
     }
 
     public void SaveBallPos() {
-        RunDataManager.Instance.runData.OverwriteBallPos(ballPos);
+        runDataManager.runData.OverwriteBallPos(ballPos);
     }
 
     #endregion
@@ -192,21 +196,24 @@ public class BallManager : MonoBehaviour {
     }
 
     public void RestoreBallPos() {
-        ballPos = RunDataManager.Instance.runData.GetBallPos();
+        ballPos = runDataManager.runData.GetBallPos();
     }
 
     public void RestoreBall() {
-        RequestExtraBall(RunDataManager.Instance.runData.GetBallCount());
+        RequestExtraBall(runDataManager.runData.GetBallCount());
     }
 
     public void RestoreUpgrade() {
-        var data = RunDataManager.Instance.runData.GetCharacterUpgradeData();
-        if ( data.upgradeType == UpgradeType.ExtraBalls ) {
-            Debug.Log("Skip if upgrade extra ball");
-            return;
-        }
 
-        data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
+        //TODO: retrive upgrade from run data
+
+        //var data = runDataManager.runData.GetCharacterUpgradeData();
+        //if ( data.upgradeType == UpgradeType.ExtraBalls ) {
+        //    Debug.Log("Skip if upgrade extra ball");
+        //    return;
+        //}
+
+        //data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
     }
     #endregion
 }
