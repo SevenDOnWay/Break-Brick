@@ -8,11 +8,4 @@ public interface IBrickVariant {
     BrickType GetBrickType();
 }
 
-public enum BrickType {
-    Normal,
-    Split,
-    x2health,
-    HorizontalDamageBoost,
-    VerticalDamageBoost,
-    PlusBallBoost
-}
+

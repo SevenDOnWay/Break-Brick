@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks.Triggers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -81,7 +82,7 @@ public class SpawnController : MonoBehaviour {
         ScalePrefab();
         SetUpScreen();
 
-        if(runDataManager == null) Debug.LogError("runDataManager is null in SpawnController.");
+        if ( runDataManager == null ) Debug.LogError("runDataManager is null in SpawnController.");
         if ( runDataManager.runData == null ) Debug.LogError("runData is null in SpawnController.");
 
         difficult = runDataManager.runData.GetDifficultIndex();
@@ -267,8 +268,14 @@ public class SpawnController : MonoBehaviour {
 
     #endregion
 
-    public GameObject SpawnBall( Vector2 ballPos, int extraBall = 1 ) {
+    public GameObject SpawnBall( BallManager ballManager, StatManager statManager, float squareSize, int extraBall = 1 ) {
+
+        Vector2 ballPos = ballManager.GetBallPos();
         var temp = resolver.Instantiate(ballPrefab, ballPos, Quaternion.identity);
+        BallScript ballScript = temp.GetComponent<BallScript>();
+
+        ballScript.Init(ballManager, statManager, squareSize);
+
         temp.transform.position = ballPos;
 
         return temp;

@@ -6,28 +6,34 @@ using VContainer;
 using VContainer.Unity;
 
 public class GameStateManager : MonoBehaviour {
+    PlayScreen playScreen;
     RunDataManager runDataManager;
     WaveScript waveScript;
     PlayerController playerController;
     SpawnController spawnController;
+    StatManager statManager;
     BallManager ballManager;
     BrickManager brickManager;
     LevelManager levelManager;
 
     [Inject]
     public void Constructor(
+        PlayScreen playScreen,
         RunDataManager runDataManager,
         WaveScript waveScript,
         PlayerController playerController,
         SpawnController spawnController,
+        StatManager statManager,
         BallManager ballManager,
         BrickManager brickManager,
         LevelManager levelManager
      ) {
+        this.playScreen = playScreen;
         this.runDataManager = runDataManager;
         this.waveScript = waveScript;
         this.playerController = playerController;
         this.spawnController = spawnController;
+        this.statManager = statManager;
         this.ballManager = ballManager;
         this.brickManager = brickManager;
         this.levelManager = levelManager;
@@ -53,6 +59,8 @@ public class GameStateManager : MonoBehaviour {
         SetUpObserver();
 
         var runData = runDataManager.runData;
+
+        //TODO: FIX THIS LOADING LOGIC
 
         if ( runData != null && runData.GetIsContinuing() ) {
             Debug.Log("Resuming from saved RunData...");
@@ -113,7 +121,7 @@ public class GameStateManager : MonoBehaviour {
     }
 
     public GameObject RequestBall() {
-        return spawnController.SpawnBall(ballManager.ballPos);
+        return spawnController.SpawnBall(ballManager, statManager, playScreen.GetSquareSize());
     }
 
     public void LevelUp() {
