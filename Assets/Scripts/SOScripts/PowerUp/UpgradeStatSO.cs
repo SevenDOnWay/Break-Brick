@@ -2,28 +2,47 @@ using NUnit.Framework.Internal.Commands;
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "StatUpgrade", menuName = "ScriptableObjects/StatUpgrade")]
 public class UpgradeStatSO : UpgradeSO {
 
-    [SerializeField] Dictionary<UpgradeType,float> KeyValueMap;
+    [System.Serializable]
+    public struct UpgradePair {
+        [SerializeField] UpgradeType type;
+        [SerializeField] float value;
 
-    public override void ApplyStat( StatManager statManager ) {
-        foreach ( var kvp in KeyValueMap ) {
+        public UpgradeType Type => type;
+        public float Value => value;
+    }
 
-            statManager.ModifyStat(kvp.Key, kvp.Value);
+    [SerializeField] List<UpgradePair> KeyValueMap;
+
+    public override void ApplyStat( StatManager statManager, UpgradeManager upgradeManager ) {
+        foreach ( var pair in KeyValueMap ) {
+
+            if ( pair.Type == UpgradeType.ExtraBalls ) {
+                upgradeManager.AddBall((int)pair.Value);
+                continue;
+            }
+
+            statManager.ModifyStat(pair.Type, pair.Value);
 
             //TOOD : add processing for upgrade
-            if ( kvp.Key == UpgradeType.CritChance ) {
-                
-                
+            switch ( pair.Type ) {
+                case UpgradeType.ExplosionChance:
+                    upgradeManager.ApplyProcess(new ExplosionProcess());
+                    break;
+                case UpgradeType.CritChance:
+                    upgradeManager.ApplyProcess(new CritProcess());
+                    break;
+                default:
+                    break;
             }
 
         }
 
+    }   
 
-    }
-
-    public Dictionary<UpgradeType, float> GetKeyValueMap() {
-        return KeyValueMap;
-    }
-
+    //TODO: Add Process to upgrade manger when applying upgrade
 }
+
+

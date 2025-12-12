@@ -4,13 +4,17 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 public class UpgradeDataBase : MonoBehaviour {
-    const string upgradeLabel = "Powerup";
+    const string upgradeLabel = "Upgrade";
 
     public List<UpgradeSO> upgradeSOs = new List<UpgradeSO>();
 
     private Task<List<UpgradeSO>> loadingTask;
 
-    public async Task<List<UpgradeSO>> GetCharacters() {
+    async void Start() {
+        await GetUpgrades();
+    }
+
+    public async Task<List<UpgradeSO>> GetUpgrades() {
         if ( upgradeSOs.Count > 0 )
             return upgradeSOs;
 
@@ -19,12 +23,12 @@ public class UpgradeDataBase : MonoBehaviour {
             return await loadingTask;
 
         // otherwise start new load
-        loadingTask = LoadCharactersAsync();
+        loadingTask = LoadUpgradesAsync();
         return await loadingTask;
 
     }
 
-    async Task<List<UpgradeSO>> LoadCharactersAsync() {
+    async Task<List<UpgradeSO>> LoadUpgradesAsync() {
         var handle = Addressables.LoadAssetsAsync<UpgradeSO>(upgradeLabel, null);
         var result = await handle.Task;
         upgradeSOs.AddRange(result);
@@ -32,5 +36,6 @@ public class UpgradeDataBase : MonoBehaviour {
         return upgradeSOs;
     }
 
+    
 
 }

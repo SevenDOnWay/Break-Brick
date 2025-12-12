@@ -7,5 +7,7 @@ public enum UpgradeType {
     CritChance,
     CritMultiplier,
     FireChance,
-    LightningChance
+    LightningChance,
+    ExplosionChance,
+    ExplosionRadius,
 }

@@ -12,6 +12,7 @@ public class BallScript : MonoBehaviour {
 
     BallManager ballManager;
     StatManager statManager;
+    UpgradeManager upgradeManager;
 
     [HideInInspector] public Rigidbody2D rb;
     Collider2D collider2D;
@@ -34,14 +35,25 @@ public class BallScript : MonoBehaviour {
     float critMultiplier;
     float fireChance;
     float lightningChance;
+    float explosiveChance;
 
     private Dictionary<UpgradeType, FieldInfo> statFieldMap;
+    private List<Process> currentProcesses = new List<Process>();
 
-
-    public void Init(BallManager ballManager, StatManager statManager,float squareSize) {
+    public void Init( BallManager ballManager,
+        StatManager statManager,
+        UpgradeManager upgradeManager,
+        float squareSize ) {
         this.ballManager = ballManager;
-        this.squareSize = squareSize;
         this.statManager = statManager;
+        this.upgradeManager = upgradeManager;
+        this.squareSize = squareSize;
+
+        InitCurrentProcess(upgradeManager);
+    }
+
+    private void InitCurrentProcess( UpgradeManager upgradeManager ) {
+        currentProcesses = upgradeManager.GetAllProcess();
     }
 
     private void Awake() {
@@ -51,13 +63,13 @@ public class BallScript : MonoBehaviour {
     }
 
     void Start() {
-        TrailInitialize();
         NewLauch();
 
         //BuildReflectionMap();
 
         speed = statManager.GetStat(UpgradeType.Speed);
 
+        upgradeManager.OnProcessAdded += AddProcess;
     }
 
     //TOOD: use reflection to map stat fields
@@ -79,30 +91,8 @@ public class BallScript : MonoBehaviour {
         trail.emitting = enable;
     }
 
-    //TODO: serializefeild trail settings
-    void TrailInitialize() {
-        trail.time = 0.2f;
-        trail.startWidth = 0.15f;
-        trail.endWidth = 0.05f;
-        trail.minVertexDistance = 0.05f;
 
-
-        //TODO: serializefeild gradient settings
-        Gradient gradient = new();
-        gradient.SetKeys(
-            new GradientColorKey[] {
-            new(Color.white, 0.0f),
-            new(Color.white, 1.0f)
-            },
-            new GradientAlphaKey[] {
-            new(1.0f, 0.0f),
-            new(0.0f, 1.0f)
-            }
-        );
-        trail.colorGradient = gradient;
-    }
-
-    public void LaunchBall(Vector2 dir) => rb.AddForce(dir * speed, ForceMode2D.Impulse);
+    public void LaunchBall( Vector2 dir ) => rb.AddForce(dir * speed, ForceMode2D.Impulse);
 
     void NewLauch() {
         collider2D.enabled = true;
@@ -120,45 +110,48 @@ public class BallScript : MonoBehaviour {
             }
         }
 
+        if ( collision.gameObject.CompareTag("Bottom_Wall") ) {
+
+            Vector2 newPos = new Vector2(transform.position.x,squareSize * -11 / 2);
+            ballManager.ResetBallPos(newPos);
+
+            FinishBall();
+        }
+
         // ===== BrickScript Collision Logic =====
         if ( collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick) ) {
-
-
 
             brick.TakeDamage(1);
             bounceTime = 0;
         }
     }
 
-    private void OnTriggerEnter2D( Collider2D collision ) {
-        if ( collision.gameObject.CompareTag("EndLine") ) {
-            endLineTriggerCount++;
-            if ( endLineTriggerCount <= maxEndLineTriggers ) return;
+    //private void OnTriggerEnter2D( Collider2D collision ) {
+    //    if ( collision.gameObject.CompareTag("Bottom_Wall") ) {
 
-            Vector2 newPos = new Vector2(transform.position.x,squareSize * -6);
-            ballManager.ResetBallPos(newPos);
+    //        Vector2 newPos = new Vector2(transform.position.x,squareSize * -6);
+    //        ballManager.ResetBallPos(newPos);
 
-            FinishBall();
-        }
-    }
+    //        FinishBall();
+    //    }
+    //}
 
-    async void FinishBall() {
+    void FinishBall() {
         EnableTrail(false);
-        await ResetVelocityCoroutine();
-        NewLauch();
-    }
-
-    async Task ResetVelocityCoroutine() {
         collider2D.enabled = false;
         rb.linearVelocity = Vector2.zero;
-        await transform.DOMove(ballManager.ballPos, duration).SetEase(Ease.InOutSine)
-            .AsyncWaitForCompletion();
 
-        OnBallFinished?.Invoke(this);
+        // Use DOTween's OnComplete instead of async/await
+        transform.DOMove(ballManager.ballPos, duration)
+            .SetEase(Ease.InOutSine)
+            .OnComplete(() => {
+                NewLauch(); // Prepare for next round
+                OnBallFinished?.Invoke(this); // Fire event
+            });
     }
 
-    public void SetProperties( Dictionary<string, float> properties ) {
-        // need per-ball state later, can cache properties here
+    void AddProcess( Process process ) {
+        currentProcesses.Add(process);
     }
 
 }

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using VContainer;
 using VContainer.Unity;
 
 public class PlayerController : MonoBehaviour {
-
-
     PlayScreen playScreen;
     BallManager ballManager;
 
     [SerializeField] GameObject optionPanel;
+    [SerializeField] GameObject upgradePanel;
 
-    private bool isBallMoving = false;
+    private bool canShoot = true;
 
     LineRenderer line;
     [SerializeField] Material lineMaterial;
@@ -73,8 +73,8 @@ public class PlayerController : MonoBehaviour {
     }
 
     void Update() {
-        if ( isBallMoving ) return;
-
+        if ( !canShoot ) return;
+        if ( IsPointerOverUI() ) return;
 
         if ( Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0) ) {
             // Convert mouse position to world
@@ -83,10 +83,8 @@ public class PlayerController : MonoBehaviour {
             // Raycast at mouse position
             RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
 
-            if ( optionPanel == null || ballManager == null ) return;
-
             // Check if we hit background
-            if ( optionPanel.activeSelf ) return;
+            if ( optionPanel.activeSelf || upgradePanel.activeSelf ) return;
             if ( hit.collider != null && (hit.collider.CompareTag("Background") || hit.collider.CompareTag("Brick")) ) {
                 // ---- Handle input only inside background ----
                 if ( Input.GetMouseButtonDown(0) ) {
@@ -97,17 +95,23 @@ public class PlayerController : MonoBehaviour {
                 }
                 else if ( Input.GetMouseButtonUp(0) ) {
                     line.enabled = false;
-                    isBallMoving = true;
+                    canShoot = true;
 
                     Vector2 direction = (worldPos - ballManager.ballPos).normalized;
                     OnBallLaunch?.Invoke(direction);
                 }
             }
         }
-
     }
 
-
+    private bool IsPointerOverUI() {
+        // Mobile Touch Check
+        if ( Input.touchCount > 0 ) {
+            return EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+        }
+        // PC Mouse Check
+        return EventSystem.current.IsPointerOverGameObject();
+    }
 
 
     void DrawLine( Vector2 pos ) {
@@ -124,9 +128,9 @@ public class PlayerController : MonoBehaviour {
         line.SetPosition(1, targetPosScreen);
     }
 
-    public void HandleAllBallsDone() {
-        isBallMoving = false;
-    }
+    //public void HandleAllBallsDone() {
+    //    //canShoot = true;
+    //}
 
     //ensure to clean up the line renderer when the object is destroyed
     void OnDestroy() {
@@ -140,5 +144,16 @@ public class PlayerController : MonoBehaviour {
                 DestroyImmediate(line.gameObject);
             }
         }
+    }
+
+    public void SetCanShoot( bool value ) {
+        canShoot = value;
+
+        // Safety: If we can't shoot, ensure the line is hidden immediately
+        if ( !canShoot && line != null ) {
+            line.enabled = false;
+        }
+
+        Debug.Log($"PlayerController: SetCanShoot to {canShoot}");
     }
 }

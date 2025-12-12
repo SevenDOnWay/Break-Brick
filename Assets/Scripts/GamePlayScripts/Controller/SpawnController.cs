@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks.Triggers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Unity.Hierarchy;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -30,7 +31,8 @@ public class SpawnController : MonoBehaviour {
         RunDataManager runDataManager,
         PlayScreen playScreen,
         WaveScript waveScript,
-        BrickManager brickManager
+        BrickManager brickManager,
+        UpgradeManager upgradeManager
      ) {
         this.resolver = resolver;
         this.playScreen = playScreen;
@@ -71,6 +73,11 @@ public class SpawnController : MonoBehaviour {
     [SerializeField] GameObject BackGround;
 
     int difficult;
+    float squareSize;
+
+    void Start() {
+        squareSize = playScreen.GetSquareSize();
+    }
 
     public void StartGame() {
         SetUpGame();
@@ -81,9 +88,6 @@ public class SpawnController : MonoBehaviour {
     public void SetUpGame() {
         ScalePrefab();
         SetUpScreen();
-
-        if ( runDataManager == null ) Debug.LogError("runDataManager is null in SpawnController.");
-        if ( runDataManager.runData == null ) Debug.LogError("runData is null in SpawnController.");
 
         difficult = runDataManager.runData.GetDifficultIndex();
 
@@ -111,7 +115,7 @@ public class SpawnController : MonoBehaviour {
 
 
             // ===== Scale BrickScript =====
-            var TargetSquareSize = playScreen.squareSize / brickSpriteRenderer.sprite.bounds.size.x;
+            var TargetSquareSize = squareSize / brickSpriteRenderer.sprite.bounds.size.x;
             brickSpriteRenderer.transform.localScale = new Vector3(TargetSquareSize, TargetSquareSize, 1f);
 
             if ( !brick.prefab.TryGetComponent<BoxCollider2D>(out var boxCollider) ) {
@@ -126,8 +130,8 @@ public class SpawnController : MonoBehaviour {
         // ===== Scale BackGround =====
         var backGroundSpriteRenderer = BackGround.GetComponent<SpriteRenderer>();
 
-        float screenWidth = playScreen.squareSize * 8;
-        float screenHeight = playScreen.squareSize * 11;
+        float screenWidth = squareSize * 8;
+        float screenHeight = squareSize * 11;
 
         // Calculate scale factor to fit both width & height
         float scaleX = screenWidth / backGroundSpriteRenderer.sprite.bounds.size.x;
@@ -140,10 +144,10 @@ public class SpawnController : MonoBehaviour {
     void SetUpScreen() {
         CreateBackGround();
         CreateTriggerLine();
-        CreateWall("TopWall", new Vector2(0, playScreen.squareSize * 5), new Vector2(playScreen.squareSize * 8, 0.1f));
-        CreateWall("BottomWall", new Vector2(0, -playScreen.squareSize * 6), new Vector2(playScreen.squareSize * 8, 0.1f));
-        CreateWall("LeftWall", new Vector2(-playScreen.squareSize * 4, 0), new Vector2(0.1f, playScreen.squareSize * 12));
-        CreateWall("RightWall", new Vector2(playScreen.squareSize * 4, 0), new Vector2(0.1f, playScreen.squareSize * 12));
+        CreateWall("TopWall", "Wall", new Vector2(0, squareSize * 5), new Vector2(squareSize * 8, 0.1f));
+        CreateWall("BottomWall", "Bottom_Wall", new Vector2(0, -squareSize * 6), new Vector2(squareSize * 8, 0.1f));
+        CreateWall("LeftWall", "Wall", new Vector2(-squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
+        CreateWall("RightWall", "Wall", new Vector2(squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
 
     }
 
@@ -152,12 +156,12 @@ public class SpawnController : MonoBehaviour {
         backGround.transform.parent = transform;
         backGround.tag = "Background";
 
-        backGround.transform.position = new Vector3(0, -playScreen.squareSize / 2);
+        backGround.transform.position = new Vector3(0, -squareSize / 2);
     }
 
     void CreateTriggerLine() {
-        Vector2 start = new Vector2(-playScreen.squareSize * 4, -playScreen.squareSize * 5);
-        Vector2 end = new Vector2(playScreen.squareSize * 4, -playScreen.squareSize * 5);
+        Vector2 start = new Vector2(-squareSize * 4, -squareSize * 5);
+        Vector2 end = new Vector2(squareSize * 4, -squareSize * 5);
 
         GameObject lineObj = new GameObject("EndLine");
         lineObj.tag = "EndLine";
@@ -169,10 +173,10 @@ public class SpawnController : MonoBehaviour {
     }
 
     //TODO: Find solution if ball move to fast wall will not be detected
-    void CreateWall( string name, Vector2 position, Vector2 size ) {
+    void CreateWall( string name, string tag, Vector2 position, Vector2 size ) {
         GameObject wall = new GameObject(name);
         wall.transform.parent = transform;
-        wall.tag = "Wall";
+        wall.tag = tag;
         wall.transform.position = position;
 
         BoxCollider2D col = wall.AddComponent<BoxCollider2D>();
@@ -197,8 +201,8 @@ public class SpawnController : MonoBehaviour {
 
         //TODO: add a strucure to handle different difficulties
 
-        // float startX = ((column - 1) * playScreen.squareSize) / 2f;
-        // float startY = ((row - 1) * playScreen.squareSize) / 2f;
+        // float startX = ((column - 1) * squareSize) / 2f;
+        // float startY = ((row - 1) * squareSize) / 2f;
 
         int target;
         float spawnChance;
@@ -226,11 +230,11 @@ public class SpawnController : MonoBehaviour {
         for ( int i = 0; i < column; i++ ) {
             for ( int j = 0; j < target; j++ ) {
                 if ( Random.value > spawnChance ) continue;
-                // Vector3 position = new Vector3(startX - i * playScreen.squareSize,
-                //                                startY - j * playScreen.squareSize,
+                // Vector3 position = new Vector3(startX - i * squareSize,
+                //                                startY - j * squareSize,
                 //                                0);
                 // Debug.Log($"$InitializeBrick {i}, {j}");
-                // Debug.Log($"InitializeBrick {startX - i * playScreen.squareSize}, {startY - j * playScreen.squareSize}");
+                // Debug.Log($"InitializeBrick {startX - i * squareSize}, {startY - j * squareSize}");
                 Vector2Int spawnPost = new(i, j);
 
                 Vector3 worldPos = GetBrickWorldPosition(spawnPost);
@@ -268,13 +272,13 @@ public class SpawnController : MonoBehaviour {
 
     #endregion
 
-    public GameObject SpawnBall( BallManager ballManager, StatManager statManager, float squareSize, int extraBall = 1 ) {
+    public GameObject SpawnBall( BallManager ballManager, StatManager statManager, UpgradeManager upgradeManager, float squareSize, int extraBall = 1 ) {
 
         Vector2 ballPos = ballManager.GetBallPos();
         var temp = resolver.Instantiate(ballPrefab, ballPos, Quaternion.identity);
         BallScript ballScript = temp.GetComponent<BallScript>();
 
-        ballScript.Init(ballManager, statManager, squareSize);
+        ballScript.Init(ballManager, statManager, upgradeManager, squareSize);
 
         temp.transform.position = ballPos;
 
@@ -282,8 +286,8 @@ public class SpawnController : MonoBehaviour {
     }
 
     public void SpawnBrick() {
-        // float startX = ((column - 1) * playScreen.squareSize) / 2f;
-        // float startY = ((row - 1) * playScreen.squareSize) / 2f;
+        // float startX = ((column - 1) * squareSize) / 2f;
+        // float startY = ((row - 1) * squareSize) / 2f;
 
 
         float spawnChance;
@@ -306,7 +310,7 @@ public class SpawnController : MonoBehaviour {
             if ( Random.value > spawnChance ) continue;
 
             // Vector3 spawnPos = new Vector3(
-            //         startX - i * playScreen.squareSize,
+            //         startX - i * squareSize,
             //         startY,
             //         0
             // );
@@ -332,7 +336,7 @@ public class SpawnController : MonoBehaviour {
         if ( brickManager.IsPositionOccupied(pos) ) return; // already occupied
 
         Vector3 worldPos = GetBrickWorldPosition(pos);
-        if ( worldPos.x > playScreen.squareSize * 4 || worldPos.x < -playScreen.squareSize * 4 ) return;
+        if ( worldPos.x > squareSize * 4 || worldPos.x < -squareSize * 4 ) return;
 
 
         // TODO: health should be half of original one
@@ -378,12 +382,12 @@ public class SpawnController : MonoBehaviour {
     }
 
     public Vector3 GetBrickWorldPosition( Vector2Int pos ) {
-        float startX = (column - 1) * playScreen.squareSize / 2f;
-        float startY = (row - 1) * playScreen.squareSize / 2f;
+        float startX = (column - 1) * squareSize / 2f;
+        float startY = (row - 1) * squareSize / 2f;
 
         return new Vector3(
-            -startX + pos.x * playScreen.squareSize,
-            startY - pos.y * playScreen.squareSize,
+            -startX + pos.x * squareSize,
+            startY - pos.y * squareSize,
             0
         );
     }
@@ -400,11 +404,11 @@ public class SpawnController : MonoBehaviour {
 
     //public Vector2Int GetBrickGridIndex(Vector3 worldPos)
     //{
-    //    float startX = (column - 1) * playScreen.squareSize / 2f;
-    //    float startY = (row - 1) * playScreen.squareSize / 2f;
+    //    float startX = (column - 1) * squareSize / 2f;
+    //    float startY = (row - 1) * squareSize / 2f;
 
-    //    int x = Mathf.RoundToInt((worldPos.x + startX) / playScreen.squareSize);
-    //    int y = Mathf.RoundToInt((startY - worldPos.y) / playScreen.squareSize);
+    //    int x = Mathf.RoundToInt((worldPos.x + startX) / squareSize);
+    //    int y = Mathf.RoundToInt((startY - worldPos.y) / squareSize);
 
     //    Debug.Log($"{x} and {y}");
 

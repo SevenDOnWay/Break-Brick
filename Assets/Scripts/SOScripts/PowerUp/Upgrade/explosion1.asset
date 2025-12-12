@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 863f3b8d16565de48ae7aa42bee7532e, type: 3}
+  m_Name: explosion1
+  m_EditorClassIdentifier: 
+  icon: {fileID: 0}
+  upgradeName: explosion
+  upgradeId: 30621c1f-a47a-4e33-9c28-f6272d4ab2c8
+  description: explosion +50%
+  KeyValueMap:
+  - type: 6
+    value: 0.5

@@ -1,17 +1,15 @@
-using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Windows.Speech;
 
-[CreateAssetMenu(fileName = "CharacterSO", menuName = "ScriptableObjects/PowerUp")]
+
 public abstract class UpgradeSO : ScriptableObject {
 
+    [SerializeField] Sprite icon;
     [SerializeField] string upgradeName;
     [Tooltip("DO NOT Assign, use for checking id"), SerializeField] string upgradeId;
-
     [TextArea, SerializeField] string description;
 
+    public Sprite GetIcon() => icon;
     public string GetUpgradeName() => upgradeName;
 
     public string GetUpgradeId() => upgradeId;
@@ -24,13 +22,12 @@ public abstract class UpgradeSO : ScriptableObject {
         if ( string.IsNullOrEmpty(upgradeId) ) {
             upgradeId = System.Guid.NewGuid().ToString();
             EditorUtility.SetDirty(this);
-            Debug.Log($"[Auto-ID] Generated new ID for {name}: {upgradeId}");
         }
 
     }
 #endif
 
-    public virtual void ApplyStat( StatManager statManager ) {}
+    public virtual void ApplyStat( StatManager statManager, UpgradeManager upgradeManager ) {}
 
     public virtual void ApplyBehavior( UpgradeManager upgradeManager ) { }
 

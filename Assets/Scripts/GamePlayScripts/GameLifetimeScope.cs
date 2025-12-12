@@ -16,15 +16,20 @@ public class GameLifetimeScope : LifetimeScope {
 
         builder.RegisterComponentInHierarchy<GameStateManager>();
 
-        builder.RegisterComponentInHierarchy<UpgradeDataBase>();
+
         builder.RegisterComponentInHierarchy<SpawnController>();
         builder.RegisterComponentInHierarchy<PlayerController>();
 
         builder.Register<StatManager>(Lifetime.Singleton);
         builder.Register<UpgradeManager>(Lifetime.Singleton);
+
         builder.RegisterComponentInHierarchy<BrickManager>();
         builder.RegisterComponentInHierarchy<BallManager>();
         builder.RegisterComponentInHierarchy<LevelManager>();
+        builder.RegisterComponentInHierarchy<VFXManager>();
+
+        builder.RegisterComponentInHierarchy<LevelUi>();
+        builder.RegisterComponentInHierarchy<UpgradeUI>();
 
         builder.RegisterComponentInHierarchy<QuitScript>();
 

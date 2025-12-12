@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: bd45a9969c5956646ba3cafcd5e3c777
   m_currentHash:
     serializedVersion: 2
-    Hash: 9700da01ff67d5c521cab5a3f3c079cb
+    Hash: 9c6d61370a57b2d3d81fffeb92fc8519
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -33,6 +33,7 @@ MonoBehaviour:
   m_UniqueBundleIds: 0
   m_EnableJsonCatalog: 0
   m_NonRecursiveBuilding: 1
+  m_AllowNestedBundleFolders: 0
   m_CCDEnabled: 0
   m_maxConcurrentWebRequests: 3
   m_UseUWRForLocalBundles: 0
@@ -53,13 +54,14 @@ MonoBehaviour:
     m_Id: 
   m_RemoteCatalogLoadPath:
     m_Id: 
-  m_ContentStateBuildPathProfileVariableName: 
+  m_ContentStateBuildPathProfileVariableName: <default settings path>
   m_CustomContentStateBuildPath: 
   m_ContentStateBuildPath: 
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
   - {fileID: 11400000, guid: 673c0a666124dce40938d0e5ec637647, type: 2}
+  - {fileID: 11400000, guid: 48913b462d6f99d449f08bef80aa89a9, type: 2}
   - {fileID: 11400000, guid: eb1a2f39f36f98148a0f698f71d3a501, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
@@ -100,11 +102,14 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
-    - Character Powerup
+    - Character Upgrade
+    - Upgrade
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 34cac365c6928d546854d2a4bd221d89, type: 2}
-  m_InitializationObjects: []
+  - {fileID: 11400000, guid: 8d434717b1c93104591760a6b862673d, type: 2}
+  m_InitializationObjects:
+  - {fileID: 11400000, guid: 0d6a2e89670be1f43b4f7deb0bd784db, type: 2}
   m_CertificateHandlerType:
     m_AssemblyName: 
     m_ClassName: 
@@ -113,4 +118,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4ceeb7dcf0c121a4f92d00323da05597, type: 2}
   - {fileID: 11400000, guid: e830cd66f87c75f4caa30b50d2a74a32, type: 2}
   - {fileID: 11400000, guid: de599393b5ed4474b8867a7157340e47, type: 2}
+  - {fileID: 11400000, guid: fdfdef5c1035ca24eb26e28fe3a820a3, type: 2}
   m_ActiveProfileId: 2d22859d51c938c4d94acaf5c3a056f7

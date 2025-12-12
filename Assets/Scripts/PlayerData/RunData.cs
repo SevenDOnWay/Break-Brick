@@ -31,6 +31,7 @@ public class RunData {
     public int GetBallCount() => ballCount;
     public Vector2 GetBallPos() => new Vector2(ballPosX, ballPosY);
     public List<BrickData> GetBricksData() => bricksData;
+    public string GetCharacterSOId() => characterSOId;
 
     //TODO: implement character upgrade 
     //public CharacterUpgradeData GetCharacterUpgradeData() => characterUpgradeData;

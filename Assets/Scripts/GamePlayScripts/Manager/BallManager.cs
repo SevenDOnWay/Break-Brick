@@ -31,7 +31,7 @@ public class BallManager : MonoBehaviour {
     [Header("Cache property")]
     float squareSize;
     CharacterSO characterSO;
-    IReadOnlyDictionary<UpgradeType, float> finalStats;
+    Dictionary <UpgradeType, float> finalStats;
 
 
     //  [Header("Event")] //comment since header can't be use
@@ -58,21 +58,16 @@ public class BallManager : MonoBehaviour {
     public void StartGame() {
 
         squareSize = playScreen.squareSize;
-        ballPos = new Vector2(0, squareSize * -6);
+        ballPos = new Vector2(0, squareSize * -11 / 2);
 
         InitializeStat();
 
         RequestExtraBall(); // init ball for play
 
-        //TODO: get upgrade from run data
-
         UpdateText();
     }
 
     public void InitializeStat() => finalStats = new Dictionary<UpgradeType, float>(statsManager.GetAllStats());
-
-
-    #region Upgrade_Logic
 
     public void RequestExtraBall( int extraballs = 1 ) {
         for ( int i = 0; i < extraballs; i++ ) {
@@ -84,64 +79,56 @@ public class BallManager : MonoBehaviour {
         UpdateText();
     }
 
-    //public void ModifyProperty( UpgradeType key, float value ) {
 
-    //    if ( !baseStat.ContainsKey(key) ) {
-    //        Debug.LogWarning($"Property {key} not found!");
-    //        finalStat[key] = value;
-    //    }
-
-    //    finalStat[key] += value;
-
-    //    //TODO: apply changes to all ball 
-
-
-    //}
-    #endregion
-
-    //NOTE: CHECK
+    #region Ball_Launch_Logic
     public void LaunchBall( Vector2 direction ) {
         UnlockBallPos();
+        SubscribleBall();
         StartCoroutine(LaunchSequence(direction));
         //Debug.Log($"Balls in list: {balls.Count}");
     }
 
-    //TOOD: send dir to ball script, ball script will hold speed
-    IEnumerator LaunchSequence( Vector2 direction ) {
+    /// <summary>
+    /// scribe to each ball finish event, and track when all balls are done
+    /// </summary>
+    void SubscribleBall() {
+        int finishedCount = 0;
+        int totalBalls = balls.Count;
 
+        // Reset timeout
+        if ( timeoutCoroutine != null ) StopCoroutine(timeoutCoroutine);
+        timeoutCoroutine = StartCoroutine(TimeoutCheckRoutine());
+
+        // Subscribe immediately
+        foreach ( var ball in balls ) {
+            var script = ball.GetComponent<BallScript>();
+
+            // Safety check: ensure we don't double subscribe if called rapidly
+            script.OnBallFinished -= HandleBallFinished;
+            script.OnBallFinished += HandleBallFinished;
+        }
+
+        // Local function to handle completion
+        void HandleBallFinished( BallScript ball ) {
+            // Unsubscribe immediately to prevent double counting
+            ball.OnBallFinished -= HandleBallFinished;
+
+            finishedCount++;
+
+            // Debug.Log($"Ball finished: {finishedCount}/{totalBalls}");
+
+            if ( finishedCount >= totalBalls ) {
+                AllBallDone();
+            }
+        }
+    }
+
+    IEnumerator LaunchSequence( Vector2 direction ) {
         foreach ( var ball in balls ) {
             var script = ball.GetComponent<BallScript>();
             script.LaunchBall(direction);
             yield return new WaitForSeconds(0.1f); // stagger launch
         }
-
-        WaitAllBalls();
-    }
-
-    void WaitAllBalls() {
-        int finishedCount = 0;
-        int totalBalls = balls.Count;
-        float beginTime = Time.time;
-
-        void HandleBallFinished( BallScript ball ) {
-            //Unsubscribe when finished
-            ball.OnBallFinished -= HandleBallFinished;
-
-            finishedCount++;
-
-            if ( finishedCount >= totalBalls ) AllBallDone();
-        }
-
-
-        if ( timeoutCoroutine != null ) StopCoroutine(timeoutCoroutine);
-        timeoutCoroutine = StartCoroutine(TimeoutCheckRoutine());
-
-        // Subscribe
-        foreach ( var ball in balls ) {
-            var script = ball.GetComponent<BallScript>();
-            script.OnBallFinished += HandleBallFinished;
-        }
-
     }
 
     private void AllBallDone() {
@@ -153,7 +140,6 @@ public class BallManager : MonoBehaviour {
         timeoutCoroutine = null;
 
         Debug.Log("All balls are done!");
-
     }
 
     IEnumerator TimeoutCheckRoutine() {
@@ -170,7 +156,7 @@ public class BallManager : MonoBehaviour {
         }
     }
 
-
+    #endregion
 
 
     void UpdateText() {

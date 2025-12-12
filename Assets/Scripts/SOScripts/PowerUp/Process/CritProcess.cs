@@ -4,7 +4,7 @@ public class CritProcess : Process {
     public override ProcessType GetProssType() => ProcessType.Crit;
 
 
-    public override int OnHit( StatManager statManager ) {
+    public override int OnHit( StatManager statManager , Vector2 pos ) {
 
         float critChance = statManager.GetStat( UpgradeType.CritChance );
         float CritMultiplier = statManager.GetStat( UpgradeType.CritMultiplier );

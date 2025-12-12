@@ -7,7 +7,9 @@ public class StatManager {
         { UpgradeType.CritChance, 0f },
         { UpgradeType.CritMultiplier, 2f },
         { UpgradeType.FireChance, 0f },
-        { UpgradeType.LightningChance, 0f }
+        { UpgradeType.LightningChance, 0f },
+        { UpgradeType.ExplosionChance, 0f },
+        { UpgradeType.ExplosionRadius, 0f },
     };
 
     private Dictionary<UpgradeType, float> finalStat = new Dictionary<UpgradeType, float>();
@@ -19,7 +21,7 @@ public class StatManager {
         }
     }
 
-    public IReadOnlyDictionary<UpgradeType, float> GetAllStats() => finalStat;
+    public Dictionary<UpgradeType, float> GetAllStats() => finalStat;
 
     public float GetStat( UpgradeType type ) => finalStat.ContainsKey(type) ? finalStat[type] : 0f;
 
