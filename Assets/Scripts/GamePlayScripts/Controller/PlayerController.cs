@@ -77,29 +77,37 @@ public class PlayerController : MonoBehaviour {
         if ( IsPointerOverUI() ) return;
 
         if ( Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0) ) {
-            // Convert mouse position to world
-            Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            // Raycast at mouse position
-            RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
+            if ( EventSystem.current.IsPointerOverGameObject() ) return;
 
-            // Check if we hit background
             if ( optionPanel.activeSelf || upgradePanel.activeSelf ) return;
-            if ( hit.collider != null && (hit.collider.CompareTag("Background") || hit.collider.CompareTag("Brick")) ) {
-                // ---- Handle input only inside background ----
-                if ( Input.GetMouseButtonDown(0) ) {
-                    DrawLine(Input.mousePosition);
-                }
-                else if ( Input.GetMouseButton(0) ) {
-                    DrawLine(Input.mousePosition);
-                }
-                else if ( Input.GetMouseButtonUp(0) ) {
-                    line.enabled = false;
-                    canShoot = true;
 
-                    Vector2 direction = (worldPos - ballManager.ballPos).normalized;
-                    OnBallLaunch?.Invoke(direction);
-                }
+            HandlePhysicInput();
+        }
+    }
+
+    public void HandlePhysicInput() {
+        // Convert mouse position to world
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        // Raycast at mouse position
+        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
+
+        // Check if we hit background
+        if ( hit.collider != null && (hit.collider.CompareTag("Background") || hit.collider.CompareTag("Brick")) ) {
+            // ---- Handle input only inside background ----
+            if ( Input.GetMouseButtonDown(0) ) {
+                DrawLine(Input.mousePosition);
+            }
+            else if ( Input.GetMouseButton(0) ) {
+                DrawLine(Input.mousePosition);
+            }
+            else if ( Input.GetMouseButtonUp(0) ) {
+                line.enabled = false;
+                canShoot = true;
+
+                Vector2 direction = (worldPos - ballManager.ballPos).normalized;
+                OnBallLaunch?.Invoke(direction);
             }
         }
     }
