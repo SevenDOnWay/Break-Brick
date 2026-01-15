@@ -15,7 +15,7 @@ MonoBehaviour:
   Path: Assets/FMODBanks/BrickHit_SFX.bank
   Name: BrickHit_SFX
   StudioPath: bank:/BrickHit_SFX
-  lastModified: 638942588860407263
+  lastModified: 639040219666726893
   FileSizes: []
   Exists: 1
 --- !u!114 &-5201768905795779336
@@ -100,7 +100,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 3839789635480640247}
   cacheVersion: 131849
-  cacheTime: 638942588860407263
+  cacheTime: 639040219666921137
   SerializableEventsDict:
   - key: event:/BrickDestroyed1
     index: 0
@@ -125,7 +125,7 @@ MonoBehaviour:
   Path: Assets/FMODBanks/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638942588860407263
+  lastModified: 638960728971370051
   FileSizes: []
   Exists: 1
 --- !u!114 &3839789635480640247
@@ -143,7 +143,7 @@ MonoBehaviour:
   Path: Assets/FMODBanks/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638942588860407263
+  lastModified: 639040219666921137
   FileSizes:
   - Name: 
     Value: 1010
@@ -217,6 +217,6 @@ MonoBehaviour:
   Path: Assets/FMODBanks/BrickDestroyed_SFX.bank
   Name: BrickDestroyed_SFX
   StudioPath: bank:/BrickDestroyed_SFX
-  lastModified: 638942588860240449
+  lastModified: 638960728970558964
   FileSizes: []
   Exists: 1
