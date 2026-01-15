@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using VContainer;
 
 public class DifficultPanel : MonoBehaviour {
-    [Inject] SelectCharacter selectCharacter;
+    SelectCharacter selectCharacter;
 
     //[SerializeField] GameObject difficultText;
     TextMeshProUGUI t_difficult;
@@ -13,6 +13,10 @@ public class DifficultPanel : MonoBehaviour {
     string[] difficultyStrings = { "Easy", "Normal", "Hard" };
     string[] diffcultyColors = { "#69B578", "#FFD25A", "#DB162F" };
 
+    [Inject]
+    private void Constructor( SelectCharacter selectCharacter ) {
+        this.selectCharacter = selectCharacter;
+    }
 
     void Start() {
         t_difficult = transform.Find("t_difficult").GetComponent<TextMeshProUGUI>();

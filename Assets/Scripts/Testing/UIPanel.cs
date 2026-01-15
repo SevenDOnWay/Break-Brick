@@ -3,7 +3,7 @@ using VContainer;
 
 public class UIPanel : MonoBehaviour {
 
-    [Inject] PlayScreen playScreen;
+    //PlayScreen playScreen;
         
     private void Start() {
 

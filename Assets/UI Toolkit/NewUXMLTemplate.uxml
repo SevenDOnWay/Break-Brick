@@ -1,0 +1,8 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/Uss/UpgradeSlot.uss?fileID=7433441132597879392&amp;guid=2bb08e8c8afcccf4db1ba9b86c66c3c3&amp;type=3#UpgradeSlot" />
+    <engine:VisualElement name="ButtonContainer" style="flex-grow: 1; flex-direction: row; justify-content: space-between; align-items: center; align-content: auto; align-self: center; bottom: auto; width: 100%; padding-top: 10%; padding-right: 10%; padding-bottom: 10%; padding-left: 10%;">
+        <engine:Button text="Button" class="button" style="bottom: 10%; width: 30%; height: 10%;" />
+        <engine:Button text="Button" class="button" style="bottom: 10%; width: 30%; height: 10%;" />
+        <engine:Button text="Button" class="button" style="width: 30%; height: 10%; bottom: 10%;" />
+    </engine:VisualElement>
+</engine:UXML>

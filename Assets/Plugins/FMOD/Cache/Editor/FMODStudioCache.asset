@@ -1,5 +1,68 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9209403101472914740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/BrickHit2
+  m_EditorClassIdentifier: 
+  Path: event:/BrickHit2
+  Guid:
+    Data1: -425294106
+    Data2: 1160236977
+    Data3: 162097574
+    Data4: -618362792
+  Banks:
+  - {fileID: -8407133921014480811}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-8407133921014480811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/BrickHit_SFX.bank
+  m_EditorClassIdentifier: 
+  Path: Assets/FMODBanks/BrickHit_SFX.bank
+  Name: BrickHit_SFX
+  StudioPath: bank:/BrickHit_SFX
+  lastModified: 638960728971208626
+  FileSizes: []
+  Exists: 1
+--- !u!114 &-7559841262131883290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/BrickDestroyed_SFX.bank
+  m_EditorClassIdentifier: 
+  Path: Assets/FMODBanks/BrickDestroyed_SFX.bank
+  Name: BrickDestroyed_SFX
+  StudioPath: bank:/BrickDestroyed_SFX
+  lastModified: 638960728970558964
+  FileSizes: []
+  Exists: 1
 --- !u!114 &-7270708641196589513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,9 +78,36 @@ MonoBehaviour:
   Path: Assets/FMODBanks/BrickHit_SFX.bank
   Name: BrickHit_SFX
   StudioPath: bank:/BrickHit_SFX
-  lastModified: 639040219666726893
+  lastModified: 638960728971208626
   FileSizes: []
   Exists: 1
+--- !u!114 &-6171936026775377120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/BrickDestroyed1
+  m_EditorClassIdentifier: 
+  Path: event:/BrickDestroyed1
+  Guid:
+    Data1: -1196826405
+    Data2: 1287104221
+    Data3: 632213638
+    Data4: 833811640
+  Banks:
+  - {fileID: -7559841262131883290}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-5201768905795779336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45,6 +135,26 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &-3675823924198290769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.strings.bank
+  m_EditorClassIdentifier: 
+  Path: Assets/FMODBanks/Master.strings.bank
+  Name: Master.strings
+  StudioPath: bank:/Master.strings
+  lastModified: 638960728971420137
+  FileSizes:
+  - Name: 
+    Value: 1042
+  Exists: 1
 --- !u!114 &-3535360575853621982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,6 +182,24 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &-1515429425067797147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.bank
+  m_EditorClassIdentifier: 
+  Path: Assets/FMODBanks/Master.bank
+  Name: Master
+  StudioPath: bank:/Master
+  lastModified: 638960728971370051
+  FileSizes: []
+  Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,22 +213,23 @@ MonoBehaviour:
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: 
   EditorBanks:
-  - {fileID: 3839789635480640247}
-  - {fileID: 8342979037748230875}
-  - {fileID: -7270708641196589513}
-  - {fileID: 3212731932540063263}
+  - {fileID: -3675823924198290769}
+  - {fileID: -7559841262131883290}
+  - {fileID: -8407133921014480811}
+  - {fileID: -1515429425067797147}
   EditorEvents:
-  - {fileID: -3535360575853621982}
-  - {fileID: 7384138626590115985}
-  - {fileID: -5201768905795779336}
-  - {fileID: 7434178774846997908}
+  - {fileID: -6171936026775377120}
+  - {fileID: 6426424004493015541}
+  - {fileID: 5037100142664748030}
+  - {fileID: 8954774920333144777}
+  - {fileID: -9209403101472914740}
   EditorParameters: []
   MasterBanks:
-  - {fileID: 3212731932540063263}
+  - {fileID: -1515429425067797147}
   StringsBanks:
-  - {fileID: 3839789635480640247}
+  - {fileID: -3675823924198290769}
   cacheVersion: 131849
-  cacheTime: 639040219666921137
+  cacheTime: 638960728971420137
   SerializableEventsDict:
   - key: event:/BrickDestroyed1
     index: 0
@@ -108,8 +237,10 @@ MonoBehaviour:
     index: 1
   - key: event:/BrickHit1
     index: 2
-  - key: event:/BrickHit2
+  - key: event:/BrickHit4
     index: 3
+  - key: event:/BrickHit2
+    index: 4
 --- !u!114 &3212731932540063263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,6 +259,33 @@ MonoBehaviour:
   lastModified: 638960728971370051
   FileSizes: []
   Exists: 1
+--- !u!114 &3581193527573010646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/BrickHit4
+  m_EditorClassIdentifier: 
+  Path: event:/BrickHit4
+  Guid:
+    Data1: -1848375845
+    Data2: 1323808630
+    Data3: -373468522
+    Data4: 1759796071
+  Banks:
+  - {fileID: -7270708641196589513}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &3839789635480640247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,11 +301,65 @@ MonoBehaviour:
   Path: Assets/FMODBanks/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639040219666921137
+  lastModified: 638960728971420137
   FileSizes:
   - Name: 
-    Value: 1010
+    Value: 1042
   Exists: 1
+--- !u!114 &5037100142664748030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/BrickHit1
+  m_EditorClassIdentifier: 
+  Path: event:/BrickHit1
+  Guid:
+    Data1: 1795175355
+    Data2: 1105571035
+    Data3: 792315569
+    Data4: 643302342
+  Banks:
+  - {fileID: -8407133921014480811}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &6426424004493015541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/BrickHit3
+  m_EditorClassIdentifier: 
+  Path: event:/BrickHit3
+  Guid:
+    Data1: -1199764333
+    Data2: 1082646363
+    Data3: 887049375
+    Data4: -1741958319
+  Banks:
+  - {fileID: -8407133921014480811}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &7384138626590115985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,3 +432,30 @@ MonoBehaviour:
   lastModified: 638960728970558964
   FileSizes: []
   Exists: 1
+--- !u!114 &8954774920333144777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/BrickHit4
+  m_EditorClassIdentifier: 
+  Path: event:/BrickHit4
+  Guid:
+    Data1: -1848375845
+    Data2: 1323808630
+    Data3: -373468522
+    Data4: 1759796071
+  Banks:
+  - {fileID: -8407133921014480811}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0

@@ -7,18 +7,28 @@ using VContainer.Unity;
 public class PlayerController : MonoBehaviour {
 
 
-    [Inject,HideInInspector] PlayScreen playScreen;
-    [Inject] BallManager ballManager;
+    PlayScreen playScreen;
+    BallManager ballManager;
 
     [SerializeField] GameObject optionPanel;
 
     private bool isBallMoving = false;
 
     LineRenderer line;
+    [SerializeField] Material lineMaterial;
 
     List<Rigidbody2D> ballsRigidbody = new List<Rigidbody2D>();
 
     public event Action<Vector2> OnBallLaunch;
+
+    [Inject]
+    void Constructor(
+        PlayScreen playScreen,
+        BallManager ballManager
+     ) {
+        this.playScreen = playScreen;
+        this.ballManager = ballManager;
+    }
 
     public void StartGame() {
         SpawnLine();
@@ -38,15 +48,32 @@ public class PlayerController : MonoBehaviour {
 
 
     public void SpawnLine() {
-        line = new GameObject("Line").AddComponent<LineRenderer>();
+        line = new GameObject("TrajectoryLine").AddComponent<LineRenderer>();
         line.transform.parent = transform;
+
+        line.material = lineMaterial;
+
         line.startWidth = 0.1f;
+        line.endWidth = 0.02f;
+
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] {
+            new GradientColorKey(Color.white, 0.0f),
+            new GradientColorKey(Color.white, 1.0f)
+            },
+            new GradientAlphaKey[] {
+            new GradientAlphaKey(1.0f, 0.0f),
+            new GradientAlphaKey(0.0f, 1.0f)
+            }
+        );
+        line.colorGradient = gradient;
+
+        line.enabled = false;
     }
 
     void Update() {
         if ( isBallMoving ) return;
-
-
 
 
         if ( Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0) ) {
@@ -56,11 +83,11 @@ public class PlayerController : MonoBehaviour {
             // Raycast at mouse position
             RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
 
-            if ( optionPanel == null  || ballManager == null ) return;
+            if ( optionPanel == null || ballManager == null ) return;
 
             // Check if we hit background
             if ( optionPanel.activeSelf ) return;
-            if ( hit.collider != null && hit.collider.CompareTag("Background") ) {
+            if ( hit.collider != null && (hit.collider.CompareTag("Background") || hit.collider.CompareTag("Brick")) ) {
                 // ---- Handle input only inside background ----
                 if ( Input.GetMouseButtonDown(0) ) {
                     DrawLine(Input.mousePosition);
@@ -85,9 +112,14 @@ public class PlayerController : MonoBehaviour {
 
     void DrawLine( Vector2 pos ) {
         line.enabled = true;
+
         var target = Camera.main.ScreenToWorldPoint(pos);
         Vector2 direction = (target - new Vector3(ballManager.ballPos.x, ballManager.ballPos.y, 0)).normalized;
+
+
         var targetPosScreen = ballManager.ballPos + direction * Mathf.Max(Screen.width, Screen.height);
+
+        line.positionCount = 2;
         line.SetPosition(0, ballManager.ballPos);
         line.SetPosition(1, targetPosScreen);
     }
@@ -96,4 +128,17 @@ public class PlayerController : MonoBehaviour {
         isBallMoving = false;
     }
 
+    //ensure to clean up the line renderer when the object is destroyed
+    void OnDestroy() {
+        if ( line != null ) {
+            if ( Application.isPlaying ) {
+                Destroy(line.material);
+                Destroy(line.gameObject);
+            }
+            else {
+                DestroyImmediate(line.material);
+                DestroyImmediate(line.gameObject);
+            }
+        }
+    }
 }

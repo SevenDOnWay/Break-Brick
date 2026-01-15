@@ -2,32 +2,80 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
+using System.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
+[RequireComponent(typeof(TrailRenderer))]
 public class BallScript : MonoBehaviour {
 
-    [Inject] BallManager ballManager;
-
+    PlayScreen playScreen;
+    BallManager ballManager;
 
     [HideInInspector] public Rigidbody2D rb;
+    Collider2D collider2D;
     int bounceTime;
     int endLineTriggerCount = 0;
     const int maxEndLineTriggers = 2;
     float duration = 0.5f; // duration for moving back to start position
 
+    float squareSize;
+
     public event Action<BallScript> OnBallFinished;
 
-    void Start() {
-        rb = GetComponent<Rigidbody2D>();
-        NewLauch();
+    private TrailRenderer trail;
 
+    [Inject]
+    public void Constructor(
+        PlayScreen playScreen,
+        BallManager ballManager
+     ) {
+        this.playScreen = playScreen;
+        this.ballManager = ballManager;
+    }
+
+    private void Awake() {
+        collider2D = GetComponent<Collider2D>();
+        trail = GetComponent<TrailRenderer>();
+        rb = GetComponent<Rigidbody2D>();
+
+        squareSize = playScreen.squareSize;
+    }
+
+    void Start() {
+        TrailInitialize();
+        NewLauch();
+    }
+
+    void EnableTrail( bool enable ) {
+        trail.emitting = enable;
+    }
+
+    void TrailInitialize() {
+        trail.time = 0.2f;
+        trail.startWidth = 0.15f;
+        trail.endWidth = 0.05f;
+        trail.minVertexDistance = 0.05f;
+
+        Gradient gradient = new();
+        gradient.SetKeys(
+            new GradientColorKey[] {
+            new(Color.white, 0.0f),
+            new(Color.white, 1.0f)
+            },
+            new GradientAlphaKey[] {
+            new(1.0f, 0.0f),
+            new(0.0f, 1.0f)
+            }
+        );
+        trail.colorGradient = gradient;
     }
 
     void NewLauch() {
+        collider2D.enabled = true;
         bounceTime = 0;
         endLineTriggerCount = 0;
+        EnableTrail(true);
     }
 
     private void OnCollisionEnter2D( Collision2D collision ) {
@@ -51,21 +99,25 @@ public class BallScript : MonoBehaviour {
             endLineTriggerCount++;
             if ( endLineTriggerCount <= maxEndLineTriggers ) return;
 
-            Vector2 newPos = new Vector2(transform.position.x, -ballManager.playScreen.squareSize * 6);
+            Vector2 newPos = new Vector2(transform.position.x,squareSize * 6);
             ballManager.ResetBallPos(newPos);
 
             FinishBall();
         }
     }
 
-    void FinishBall() {
+    async void FinishBall() {
+        EnableTrail(false);
+        await ResetVelocityCoroutine();
         NewLauch();
-        StartCoroutine(ResetVelocityCoroutine());
     }
 
-    IEnumerator ResetVelocityCoroutine() {
+    async Task ResetVelocityCoroutine() {
+        collider2D.enabled = false;
         rb.linearVelocity = Vector2.zero;
-        yield return transform.DOMove(ballManager.ballPos, duration).WaitForCompletion();
+        await transform.DOMove(ballManager.ballPos, duration).SetEase(Ease.InOutSine)
+            .AsyncWaitForCompletion();
+
         OnBallFinished?.Invoke(this);
     }
 

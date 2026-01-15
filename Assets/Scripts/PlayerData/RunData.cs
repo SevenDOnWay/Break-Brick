@@ -4,9 +4,6 @@ using UnityEngine;
 
 [System.Serializable]
 public class RunData {
-
-    public bool isContinuing = false;
-
     [JsonInclude] int difficult;
     [JsonInclude] int waveIndex;
     [JsonInclude] int ballCount;
@@ -15,19 +12,29 @@ public class RunData {
 
     [JsonInclude] List<BrickData> bricksData;
 
-    [JsonInclude] CharacterUpgradeData characterUpgradeData;
+    [JsonInclude] string characterSOId;
+    //[JsonInclude] list<string> upgradeSOId;
 
-    public RunData(int difficult, CharacterUpgradeData characterUpgradeData ) {
+    bool isContinuing = false;
+
+    public RunData( int difficult, string characterSOId ) {
         this.difficult = difficult;
-        this.characterUpgradeData = characterUpgradeData;
+        this.characterSOId = characterSOId;
     }
-    
+
+    public void SetIsContinuing( bool isContinuing ) {
+        this.isContinuing = isContinuing;
+    }
+
     public int GetDifficultIndex() => difficult;
     public int GetWaveIndex() => waveIndex;
     public int GetBallCount() => ballCount;
     public Vector2 GetBallPos() => new Vector2(ballPosX, ballPosY);
     public List<BrickData> GetBricksData() => bricksData;
-    public CharacterUpgradeData GetCharacterUpgradeData() => characterUpgradeData;
+
+    //TODO: implement character upgrade 
+    //public CharacterUpgradeData GetCharacterUpgradeData() => characterUpgradeData;
+    public bool GetIsContinuing() => isContinuing;
 
     public void OverwriteBricksData( List<BrickData> bricksData ) {
         this.bricksData = bricksData;
@@ -45,10 +52,4 @@ public class RunData {
     public void OverwriteWaveIndex( int waveIndex ) {
         this.waveIndex = waveIndex;
     }
-
-
-    //TODO: add to this
-
-    //public UpgradeSO upgradeSO;
-    //public int Level;
 }

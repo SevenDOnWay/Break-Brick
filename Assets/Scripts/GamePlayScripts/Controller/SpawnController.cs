@@ -17,14 +17,29 @@ public class SpawnController : MonoBehaviour {
     }
     */
 
-
-    [Inject] IObjectResolver resolver;
-    [Inject] PlayScreen playScreen;
-    [Inject] WaveScript waveScript;
-    [Inject] BrickManager brickManager;
-
     const int row = 10;
     const int column = 8;
+
+    IObjectResolver resolver;
+    RunDataManager runDataManager;
+    PlayScreen playScreen;
+    WaveScript waveScript;
+    BrickManager brickManager;
+
+    [Inject]
+    public void Constructor(
+        IObjectResolver resolver,
+        RunDataManager runDataManager,
+        PlayScreen playScreen,
+        WaveScript waveScript,
+        BrickManager brickManager
+     ) {
+        this.resolver = resolver;
+        this.playScreen = playScreen;
+        this.waveScript = waveScript;
+        this.brickManager = brickManager;
+        this.runDataManager = runDataManager;
+    }
 
     [System.Serializable]
     public class Brick {
@@ -39,6 +54,9 @@ public class SpawnController : MonoBehaviour {
     }
 
 
+
+    const int row = 10;
+    const int column = 8;
 
     [SerializeField] Brick[] bricks;
 
@@ -59,7 +77,10 @@ public class SpawnController : MonoBehaviour {
         ScalePrefab();
         SetUpScreen();
 
-        difficult = RunDataManager.Instance.runData.GetDifficultIndex();
+        if(runDataManager == null) Debug.LogError("runDataManager is null in SpawnController.");
+        if ( runDataManager.runData == null ) Debug.LogError("runData is null in SpawnController.");
+
+        difficult = runDataManager.runData.GetDifficultIndex();
 
     }
 
@@ -318,7 +339,7 @@ public class SpawnController : MonoBehaviour {
     /// use to spawn brick at specific position (split brick)
     /// </summary>
     public void SpawnBrickAt( Vector2Int pos ) {
-        Debug.Log($"SpawnBrickAt {pos}");
+        //Debug.Log($"SpawnBrickAt {pos}");
 
         if ( brickManager.IsPositionOccupied(pos) ) return; // already occupied
 
@@ -378,7 +399,6 @@ public class SpawnController : MonoBehaviour {
             0
         );
     }
-
 
     public GameObject GetBrickPrefabFromType( BrickType type ) {
         foreach ( var brick in bricks ) {

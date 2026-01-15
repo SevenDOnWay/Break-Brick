@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,13 +6,9 @@ using TMPro;
 using UnityEngine;
 using VContainer;
 
-public class BallManager : MonoBehaviour
-{
-
-    //SelectState selectState;
-    //CharacterEntry characterEntry;
-    [Inject, HideInInspector] public PlayScreen playScreen;
-
+public class BallManager : MonoBehaviour {
+    RunDataManager runDataManager;
+    PlayScreen playScreen;
 
     private Dictionary<string, float> properties = new Dictionary<string, float> {
         {"Speed", 5},
@@ -28,6 +25,8 @@ public class BallManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI t_BallCount;
     public Vector2 ballPos;
     bool ballPosLocked = false;
+    [SerializeField] float xOffset = 50;
+    [SerializeField] float yOffset = 20;
 
     CharacterSO characterSO;
 
@@ -36,22 +35,24 @@ public class BallManager : MonoBehaviour
     public RequestBall requestBall;
     public event Action OnAllBallsDone;
 
-
-
+    [Inject]
+    public void Constructor(
+        RunDataManager runDataManager,
+        PlayScreen playScreen
+     ) {
+        this.runDataManager = runDataManager;
+        this.playScreen = playScreen;
+    }
 
     public void StartGame() {
-
-        //selectState = GameObject.FindGameObjectWithTag("Select State").GetComponent<SelectState>();
-        //characterEntry = GameObject.FindGameObjectWithTag("Character Entry").GetComponent<CharacterEntry>();
-        //characterEntry.characters[selectState.characterIndex].Apply(gameObject.GetComponent<BallManager>());
-
         ballPos = new Vector2(0, -playScreen.squareSize * 6);
 
         RequestExtraBall(); // init ball for play
 
+        //TODO: get upgrade from run data
 
-        var data = RunDataManager.Instance.runData.GetCharacterUpgradeData();
-        data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
+        //var data = runDataManager.runData.GetCharacterUpgradeData();
+        //data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
 
         UpdateText();
     }
@@ -68,10 +69,8 @@ public class BallManager : MonoBehaviour
         UpdateText();
     }
 
-    public void ModifyProperty(string key, float value)
-    {
-        if (!properties.ContainsKey(key))
-        {
+    public void ModifyProperty( string key, float value ) {
+        if ( !properties.ContainsKey(key) ) {
             Debug.LogWarning($"Property {key} not found!");
             return;
         }
@@ -80,8 +79,7 @@ public class BallManager : MonoBehaviour
     }
     #endregion
 
-    public void LaunchBall(Vector2 direction)
-    {
+    public void LaunchBall( Vector2 direction ) {
         UnlockBallPos();
         StartCoroutine(LaunchSequence(direction));
         //Debug.Log($"Balls in list: {balls.Count}");
@@ -90,8 +88,7 @@ public class BallManager : MonoBehaviour
     IEnumerator LaunchSequence( Vector2 direction ) {
         float speed = properties["Speed"];
         //TODO: wait for done level up
-        foreach (var ball in balls)
-        {
+        foreach ( var ball in balls ) {
             ball.GetComponent<Rigidbody2D>().AddForce(direction * speed, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f); // stagger launch
         }
@@ -99,8 +96,7 @@ public class BallManager : MonoBehaviour
         yield return WaitAllBalls();
     }
 
-    IEnumerator WaitAllBalls()
-    {
+    IEnumerator WaitAllBalls() {
         int finishedCount = 0;
         int totalBalls = balls.Count;
         float beginTime = Time.time;
@@ -108,33 +104,25 @@ public class BallManager : MonoBehaviour
         Action<BallScript> onBallFinished = (ball) => finishedCount++;
 
         // Subscribe
-        foreach (var ball in balls)
-        {
+        foreach ( var ball in balls ) {
             var script = ball.GetComponent<BallScript>();
             script.OnBallFinished += onBallFinished;
         }
 
-        while (finishedCount < totalBalls)
-        {
-            if (Time.time > beginTime + 5f)
-            {
+        while ( finishedCount < totalBalls ) {
+            if ( Time.time > beginTime + 5f ) {
                 Debug.Log("Too long, speed up balls");
-                foreach (var ball in balls)
-                {
+                foreach ( var ball in balls ) {
                     BallScript script = ball.GetComponent<BallScript>();
-                    script.rb.linearVelocity *= 3;
+                    script.rb.linearVelocity *= 2;
                 }
                 beginTime += 10f;
             }
             yield return null; // wait 1 frame
         }
 
-        // Wait until all balls are finished
-        yield return new WaitUntil(() => finishedCount >= totalBalls);
-
         // Unsubscribe
-        foreach (var ball in balls)
-        {
+        foreach ( var ball in balls ) {
             BallScript script = ball.GetComponent<BallScript>();
             script.OnBallFinished -= onBallFinished;
         }
@@ -146,30 +134,39 @@ public class BallManager : MonoBehaviour
     }
 
     void UpdateText() {
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(ballPos);
+        Vector2 screenPos = Camera.main.WorldToScreenPoint(ballPos);
 
-        if ( ballPos.x > 0 ) {
-            t_BallCount.transform.position += new Vector3(-20, 150, 0);
-        }
-        else {
-            t_BallCount.transform.position += new Vector3(20, 150, 0);
-        }
+        RectTransform canvasRect = t_BallCount.canvas.GetComponent<RectTransform>();
+        RectTransform textRect = t_BallCount.GetComponent<RectTransform>();
+
+        Vector2 anchoredPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPos,
+            Camera.main,
+            out anchoredPos
+        );
+
+        // Now apply your offset logic in canvas space
+        if ( ballPos.x > 0 )
+            anchoredPos += new Vector2(-20, 150);
+        else
+            anchoredPos += new Vector2(20, 150);
+
+        textRect.anchoredPosition = anchoredPos;
 
 
         t_BallCount.text = balls.Count.ToString();
     }
 
-    public void ResetBallPos(Vector2 newPos)
-    {
-        if (!ballPosLocked)
-        {
+    public void ResetBallPos( Vector2 newPos ) {
+        if ( !ballPosLocked ) {
             ballPos = newPos;
             ballPosLocked = true; // only first ball can update
         }
     }
 
-    public void UnlockBallPos()
-    {
+    public void UnlockBallPos() {
         ballPosLocked = false;
     }
 
@@ -181,15 +178,16 @@ public class BallManager : MonoBehaviour
     }
 
     public void SaveBallData() {
-        RunDataManager.Instance.runData.OverwriteBallCount(balls.Count);
+        runDataManager.runData.OverwriteBallCount(balls.Count);
     }
 
     public void SaveBallPos() {
-        RunDataManager.Instance.runData.OverwriteBallPos(ballPos);
+        runDataManager.runData.OverwriteBallPos(ballPos);
     }
 
     #endregion
 
+    #region Restore
 
     public void Restore() {
         RestoreBallPos();
@@ -198,20 +196,24 @@ public class BallManager : MonoBehaviour
     }
 
     public void RestoreBallPos() {
-        ballPos = RunDataManager.Instance.runData.GetBallPos();
+        ballPos = runDataManager.runData.GetBallPos();
     }
 
     public void RestoreBall() {
-        RequestExtraBall(RunDataManager.Instance.runData.GetBallCount());
+        RequestExtraBall(runDataManager.runData.GetBallCount());
     }
 
     public void RestoreUpgrade() {
-        var data = RunDataManager.Instance.runData.GetCharacterUpgradeData();
-        if ( data.upgradeType == UpgradeType.ExtraBalls ) {
-            Debug.Log("Skip if upgrade extra ball");
-            return;
-        }
 
-        data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
+        //TODO: retrive upgrade from run data
+
+        //var data = runDataManager.runData.GetCharacterUpgradeData();
+        //if ( data.upgradeType == UpgradeType.ExtraBalls ) {
+        //    Debug.Log("Skip if upgrade extra ball");
+        //    return;
+        //}
+
+        //data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
     }
+    #endregion
 }

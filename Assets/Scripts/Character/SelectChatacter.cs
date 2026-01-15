@@ -1,34 +1,54 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VContainer;
-using VContainer.Unity;
 
 public class SelectCharacter : MonoBehaviour {
-    [Inject] CharacterEntry characterEntry;
+    RunDataManager runDataManager;
+    CharacterDataBase characterDataBase;
+
+    PlayerDataManager playerDataManager;
 
     private int currentCharacterIndex = 0;
 
     [SerializeField] Button nextDifficulty;
     [SerializeField] Button previousDifficulty;
     private int currentDifficultIndex = 0;
-    int maxDifficultIndex = 2; // hardcode for now 1 esay, 2 normal, 3 hard
+    const int maxDifficultIndex = 2; // hardcode for now 1 esay, 2 normal, 3 hard
+
+    List<CharacterSO> characterSos;
 
     public event Action<int> OnDifficultChange;
     public event Action<int> OnCharacterChange;
     public event Action OnPlay;
 
-
-    void Awake() {
-        //TODO : Load the current player and difficulty from playerdata or settings
-        SetActiveCharacter(currentCharacterIndex);
-        CheckButtonDifficulty();
-
+    [Inject]
+    void Constructor(
+        RunDataManager runDataManager,
+        CharacterDataBase characterManager,
+        PlayerDataManager playerDataManager
+    ) {
+        this.runDataManager = runDataManager;
+        this.characterDataBase = characterManager;
+        this.playerDataManager = playerDataManager;
     }
 
+    void Awake() {
+        _ = LoadCharactersSOs();
+
+        //TODO : Load the current player and difficulty from playerdata
+        CheckButtonDifficulty();
+    }
+
+    private async Task LoadCharactersSOs() {
+        characterSos = await characterDataBase.GetCharacters();
+    }
+
+
+    #region Button_Difficulty_Logic
     public void OnClicNextDifficulty() {
         OnDifficultChange?.Invoke(++currentDifficultIndex);
         CheckButtonDifficulty();
@@ -38,33 +58,27 @@ public class SelectCharacter : MonoBehaviour {
         OnDifficultChange?.Invoke(--currentDifficultIndex);
         CheckButtonDifficulty();
     }
+    #endregion
 
+    #region Button_Character_Logic
     public void OnClickNextCharacter() {
-        currentCharacterIndex = (currentCharacterIndex + 1) % characterEntry.characters.Length;
-        SetActiveCharacter(currentCharacterIndex);
+        currentCharacterIndex = (currentCharacterIndex + 1) % characterSos.Count;
         OnCharacterChange?.Invoke(currentCharacterIndex);
-        Debug.Log($"Current Player Index: {currentCharacterIndex}"); // Debug log to check the current player index
     }
 
     public void OnClickPreviousCharacter() {
-        currentCharacterIndex = (currentCharacterIndex - 1 + characterEntry.characters.Length) % characterEntry.characters.Length;
-        SetActiveCharacter(currentCharacterIndex);
+        currentCharacterIndex = (currentCharacterIndex - 1 + characterSos.Count) % characterSos.Count;
         OnCharacterChange?.Invoke(currentCharacterIndex);
     }
+    #endregion
 
     public async void OnClickPlay() {
         OnPlay?.Invoke();
 
-        await RunDataManager.Instance.NewRun(currentCharacterIndex, characterEntry.characters[currentCharacterIndex]);
+        runDataManager.runData = new RunData(currentCharacterIndex, characterSos[currentCharacterIndex].GetCharacterId());
+        await runDataManager.Save();
 
         await SceneManager.LoadSceneAsync(2);
-    }
-
-    void SetActiveCharacter( int index ) {
-        for ( int i = 0; i < characterEntry.characters.Length; i++ ) {
-            //characterEntry.characters[i].SetActive(i == index);
-        }
-        CheckButtonDifficulty();
     }
 
     void CheckButtonDifficulty() {

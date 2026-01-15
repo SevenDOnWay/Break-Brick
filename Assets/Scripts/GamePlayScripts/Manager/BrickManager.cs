@@ -8,9 +8,9 @@ using static UnityEditor.PlayerSettings;
 
 public class BrickManager : MonoBehaviour {
 
-
-    [Inject] PlayScreen playScreen;
-    [Inject] WaveScript waveScript;
+    RunDataManager runDataManager;
+    PlayScreen playScreen;
+    WaveScript waveScript;
 
     const int row = 10;
     const int column = 8;
@@ -23,6 +23,18 @@ public class BrickManager : MonoBehaviour {
     // public IReadOnlyList<BrickScript> Bricks => bricks;
 
     private float squareSize;
+
+    [Inject]
+    public void Constructor(
+        RunDataManager runDataManager,
+        PlayScreen playScreen,
+        WaveScript waveScript
+     ) {
+        this.runDataManager = runDataManager;
+        this.playScreen = playScreen;
+        this.waveScript = waveScript;
+    }
+
 
     public void Start() {
         squareSize = playScreen.squareSize;
@@ -49,7 +61,7 @@ public class BrickManager : MonoBehaviour {
         brick.Init(health);
 
         bricks[pos.x, pos.y] = brick;
-        Debug.Log($"RegisterBrick Pos: {pos}");
+        //Debug.Log($"RegisterBrick Pos: {pos}");
     }
 
     private void HandleBrickDestroyed( int col, int row ) {
@@ -58,13 +70,6 @@ public class BrickManager : MonoBehaviour {
 
 
     public void MoveBrick() {
-        // foreach (var brick in bricks)
-        // {
-        //     if (brick == null) continue; // Skip if the brick is null
-        //     brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
-        //     Debug.Log(brick.transform.position);
-
-        // }
         for ( int y = row - 1; y >= 0; y-- ) {
             for ( int x = column - 1; x >= 0; x-- ) {
 
@@ -73,8 +78,17 @@ public class BrickManager : MonoBehaviour {
                 if ( brick == null ) continue; // Skip if the brick is null
                 //Debug.Log($"{x}, {y}");
                 brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
-                bricks[x, y + 1] = brick;
+                
+                if ( y == row - 1 ) {
+                    Debug.Log("Game Over!");
 
+                    // TODO Game Over
+                    bricks[x, y] = null; // Remove the brick from the grid for now
+                    brick.DestroyBrick();
+                    continue;
+                }
+
+                bricks[x, y + 1] = brick;
                 bricks[x, y] = null;
             }
         }
@@ -120,7 +134,7 @@ public class BrickManager : MonoBehaviour {
             }
         }
 
-        RunDataManager.Instance.runData.OverwriteBricksData(newBricks);
+        runDataManager.runData.OverwriteBricksData(newBricks);
     }
 
     public void DealDamageVertical( Vector2Int pos ) {
@@ -150,7 +164,7 @@ public class BrickManager : MonoBehaviour {
         int x = Mathf.RoundToInt((worldPos.x + startX) / playScreen.squareSize);
         int y = Mathf.RoundToInt((startY - worldPos.y) / playScreen.squareSize);
 
-        Debug.Log($"{x} and {y}");
+        //Debug.Log($"{x} and {y}");
 
         return new Vector2Int(x, y);
     }
