@@ -99,7 +99,7 @@ public class BallScript : MonoBehaviour {
             endLineTriggerCount++;
             if ( endLineTriggerCount <= maxEndLineTriggers ) return;
 
-            Vector2 newPos = new Vector2(transform.position.x,squareSize * 6);
+            Vector2 newPos = new Vector2(transform.position.x,squareSize * -11 /2);
             ballManager.ResetBallPos(newPos);
 
             FinishBall();

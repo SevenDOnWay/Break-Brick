@@ -53,11 +53,6 @@ public class SpawnController : MonoBehaviour {
         //[SerializeField] public bool isBoss; // future use
     }
 
-
-
-    const int row = 10;
-    const int column = 8;
-
     [SerializeField] Brick[] bricks;
 
     [SerializeField] GameObject Pool;
