@@ -19,22 +19,3 @@ public class BrickData {
 
 
 }
-
-public enum BrickType{
-    Normal,
-    Split,
-    x2health,
-    HorizontalDamageBoost,
-    VerticalDamageBoost,
-    PlusBallBoost,
-
-    //======MINIBOSS======
-
-    MiniBoss,
-
-    //======BOSS======
-
-
-}
-
-
