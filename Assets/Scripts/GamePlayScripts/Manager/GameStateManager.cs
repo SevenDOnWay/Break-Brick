@@ -110,7 +110,7 @@ public class GameStateManager : MonoBehaviour {
 
         waveScript.IncreaseWave();
 
-        isPlaying = false;
+        isBallsFlying = false;
 
         if(waveScript.GetWaveIndex() % 50 == 0) {
             spawnController.SpawnMiniBoss();
