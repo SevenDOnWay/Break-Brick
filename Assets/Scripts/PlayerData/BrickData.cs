@@ -16,7 +16,6 @@ public class BrickData {
         this.health = health;
         this.type = type;
     }
+
+
 }
-
-
-

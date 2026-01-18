@@ -7,5 +7,12 @@ public enum BrickType {
     x2health,
     HorizontalDamageBoost,
     VerticalDamageBoost,
-    PlusBallBoost
+    PlusBallBoost,
+
+    //======MINIBOSS======
+
+    MiniBoss,
+
+    //======BOSS======
+
 }

@@ -83,7 +83,7 @@ public class GameStateManager : MonoBehaviour {
     }
 
     void ContinueGame( RunData runData ) {
-        // Restore bricks
+
         spawnController.RestoreBrick(runData.GetBricksData());
         ballManager.Restore();
 
@@ -110,7 +110,11 @@ public class GameStateManager : MonoBehaviour {
 
         waveScript.IncreaseWave();
 
-        isBallsFlying = false;
+        isPlaying = false;
+
+        if(waveScript.GetWaveIndex() % 50 == 0) {
+            spawnController.SpawnMiniBoss();
+        }
 
         CheckTurnState();
     }
@@ -133,6 +137,7 @@ public class GameStateManager : MonoBehaviour {
 
         ballManager.RequestExtraBall();
     }
+
 
     public void FinishUpgrade() {
         isUpgrading = false;

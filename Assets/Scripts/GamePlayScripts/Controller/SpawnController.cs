@@ -10,15 +10,16 @@ using VContainer.Unity;
 public class SpawnController : MonoBehaviour {
 
     /*
-     * enum Difficulties for the game.
-     * 
     enum Difficult{
         Easy = 0,
         Normal = 1,
         Hard = 2
     }
-
     */
+
+    const int row = 10;
+    const int column = 8;
+
     IObjectResolver resolver;
     RunDataManager runDataManager;
     PlayScreen playScreen;
@@ -43,29 +44,17 @@ public class SpawnController : MonoBehaviour {
 
     [System.Serializable]
     public class Brick {
-        [SerializeField] public GameObject prefab;
         [SerializeField] public BrickType type;
+        [SerializeField] public GameObject prefab;
         [SerializeField] public int minWave; //the minimum wave this brick can appear
         [SerializeField, Range(0f, 1f)] public float baseChance; // base chance to spawn
         [SerializeField, Range(0f, 0.1f)] public float growthPerWave; // how much chance increase per wave
-    }
 
-    public class MiniBossBrick {
-        [SerializeField] public GameObject prefab;
-        [SerializeField] public MiniBossBrickType type;
+        [SerializeField] public bool isMiniBoss;
+        //[SerializeField] public bool isBoss; // future use
     }
-
-    const int row = 10;
-    const int column = 8;
 
     [SerializeField] Brick[] bricks;
-    [SerializeField] MiniBossBrick[] miniBossBricks;
-
-
-    //[SerializeField] float[] brickWeights;
-
-    //[SerializeField] GameObject BrickPrefab;
-
 
     [SerializeField] GameObject Pool;
 
@@ -326,10 +315,33 @@ public class SpawnController : MonoBehaviour {
         }
     }
 
+    public void SpawnMiniBoss() {
+
+        int x = Random.Range(0, column);
+
+        Vector2Int spawnPos = new(x, 0);
+
+        if ( brickManager.IsPositionOccupied(spawnPos) ) OverideBrick(spawnPos);
+
+
+        //GameObject brick = resolver.Instantiate(BrickPrefab, spawnPos, Quaternion.identity);
+        //brick.name = BrickPrefab.name;
+        //brick.transform.SetParent(Pool.transform, true);
+        //brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPos);
+
+    }
+
+    //public void SpawnBoss() { } for future use
+
+    void OverideBrick( Vector2Int pos ) {
+        brickManager.bricks[pos.x, pos.y] = null;
+
+    }
+
+
     /// <summary>
     /// use to spawn brick at specific position (split brick)
     /// </summary>
-    /// <param name="pos"></param>
     public void SpawnBrickAt( Vector2Int pos ) {
         //Debug.Log($"SpawnBrickAt {pos}");
 
