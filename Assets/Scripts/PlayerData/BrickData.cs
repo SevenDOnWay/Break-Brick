@@ -16,7 +16,25 @@ public class BrickData {
         this.health = health;
         this.type = type;
     }
+
+
 }
 
+public enum BrickType{
+    Normal,
+    Split,
+    x2health,
+    HorizontalDamageBoost,
+    VerticalDamageBoost,
+    PlusBallBoost,
+
+    //======MINIBOSS======
+
+    MiniBoss,
+
+    //======BOSS======
+
+
+}
 
 

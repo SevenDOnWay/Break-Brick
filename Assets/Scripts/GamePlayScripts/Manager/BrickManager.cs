@@ -94,7 +94,7 @@ public class BrickManager : MonoBehaviour {
         }
     }
 
-    public void DealDamageHorizontal( Vector2Int pos ) {
+    public void DealDamageHorizontal( Vector2Int pos , int dame = 1) {
         int colIndex = pos.x;
         int rowIndex = pos.y;
 
@@ -104,7 +104,7 @@ public class BrickManager : MonoBehaviour {
             var brick = bricks[x, rowIndex];
             if ( brick == null ) continue;
 
-            brick.TakeDamage(1);
+            brick.TakeDamage(dame);
         }
     }
 
