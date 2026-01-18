@@ -10,15 +10,16 @@ public class CharacterSO : ScriptableObject {
 
     [SerializeField] string characterName;
     [Tooltip("DO NOT Assign, use for checking id"), SerializeField] string characterId;
-    [SerializeField] UpgradeType upgradeType;
-    [SerializeField] float primaryValue;
-    [SerializeField] float secondaryValue;
-    [SerializeField] Sprite icon;
+    [SerializeField] Sprite icon; //MAYBE: change to video
     [TextArea, SerializeField] string description;
+
+    [Header("UpgradeSO")]
+    [SerializeField] UpgradeStatSO UpgradeStatSO;
+    [SerializeField] UpgradeBehaviorSO UpgradeBehaviorSO;
+
     public string GetCharacterName() => characterName;
     public string GetCharacterId() => characterId;
     public Sprite GetIcon() => icon;
-    
     public string GetDescription() => description;
 
 
@@ -34,7 +35,9 @@ public class CharacterSO : ScriptableObject {
     }
 #endif
 
-    public void Apply(BallManager ballManager) {
+    public void Apply(StatManager statManager, UpgradeManager upgradeManager) {
+        UpgradeStatSO?.ApplyStat(statManager, upgradeManager);
+        UpgradeBehaviorSO?.ApplyBehavior(upgradeManager);
     }
 
     //public CharacterUpgradeData ToData() => new CharacterUpgradeData(this);

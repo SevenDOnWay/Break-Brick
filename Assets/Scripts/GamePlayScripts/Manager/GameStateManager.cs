@@ -6,53 +6,52 @@ using VContainer;
 using VContainer.Unity;
 
 public class GameStateManager : MonoBehaviour {
+    PlayScreen playScreen;
     RunDataManager runDataManager;
     WaveScript waveScript;
     PlayerController playerController;
     SpawnController spawnController;
+    StatManager statManager;
     BallManager ballManager;
     BrickManager brickManager;
     LevelManager levelManager;
+    UpgradeManager upgradeManager;
 
     [Inject]
     public void Constructor(
+        PlayScreen playScreen,
         RunDataManager runDataManager,
         WaveScript waveScript,
         PlayerController playerController,
         SpawnController spawnController,
+        StatManager statManager,
         BallManager ballManager,
         BrickManager brickManager,
-        LevelManager levelManager
+        LevelManager levelManager,
+        UpgradeManager upgradeManager
      ) {
+        this.playScreen = playScreen;
         this.runDataManager = runDataManager;
         this.waveScript = waveScript;
         this.playerController = playerController;
         this.spawnController = spawnController;
+        this.statManager = statManager;
         this.ballManager = ballManager;
         this.brickManager = brickManager;
         this.levelManager = levelManager;
+        this.upgradeManager = upgradeManager;
     }
 
-    bool isPlaying = false;
+    bool isBallsFlying = false;
+    bool isUpgrading = false;
 
     void Start() {
-
-        if ( ballManager == null ) {
-            Debug.LogError("BallManager is null in GameStateManager.");
-            return;
-        }
-        if ( spawnController == null ) {
-            Debug.LogError("SpawnController is null in GameStateManager.");
-            return;
-        }
-        if ( playerController == null ) {
-            Debug.LogError("PlayerController is null in GameStateManager.");
-            return;
-        }
 
         SetUpObserver();
 
         var runData = runDataManager.runData;
+
+        //TODO: FIX THIS LOADING LOGIC
 
         if ( runData != null && runData.GetIsContinuing() ) {
             Debug.Log("Resuming from saved RunData...");
@@ -63,23 +62,24 @@ public class GameStateManager : MonoBehaviour {
             StartNewGame();
         }
 
-        //spawnController.StartGame();
-        //ballManager.StartGame();
-        //playerController.StartGame();
-        //brickManager.StartGame(); nothing for now
     }
 
     private void SetUpObserver() {
         ballManager.requestBall += RequestBall;
-        ballManager.OnAllBallsDone += HandleAllBallsDone;
         playerController.OnBallLaunch += NotifyLaunchBall;
-        levelManager.OnLevelUp += LevelUp;
+        ballManager.OnAllBallsDone += HandleAllBallsDone;
+        levelManager.NotifiLevelUp += LevelUp;
+        upgradeManager.OnAllUpgradesProcessed += FinishUpgrade;
+        upgradeManager.RequestExtraBalls += (extraballs) => ballManager.RequestExtraBall(extraballs);
     }
 
     void StartNewGame() {
-        spawnController.StartGame();
+        spawnController.StartGame(); 
         ballManager.StartGame();
         playerController.StartGame();
+        upgradeManager.StartGame();
+
+        SetPlayerCanShoot(true);
     }
 
     void ContinueGame( RunData runData ) {
@@ -95,18 +95,18 @@ public class GameStateManager : MonoBehaviour {
 
     public void NotifyLaunchBall( Vector2 dir ) {
 
-        if ( isPlaying ) return; // prevent multiple launch
+        if ( isBallsFlying ) return; // prevent multiple launch
 
         ballManager.LaunchBall(dir);
 
-        isPlaying = true;
+        isBallsFlying = true;
 
     }
 
     public void HandleAllBallsDone() {
         brickManager.MoveBrick();
         spawnController.SpawnBrick();
-        playerController.HandleAllBallsDone();
+        //playerController.HandleAllBallsDone();
 
         waveScript.IncreaseWave();
 
@@ -115,23 +115,46 @@ public class GameStateManager : MonoBehaviour {
         if(waveScript.GetWaveIndex() % 50 == 0) {
             spawnController.SpawnMiniBoss();
         }
+
+        CheckTurnState();
     }
 
     public GameObject RequestBall() {
-        return spawnController.SpawnBall(ballManager.ballPos);
+        return spawnController.SpawnBall(ballManager, statManager, upgradeManager, playScreen.GetSquareSize());
     }
 
-    public void LevelUp() {
-        //if()
-        // var task = StartCoroutine(LevelUpRoutine());
+    public void LevelUp( int currentLevel ) {
+        StartCoroutine(LevelUpRoutine(currentLevel));
     }
 
-    private IEnumerator LevelUpRoutine() {
-        yield return new WaitUntil(() => !isPlaying);
+    private IEnumerator LevelUpRoutine(int currentLevel) {
+        yield return new WaitWhile(() => isBallsFlying);
 
-        // TODO: Add upgade here
+        isUpgrading = true;
+        SetPlayerCanShoot(false);
+
+        upgradeManager.SetUpUpgrade(currentLevel);
 
         ballManager.RequestExtraBall();
     }
 
+
+    public void FinishUpgrade() {
+        isUpgrading = false;
+        CheckTurnState();
+    }
+
+    private void CheckTurnState() {
+        // Only allow shooting if balls are NOT flying AND we are NOT upgrading
+        if ( !isBallsFlying && !isUpgrading ) {
+            SetPlayerCanShoot(true);
+        }
+        else {
+            SetPlayerCanShoot(false);
+        }
+    }
+
+    private void SetPlayerCanShoot( bool canShoot ) {
+        playerController.SetCanShoot(canShoot);
+    }
 }

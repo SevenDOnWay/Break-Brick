@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Char 1
   m_EditorClassIdentifier: 
   characterName: char 1
+  characterId: 56fd384e-d4d1-4d79-a67b-fe451e092d16
   icon: {fileID: 3768298933040644959, guid: 1687971a4563f334d8621ebbec4bd9b3, type: 3}
   description: 'Start with 3 ball '
-  upgrade: {fileID: 11400000, guid: 3c58f87a4e5fc0e41b95abbb5e6bcada, type: 2}
+  UpgradeStatSO: {fileID: 11400000, guid: 02deb1a74668ac54a94162f41824175d, type: 2}
+  UpgradeBehaviorSO: {fileID: 0}

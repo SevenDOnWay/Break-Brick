@@ -7,3 +7,5 @@ public interface IBrickVariant {
     void OnDie( BrickScript brickScript );
     BrickType GetBrickType();
 }
+
+

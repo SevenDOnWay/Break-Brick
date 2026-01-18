@@ -12,6 +12,9 @@ public class RootLifeTimeScope : LifetimeScope{
         //Audio
         builder.RegisterComponentInHierarchy<AudioManager>();
 
+        builder.RegisterComponentInHierarchy<UpgradeDataBase>();
+        builder.RegisterComponentInHierarchy<CharacterDataBase>();
+
 
     }
 

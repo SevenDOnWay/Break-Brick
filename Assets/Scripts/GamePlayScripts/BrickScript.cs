@@ -58,7 +58,6 @@ public class BrickScript : MonoBehaviour {
         UpdateBrickVisual();
 
         if ( health <= 0 ) {
-            Debug.Log($"will be destroyed");
             DestroyBrick();
         }
 

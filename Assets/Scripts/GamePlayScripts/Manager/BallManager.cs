@@ -1,63 +1,73 @@
-using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using VContainer;
 
 public class BallManager : MonoBehaviour {
     RunDataManager runDataManager;
     PlayScreen playScreen;
+    StatManager statsManager;
+    UpgradeManager upgradeManager;
 
-    private Dictionary<string, float> properties = new Dictionary<string, float> {
-        {"Speed", 5},
-        {"CritChance", 0},
-        {"CritMultiplier", 2},
-        {"FireChance", 0},
-        {"LightningChance", 0},
 
-    };
+
     List<GameObject> balls = new List<GameObject>();
 
-    //public IReadOnlyDictionary<string, float> GetProperties() => properties;
 
-    [SerializeField] TextMeshProUGUI t_BallCount;
-    public Vector2 ballPos;
+
+    //TODO: Fix public access
+
+    [Header("Ball Pos Setting")]
     bool ballPosLocked = false;
+    public Vector2 ballPos;
+    [SerializeField] TextMeshProUGUI t_BallCount;
     [SerializeField] float xOffset = 50;
     [SerializeField] float yOffset = 20;
 
+
+    [Header("Cache property")]
+    float squareSize;
     CharacterSO characterSO;
+    Dictionary <UpgradeType, float> finalStats;
 
 
+    //  [Header("Event")] //comment since header can't be use
+    public event Action OnAllBallsDone;
     public delegate GameObject RequestBall();
     public RequestBall requestBall;
-    public event Action OnAllBallsDone;
+
+
+    private Coroutine timeoutCoroutine;
 
     [Inject]
     public void Constructor(
         RunDataManager runDataManager,
-        PlayScreen playScreen
+        PlayScreen playScreen,
+        StatManager stats,
+        UpgradeManager upgradeManager
      ) {
         this.runDataManager = runDataManager;
         this.playScreen = playScreen;
+        this.statsManager = stats;
+        this.upgradeManager = upgradeManager;
     }
 
     public void StartGame() {
-        ballPos = new Vector2(0, -playScreen.squareSize * 6);
+
+        squareSize = playScreen.squareSize;
+        ballPos = new Vector2(0, squareSize * -11 / 2);
+
+        InitializeStat();
 
         RequestExtraBall(); // init ball for play
-
-        //TODO: get upgrade from run data
-
-        //var data = runDataManager.runData.GetCharacterUpgradeData();
-        //data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
 
         UpdateText();
     }
 
-    #region Upgrade_Logic
+    public void InitializeStat() => finalStats = new Dictionary<UpgradeType, float>(statsManager.GetAllStats());
 
     public void RequestExtraBall( int extraballs = 1 ) {
         for ( int i = 0; i < extraballs; i++ ) {
@@ -69,69 +79,85 @@ public class BallManager : MonoBehaviour {
         UpdateText();
     }
 
-    public void ModifyProperty( string key, float value ) {
-        if ( !properties.ContainsKey(key) ) {
-            Debug.LogWarning($"Property {key} not found!");
-            return;
-        }
-        // propagate to all existing balls
 
-    }
-    #endregion
-
+    #region Ball_Launch_Logic
     public void LaunchBall( Vector2 direction ) {
         UnlockBallPos();
+        SubscribleBall();
         StartCoroutine(LaunchSequence(direction));
         //Debug.Log($"Balls in list: {balls.Count}");
     }
 
-    IEnumerator LaunchSequence( Vector2 direction ) {
-        float speed = properties["Speed"];
-        //TODO: wait for done level up
-        foreach ( var ball in balls ) {
-            ball.GetComponent<Rigidbody2D>().AddForce(direction * speed, ForceMode2D.Impulse);
-            yield return new WaitForSeconds(0.1f); // stagger launch
-        }
-
-        yield return WaitAllBalls();
-    }
-
-    IEnumerator WaitAllBalls() {
+    /// <summary>
+    /// scribe to each ball finish event, and track when all balls are done
+    /// </summary>
+    void SubscribleBall() {
         int finishedCount = 0;
         int totalBalls = balls.Count;
-        float beginTime = Time.time;
 
-        Action<BallScript> onBallFinished = (ball) => finishedCount++;
+        // Reset timeout
+        if ( timeoutCoroutine != null ) StopCoroutine(timeoutCoroutine);
+        timeoutCoroutine = StartCoroutine(TimeoutCheckRoutine());
 
-        // Subscribe
+        // Subscribe immediately
         foreach ( var ball in balls ) {
             var script = ball.GetComponent<BallScript>();
-            script.OnBallFinished += onBallFinished;
+
+            // Safety check: ensure we don't double subscribe if called rapidly
+            script.OnBallFinished -= HandleBallFinished;
+            script.OnBallFinished += HandleBallFinished;
         }
 
-        while ( finishedCount < totalBalls ) {
-            if ( Time.time > beginTime + 5f ) {
-                Debug.Log("Too long, speed up balls");
-                foreach ( var ball in balls ) {
-                    BallScript script = ball.GetComponent<BallScript>();
-                    script.rb.linearVelocity *= 2;
-                }
-                beginTime += 10f;
+        // Local function to handle completion
+        void HandleBallFinished( BallScript ball ) {
+            // Unsubscribe immediately to prevent double counting
+            ball.OnBallFinished -= HandleBallFinished;
+
+            finishedCount++;
+
+            // Debug.Log($"Ball finished: {finishedCount}/{totalBalls}");
+
+            if ( finishedCount >= totalBalls ) {
+                AllBallDone();
             }
-            yield return null; // wait 1 frame
         }
+    }
 
-        // Unsubscribe
+    IEnumerator LaunchSequence( Vector2 direction ) {
         foreach ( var ball in balls ) {
-            BallScript script = ball.GetComponent<BallScript>();
-            script.OnBallFinished -= onBallFinished;
+            var script = ball.GetComponent<BallScript>();
+            script.LaunchBall(direction);
+            yield return new WaitForSeconds(0.1f); // stagger launch
         }
+    }
 
+    private void AllBallDone() {
         OnAllBallsDone?.Invoke();
-
         UpdateText();
+
+
+        StopCoroutine(timeoutCoroutine);
+        timeoutCoroutine = null;
+
         Debug.Log("All balls are done!");
     }
+
+    IEnumerator TimeoutCheckRoutine() {
+        // Wait the initial 5 seconds
+        yield return new WaitForSeconds(5f);
+
+        Debug.Log("Too long, speed up balls");
+
+        // Apply speed up
+        foreach ( var ball in balls ) {
+            BallScript script = ball.GetComponent<BallScript>();
+            script.rb.linearVelocity *= 2;
+
+        }
+    }
+
+    #endregion
+
 
     void UpdateText() {
         Vector2 screenPos = Camera.main.WorldToScreenPoint(ballPos);
@@ -158,6 +184,8 @@ public class BallManager : MonoBehaviour {
 
         t_BallCount.text = balls.Count.ToString();
     }
+
+    public Vector2 GetBallPos() => ballPos;
 
     public void ResetBallPos( Vector2 newPos ) {
         if ( !ballPosLocked ) {
@@ -195,25 +223,40 @@ public class BallManager : MonoBehaviour {
         RestoreUpgrade();
     }
 
-    public void RestoreBallPos() {
-        ballPos = runDataManager.runData.GetBallPos();
-    }
+    public void RestoreBallPos() => ballPos = runDataManager.runData.GetBallPos();
 
-    public void RestoreBall() {
-        RequestExtraBall(runDataManager.runData.GetBallCount());
-    }
+    public void RestoreBall() => RequestExtraBall(runDataManager.runData.GetBallCount());
 
     public void RestoreUpgrade() {
 
-        //TODO: retrive upgrade from run data
 
-        //var data = runDataManager.runData.GetCharacterUpgradeData();
-        //if ( data.upgradeType == UpgradeType.ExtraBalls ) {
-        //    Debug.Log("Skip if upgrade extra ball");
-        //    return;
+
+        //Dictionary<UpgradeType, float> tempStat = new Dictionary<UpgradeType, float>(baseStat);
+
+        //foreach ( UpgradeSO upgrade in upgradeSOs ) {
+        //    tempStat = upgrade.GetAllUpgradeStat();
+
+        //    foreach ( var pair in tempStat ) {
+        //        if ( pair.Key == UpgradeType.ExtraBalls ) continue;
+
+        //        upgrade.Apply(this);
+
+        //    }
         //}
 
-        //data.ToRuntimeSO().Apply(gameObject.GetComponent<BallManager>());
+        //TODO : read data from run data then applied to statsManager
+
+        statsManager.ResetStats();
+
+        //upgradeManager.RestoreUpgrades(); //not implemented yet
+
+
+        //foreach ( UpgradeSO upgrade in upgradeSOs ) {
+        //    statsManager.ApplyUpgrade(upgrade);
+        //}
+
     }
     #endregion
 }
+
+
