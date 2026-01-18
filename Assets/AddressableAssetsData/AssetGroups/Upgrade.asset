@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Upgrade
+  m_EditorClassIdentifier: 
+  m_GroupName: Upgrade
+  m_GUID: 4f56ee7a7de4bb14780917ae2e50fd7e
+  m_SerializeEntries:
+  - m_GUID: 4973f516badc3ec4e83b57cbe5a02143
+    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/+5 ball.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Upgrade
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 682d6ac2b16893745be31c9e7d7516e9
+    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/+1 ball.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Upgrade
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6e6248d3aa4317042bd129445409411c
+    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/+2 ball.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Upgrade
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f6461085f1499c544a67f42932117d99
+    m_Address: Assets/Scripts/SOScripts/PowerUp/CritSO/Crit1.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Upgrade
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fe8c0f8d594fb4e42aeb641b211a34ad
+    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/explosion1.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Upgrade
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3511c1c778bc54c45b46247e2c272212, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 1b23983b44bc94c4299803634dbe05ac, type: 2}
+    - {fileID: 11400000, guid: 292ceceb86503684695e38283aa37de8, type: 2}

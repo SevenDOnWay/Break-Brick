@@ -48,10 +48,7 @@ public class ResponseUI : MonoBehaviour {
             squareSize = worldHeight * padding / row;
         }
 
-        Debug.Log($"World Width: {worldWidth}, World Height: {worldHeight}, Square Size: {squareSize}");
     }
-
-
 
     void OnDrawGizmosSelected() {
         float halfWidth = worldWidth / 2f;
