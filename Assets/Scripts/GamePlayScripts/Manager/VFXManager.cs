@@ -1,4 +1,7 @@
+using FMODUnity;
+using System;
 using System.Collections.Generic;
+using System.Xml.Schema;
 using UnityEngine;
 using VContainer;
 
@@ -7,13 +10,27 @@ public class VFXManager : MonoBehaviour {
     UpgradeManager upgradeManager;
     //AudioManager audioManager; //using FMOD
 
+    [Serializable]
+    public class VFXEntry {
+        public VFXType type;
+        public ParticleSystem prefab;
+        public int prewarmCount = 10;
+
+        public EventReference fmodEvent;
+    }
+
+    List<VFXEntry> entries = new List<VFXEntry>();
+    Dictionary<VFXType,Queue<ParticleSystem>> vfxPools = new Dictionary<VFXType, Queue<ParticleSystem>>();
+
+
 
     [Header("SerializeFiled")]
     [SerializeField] ParticleSystem explosionVFXPrefab;
-
-
     [Header("List")]
     Queue<ParticleSystem> explosionVFXPool = new Queue<ParticleSystem>();
+
+   
+
 
 
 
@@ -41,12 +58,16 @@ public class VFXManager : MonoBehaviour {
     }
 
     void SetUpVFXPool() {
-        // Pre-instantiate a pool of explosion VFX
-        for ( int i = 0; i < 10; i++ ) {
-            var vfx = Instantiate(explosionVFXPrefab);
-            vfx.gameObject.SetActive(false);
-            explosionVFXPool.Enqueue(vfx);
-        }
+        
+        foreach(var p in entries) {
+            var n = p.prewarmCount;
+            GameObject pool = new GameObject(p.type.ToString() + " VFX Pool");
+            pool.transform.parent = this.transform;
+
+            for (int i = 0; i < n; i++ ) {
+                Instantiate(p.prefab, pool.transform);
+            }
+        }       
     }
 
 

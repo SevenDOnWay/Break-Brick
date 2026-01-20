@@ -16,6 +16,8 @@ public class HorizontalDamageBoost : MonoBehaviour, IBrickVariant{
     public void OnDie( BrickScript brickScript ) {
         if( pos == null ) pos = brickManager.GetBrickGridIndex(brickScript.transform.position);
         DealDamage(brickScript, pos.Value);
+        //add vfx here
+
     }
 
     private void DealDamage( BrickScript brickScript, Vector2Int pos ) {
