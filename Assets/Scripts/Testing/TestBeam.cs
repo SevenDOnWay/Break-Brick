@@ -9,11 +9,12 @@ public class TestBeam : MonoBehaviour {
     [SerializeField] float testPosY;
 
     public void OnClick() {
-        beamScript = beam.GetComponent<Beam>();
+       
+        Vector2 vector2 = new Vector2(testPosX, testPosY);
 
-        beamScript.Play(new Vector2(testPosX, testPosY));
+        BeamVFXCommand beamVFXCommand = new BeamVFXCommand(vector2);
 
-
+        VFXEvent.RaiseVFXCommand(beamVFXCommand);
 
     }
 

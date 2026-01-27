@@ -55,14 +55,16 @@ public class SpawnController : MonoBehaviour {
     }
 
     [SerializeField] Brick[] bricks;
-
     [SerializeField] GameObject Pool;
+
+    [SerializeField] LayerMask wallLayer;
 
     [SerializeField] GameObject ballPrefab;
     [SerializeField] GameObject BackGround;
 
     int difficult;
     float squareSize;
+
 
     void Start() {
         squareSize = playScreen.GetSquareSize();
@@ -133,10 +135,10 @@ public class SpawnController : MonoBehaviour {
     void SetUpScreen() {
         CreateBackGround();
         CreateTriggerLine();
-        CreateWall("TopWall", "Wall", new Vector2(0, squareSize * 5), new Vector2(squareSize * 8, 0.1f));
-        CreateWall("BottomWall", "Bottom_Wall", new Vector2(0, -squareSize * 6), new Vector2(squareSize * 8, 0.1f));
-        CreateWall("LeftWall", "Wall", new Vector2(-squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
-        CreateWall("RightWall", "Wall", new Vector2(squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
+        CreateWall("TopWall", "Wall", wallLayer, new Vector2(0, squareSize * 5), new Vector2(squareSize * 8, 0.1f));
+        CreateWall("BottomWall", "Bottom_Wall", wallLayer, new Vector2(0, -squareSize * 6), new Vector2(squareSize * 8, 0.1f));
+        CreateWall("LeftWall", "Wall", wallLayer, new Vector2(-squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
+        CreateWall("RightWall", "Wall", wallLayer, new Vector2(squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
 
     }
 
@@ -162,11 +164,12 @@ public class SpawnController : MonoBehaviour {
     }
 
     //TODO: Find solution if ball move to fast wall will not be detected
-    void CreateWall( string name, string tag, Vector2 position, Vector2 size ) {
+    void CreateWall( string name, string tag, LayerMask mask, Vector2 position, Vector2 size ) {
         GameObject wall = new GameObject(name);
         wall.transform.parent = transform;
         wall.tag = tag;
         wall.transform.position = position;
+        wall.layer = mask;
 
         BoxCollider2D col = wall.AddComponent<BoxCollider2D>();
         col.size = size;

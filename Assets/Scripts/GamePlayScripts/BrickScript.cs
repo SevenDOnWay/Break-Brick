@@ -11,6 +11,8 @@ public class BrickScript : MonoBehaviour {
     [SerializeField] TextMeshPro healText;
     SpriteRenderer spriteRenderer;
 
+    IBrickVariant[] variants;
+
     //TODO: Find a better way to manage colors, and better color scheme
     Dictionary<int, string> colors = new Dictionary<int, string>{
             { 0, "#FFFFFF" },
@@ -36,7 +38,9 @@ public class BrickScript : MonoBehaviour {
 
         if ( spriteRenderer == null ) Debug.LogError("SpriteRenderer is null in BrickScript.");
 
-        foreach ( var variant in GetComponents<IBrickVariant>() ) {
+        variants = GetComponents<IBrickVariant>();
+
+        foreach ( var variant in variants ) {
             try {
                 variant.OnSpawn(this);
             }
@@ -57,7 +61,10 @@ public class BrickScript : MonoBehaviour {
         levelManager.AddExp(damage);
         UpdateBrickVisual();
 
-        if ( health <= 0 ) {
+        if ( health > 0 ) {
+            OnDamage();
+        }
+        else {
             DestroyBrick();
         }
 
@@ -105,12 +112,22 @@ public class BrickScript : MonoBehaviour {
         return Color.magenta;
     }
 
-    public void DestroyBrick() {
-
-        gameObject.SetActive( false ); //set false wait for destory
+    public void OnDamage() {
 
         //Call all variants BEFORE destroying this brick
-        foreach ( var variant in GetComponents<IBrickVariant>() ) {
+        foreach ( var variant in variants ) {
+            try {
+                variant.OnHit(this);
+            }
+            catch ( Exception e ) {
+                Debug.LogException(e);
+            }
+        }
+    }
+
+    public void DestroyBrick() {
+        //Call all variants BEFORE destroying this brick
+        foreach ( var variant in variants ) {
             try {
                 variant.OnDie(this);
             }
@@ -119,6 +136,7 @@ public class BrickScript : MonoBehaviour {
             }
         }
 
+        gameObject.SetActive( false );
         Destroy(gameObject);
     }
 

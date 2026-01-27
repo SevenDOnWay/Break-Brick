@@ -1,9 +1,13 @@
+using System;
 using UnityEngine;
 
-public interface IVFXCommand {
+public interface IVFXCommand{
+    
+    public VFXType GetVFXType();
+
     /// <summary>
-    /// this will be called when the command is executed on the player
+    /// this will be called command to executed on the player
     /// </summary>
     /// <param name="player"></param>
-    void ExecuteOn(IVFXPlayerBase player);
+    void ExecuteOn(VFXPlayerBase player, Action onComplete);
 }

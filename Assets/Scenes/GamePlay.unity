@@ -1695,6 +1695,9 @@ MonoBehaviour:
     growthPerWave: 0.0609
     isMiniBoss: 0
   Pool: {fileID: 600349753}
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
   ballPrefab: {fileID: 7441496029052621378, guid: 7b9a505aec9b8f149aa03d51c479e789, type: 3}
   BackGround: {fileID: 5146959177787210160, guid: 9a5354e78eb7055448d45293d50b2c5f, type: 3}
 --- !u!4 &847058738
@@ -3214,7 +3217,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 853f299ca21a2314298ed6d6f691db76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionVFXPrefab: {fileID: 4047198380273281967, guid: 1c76a678b1226304b8eb83e7fa52c61c, type: 3}
+  players:
+  - type: 0
+    prefab: {fileID: -8271920604158665997, guid: 1c76a678b1226304b8eb83e7fa52c61c, type: 3}
+    prewarmCount: 10
+  - type: 1
+    prefab: {fileID: 2348958326627772508, guid: 7fef2959124f6fb4c87787706f44ca98, type: 3}
+    prewarmCount: 10
 --- !u!4 &1325801871
 Transform:
   m_ObjectHideFlags: 0

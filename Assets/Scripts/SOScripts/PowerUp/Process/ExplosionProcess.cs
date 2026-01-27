@@ -8,9 +8,9 @@ public class ExplosionProcess : Process, IVFXEvent {
 
     public event Action<Vector2, float> OnExplose;
 
-    public void RegisterVFXEvents( VFXManager vfxManager ) {
-        OnExplose += vfxManager.PlayExplosionVFX;
-    }
+    //public void RegisterVFXEvents( VFXManager vfxManager ) {
+    //    OnExplose += vfxManager.PlayExplosionVFX;
+    //}
 
     public override ProcessType GetProssType() => ProcessType.Explosion;
 
@@ -25,6 +25,10 @@ public class ExplosionProcess : Process, IVFXEvent {
         Explose(pos, explosionRadius);
 
         return 1; //MAYBE: add some damage boost for explosion hit
+    }
+
+    public void RegisterVFXEvents( VFXManager vfxManager ) {
+        throw new NotImplementedException();
     }
 
     private void Explose( Vector2 pos, float explosionRadius ) {
