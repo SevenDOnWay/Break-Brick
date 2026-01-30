@@ -31,9 +31,6 @@ public class GameLifetimeScope : LifetimeScope {
         builder.RegisterComponentInHierarchy<LevelUi>();
         builder.RegisterComponentInHierarchy<UpgradeUI>();
 
-        builder.RegisterComponentInHierarchy<ExplosionVFXPlayer>();
-
-
         builder.RegisterComponentInHierarchy<QuitScript>();
 
 

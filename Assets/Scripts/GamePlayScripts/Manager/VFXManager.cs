@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Xml.Schema;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 using VContainer;
 
 public class VFXManager : MonoBehaviour {
 
     //UpgradeManager upgradeManager;
     //AudioManager audioManager; //using FMOD
+
+    [Inject] private IObjectResolver resolver;
 
     [Serializable]
     public class VFXPlayer {
@@ -34,7 +37,7 @@ public class VFXManager : MonoBehaviour {
 
     public void OnEnable() {
         VFXEvent.OnVFXCommand += HandleVFX;
-        Debug.Log(" VFX Manager Enabled and listening to VFX Events ");
+        //Debug.Log(" VFX Manager Enabled and listening to VFX Events ");
     }
 
     public void OnDisable() {
@@ -111,7 +114,9 @@ public class VFXManager : MonoBehaviour {
             Debug.LogWarning(" VFX Player " + type + " prefab is null ");
         }
 
+
         var playerInterface = Instantiate(obj, parentTransform);
+        resolver.Inject(playerInterface);
 
         playerInterface.gameObject.SetActive(false);
         playersMap[type].Enqueue(playerInterface);

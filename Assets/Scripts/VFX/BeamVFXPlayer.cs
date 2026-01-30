@@ -29,8 +29,8 @@ public class BeamVFXPlayer : VFXPlayerBase {
 
     void Start() {
         _mat = lr.material;
-        lr.startWidth = playScreen.squareSize;
-        lr.endWidth = playScreen.squareSize;
+        lr.startWidth = playScreen.squareSize * 0.4f;
+        lr.endWidth = playScreen.squareSize * 0.3f;
     }
 
     public override void PlayHorizontalBeam( IVFXCommand cmd, Action onComplete ) {
