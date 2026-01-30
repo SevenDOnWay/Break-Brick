@@ -11,6 +11,7 @@ public class HorizontalDamageBoost : MonoBehaviour, IBrickVariant{
         this.statManager = statManager;
     }
 
+    #region IBrickVariant implementation
     public void OnHit(BrickScript brickScript ) {
         if ( pos == null ) pos = brickManager.GetBrickGridIndex(brickScript.transform.position);
         DealDamage(brickScript, pos.Value);
@@ -26,14 +27,16 @@ public class HorizontalDamageBoost : MonoBehaviour, IBrickVariant{
     public void OnSpawn( BrickScript brickScript ) { }
     public void OnEndTurn( BrickScript brickScript ) { }
 
-    public void OnDie( BrickScript brickScript ) {
-    }
-
-    private void DealDamage( BrickScript brickScript, Vector2Int pos ) {
-        brickManager.DealDamageHorizontal(pos);
-    }
+    public void OnDie( BrickScript brickScript ) {}
 
     public BrickType GetBrickType() {
         return BrickType.HorizontalDamageBoost;
     }
+    #endregion
+
+    private void DealDamage( BrickScript brickScript, Vector2Int pos ) {
+        brickManager.RequestHorizontalDamage(brickScript, pos);
+    }
+
+    
 }

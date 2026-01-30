@@ -1,10 +1,14 @@
 using DG.Tweening;
 using System;
 using UnityEngine;
+using VContainer;
 using static Unity.Burst.Intrinsics.X86.Avx;
 using static UnityEngine.UI.Image;
 
 public class BeamVFXPlayer : VFXPlayerBase {
+
+    PlayScreen playScreen;
+
     Action onCompleteCallback;
     [SerializeField] LineRenderer lr;
     [SerializeField] LayerMask wallLayer;
@@ -17,8 +21,16 @@ public class BeamVFXPlayer : VFXPlayerBase {
 
     const int maxDistance = 18;
 
-    public void Start() {
+
+    [Inject]
+    public void Constructor( PlayScreen playScreen) {
+        this.playScreen = playScreen;
+    }
+
+    void Start() {
         _mat = lr.material;
+        lr.startWidth = playScreen.squareSize;
+        lr.endWidth = playScreen.squareSize;
     }
 
     public override void PlayHorizontalBeam( IVFXCommand cmd, Action onComplete ) {

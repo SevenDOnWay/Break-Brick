@@ -49,10 +49,10 @@ public class BallScript : MonoBehaviour {
         this.upgradeManager = upgradeManager;
         this.squareSize = squareSize;
 
-        InitCurrentProcess(upgradeManager);
+        InitCurrentUpgrade(upgradeManager);
     }
 
-    private void InitCurrentProcess( UpgradeManager upgradeManager ) {
+    private void InitCurrentUpgrade( UpgradeManager upgradeManager ) {
         currentProcesses = upgradeManager.GetAllProcess();
     }
 
@@ -107,6 +107,7 @@ public class BallScript : MonoBehaviour {
             bounceTime++;
             if ( bounceTime > 5 ) {
                 FinishBall();
+                return;
             }
         }
 
@@ -116,12 +117,13 @@ public class BallScript : MonoBehaviour {
             ballManager.ResetBallPos(newPos);
 
             FinishBall();
+            return;
         }
 
         // ===== BrickScript Collision Logic =====
         if ( collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick) ) {
 
-            brick.TakeDamage(1);
+            brick.NotifyHit(DamageSource.Ball);
             bounceTime = 0;
         }
     }

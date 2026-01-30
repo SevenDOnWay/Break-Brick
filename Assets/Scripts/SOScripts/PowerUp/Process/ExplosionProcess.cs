@@ -35,13 +35,14 @@ public class ExplosionProcess : Process, IVFXEvent {
         Collider[] hitColliders = Physics.OverlapSphere( pos, explosionRadius, brickLayer );
 
         //TODO: add explosion VFX 
+        //OBSLETE: change to raise vfx instead
         OnExplose?.Invoke(pos, explosionRadius);
 
 
         foreach ( var hitCollider in hitColliders ) {
             BrickScript brick = hitCollider.GetComponent<BrickScript>();
             if ( brick != null ) {
-                brick.TakeDamage(1);
+                brick.NotifyHit(DamageSource.Explosion, 1);
             }
         }
 

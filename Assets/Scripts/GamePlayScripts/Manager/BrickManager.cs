@@ -22,6 +22,10 @@ public class BrickManager : MonoBehaviour {
     public BrickScript[,] bricks = new BrickScript[column, row];
     // public IReadOnlyList<BrickScript> Bricks => bricks;
 
+
+    Queue<DamageRequest> damageQueue = new();
+    HashSet<BrickScript> damagedThisTick = new();
+
     private float squareSize;
 
     [Inject]
@@ -44,10 +48,23 @@ public class BrickManager : MonoBehaviour {
 
     }
 
+    public void Update() {
+        damagedThisTick.Clear();
+
+        while ( damageQueue.Count > 0 ) {
+            var request = damageQueue.Dequeue();
+
+            if ( request.target == null || request.target.IsDead ) continue;
+            if ( damagedThisTick.Contains(request.target) ) continue;
+
+            request.target.ApplyDamageInternal(request);
+            damagedThisTick.Add(request.target);
+        }
+    }
+
     public void RegisterBrick( BrickScript brick, Vector2Int pos, int? savedHealth = null ) {
 
         // var brick = gameobject.GetComponent<BrickScript>();
-
         int health;
 
         if ( savedHealth.HasValue ) {
@@ -59,13 +76,25 @@ public class BrickManager : MonoBehaviour {
         }
 
         brick.Init(health);
+        brick.UpdateGridPosition(pos);
 
         bricks[pos.x, pos.y] = brick;
-        //Debug.Log($"RegisterBrick Pos: {pos}");
+
+        brick.OnHit += HandleBrickHit;
+        brick.OnDestroyed += HandleBrickDestroyed;
     }
 
-    private void HandleBrickDestroyed( int col, int row ) {
-        bricks[col, row] = null;
+    void HandleBrickHit( BrickScript brick, DamageSource source, int damage = 1) {
+        RequestDamage(new DamageRequest(brick, damage, source, null));
+    }
+
+    private void HandleBrickDestroyed( Vector2Int pos ) {
+        if ( pos.x < 0 || pos.x >= column || pos.y < 0 || pos.y >= row ) {
+            Debug.LogWarning($"Attempted to remove brick at invalid position: {pos}");
+            return;
+        }
+
+        bricks[pos.x, pos.y] = null;
     }
 
 
@@ -78,13 +107,13 @@ public class BrickManager : MonoBehaviour {
                 if ( brick == null ) continue; // Skip if the brick is null
                 //Debug.Log($"{x}, {y}");
                 brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
-                
+                brick.UpdateGridPosition(new Vector2Int(x, y + 1));
+
+                // TODO Game Over
                 if ( y == row - 1 ) {
                     Debug.Log("Game Over!");
 
-                    // TODO Game Over
-                    bricks[x, y] = null; // Remove the brick from the grid for now
-                    brick.DestroyBrick();
+                    HandleBrickDestroyed(new Vector2Int(x, y)); //delete brick from grid for now
                     continue;
                 }
 
@@ -94,22 +123,74 @@ public class BrickManager : MonoBehaviour {
         }
     }
 
-    public void DealDamageHorizontal( Vector2Int pos , int dame = 1) {
-        int colIndex = pos.x;
+    public void RequestDamage(
+    BrickScript target,
+    int damage,
+    DamageSource source,
+    BrickScript origin = null
+    ) {
+        if ( target == null ) return;
+
+        damageQueue.Enqueue(new DamageRequest(target, damage, source, null));
+    }
+
+    public void RequestDamage( DamageRequest damageRequest ) {
+        if ( damageRequest.target == null ) return;
+
+        damageQueue.Enqueue(damageRequest);
+    }
+
+    public void RequestHorizontalDamage( BrickScript origin, Vector2Int pos, int damage = 1 ) {
         int rowIndex = pos.y;
 
         for ( int x = 0; x < column; x++ ) {
-            if ( x == colIndex ) continue; // skip the original brick
-
             var brick = bricks[x, rowIndex];
-            if ( brick == null ) continue;
+            if ( brick == null || brick == origin ) continue;
 
-            brick.TakeDamage(dame);
+            RequestDamage(brick, damage, DamageSource.Horizontal, origin);
         }
     }
 
-    public void SaveBrick() {
+    public void RequestVerticalDamage( BrickScript origin, Vector2Int pos, int damage = 1 ) {
+        int colIndex = pos.x;
 
+        for ( int y = 0; y < row; y++ ) {
+            var brick = bricks[colIndex, y];
+            if ( brick == null || brick == origin ) continue;
+
+            RequestDamage(brick, damage, DamageSource.Vertical, origin);
+        }
+    }
+
+
+    //public void DealDamageHorizontal( Vector2Int pos , int dame = 1) {
+    //    int colIndex = pos.x;
+    //    int rowIndex = pos.y;
+
+    //    for ( int x = 0; x < column; x++ ) {
+    //        if ( x == colIndex ) continue; // skip the original brick
+
+    //        var brick = bricks[x, rowIndex];
+    //        if ( brick == null ) continue;
+
+    //        brick.TakeDamage(dame);
+    //    }
+    //}
+    //public void DealDamageVertical( Vector2Int pos ) {
+    //    int colIndex = pos.x;
+    //    int rowIndex = pos.y;
+
+    //    for ( int y = 0; y < row; y++ ) {
+    //        if ( y == rowIndex ) continue; // skip the original brick
+
+    //        var brick = bricks[colIndex, y];
+    //        if ( brick == null ) continue;
+
+    //        brick.TakeDamage(1);
+    //    }
+    //}
+
+    public void SaveBrick() {
         List<BrickData> newBricks = new List<BrickData>();
 
         for ( int col = 0; col < column; col++ ) {
@@ -137,26 +218,6 @@ public class BrickManager : MonoBehaviour {
         runDataManager.runData.OverwriteBricksData(newBricks);
     }
 
-    public void DealDamageVertical( Vector2Int pos ) {
-        int colIndex = pos.x;
-        int rowIndex = pos.y;
-
-        for ( int y = 0; y < row; y++ ) {
-            if ( y == rowIndex ) continue; // skip the original brick
-
-            var brick = bricks[colIndex, y];
-            if ( brick == null ) continue;
-
-            brick.TakeDamage(1);
-        }
-    }
-
-
-    //TODO Create method handle health, and add variation to brick (brick spawn with x2 health, when die spawn smaller brick...) 
-
-
-
-
     public Vector2Int GetBrickGridIndex( Vector3 worldPos ) {
         float startX = (column - 1) * playScreen.squareSize / 2f;
         float startY = (row - 1) * playScreen.squareSize / 2f;
@@ -177,8 +238,6 @@ public class BrickManager : MonoBehaviour {
     }
 
     //public Vector2Int? FindBrickPosition( BrickScript target ) {
-
-
     //    for ( int x = 0; x < column; x++ ) {
     //        for ( int y = 0; y < row; y++ ) {
     //            if ( bricks[x, y] == target ) {
@@ -188,4 +247,24 @@ public class BrickManager : MonoBehaviour {
     //    }
     //    return null; // Not Found
     //}
+}
+
+
+public readonly struct DamageRequest {
+    public readonly BrickScript target;
+    public readonly int damage;
+    public readonly DamageSource source;
+    public readonly BrickScript origin;
+
+    public DamageRequest(
+        BrickScript target,
+        int damage,
+        DamageSource source,
+        BrickScript origin = null
+    ) {
+        this.target = target;
+        this.damage = damage;
+        this.source = source;
+        this.origin = origin;
+    }
 }
