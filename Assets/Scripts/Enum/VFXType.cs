@@ -2,7 +2,7 @@ using UnityEngine;
 
 public enum VFXType {
     Explosion,
-    HorizontalBeam,
+    Beam,
     Smoke,
     Spark,
     PoisonCloud,

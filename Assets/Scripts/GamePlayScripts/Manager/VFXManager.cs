@@ -14,7 +14,7 @@ public class VFXManager : MonoBehaviour {
     //UpgradeManager upgradeManager;
     //AudioManager audioManager; //using FMOD
 
-    [Inject] private IObjectResolver resolver;
+    [Inject] IObjectResolver resolver;
 
     [Serializable]
     public class VFXPlayer {

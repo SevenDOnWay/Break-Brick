@@ -12,7 +12,7 @@ public class TestBeam : MonoBehaviour {
        
         Vector2 vector2 = new Vector2(testPosX, testPosY);
 
-        BeamVFXCommand beamVFXCommand = new BeamVFXCommand(vector2);
+        HorizontalBeamVFXCommand beamVFXCommand = new HorizontalBeamVFXCommand(vector2);
 
         VFXEvent.RaiseVFXCommand(beamVFXCommand);
 
