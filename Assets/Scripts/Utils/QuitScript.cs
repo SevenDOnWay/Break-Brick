@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;

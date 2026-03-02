@@ -2,9 +2,6 @@ using DG.Tweening;
 using System;
 using UnityEngine;
 using VContainer;
-using static Unity.Burst.Intrinsics.X86.Avx;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.UI.Image;
 
 public class BeamVFXPlayer : VFXPlayerBase {
 

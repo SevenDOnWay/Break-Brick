@@ -123,10 +123,21 @@ public class BallScript : MonoBehaviour {
         // ===== BrickScript Collision Logic =====
         if ( collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick) ) {
 
+            //features: 
+
+            ApplyProcess();
+
             brick.NotifyHit(DamageSource.Ball);
             bounceTime = 0;
         }
     }
+
+    public void ApplyProcess() {
+        foreach ( var process in currentProcesses ) {
+            process.OnHit(statManager, transform.position);
+        }
+    }
+
 
     //private void OnTriggerEnter2D( Collider2D collision ) {
     //    if ( collision.gameObject.CompareTag("Bottom_Wall") ) {

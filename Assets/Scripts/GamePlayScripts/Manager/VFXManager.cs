@@ -1,12 +1,6 @@
-using Cysharp.Threading.Tasks.Triggers;
-using FMODUnity;
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Xml.Schema;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering.VirtualTexturing;
 using VContainer;
 
 public class VFXManager : MonoBehaviour {

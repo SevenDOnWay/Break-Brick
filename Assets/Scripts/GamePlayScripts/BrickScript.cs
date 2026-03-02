@@ -80,12 +80,18 @@ public class BrickScript : MonoBehaviour {
 
         health -= damage;
 
+        //TODO: change this to use the new event system
+        //fix naming
+        //this call fmod to play the hit sound
+        
+        OnBrickHit.Invoke(this, EventArgs.Empty); 
+
         UpdateBrickVisual();
 
         levelManager.AddExp(damage);
 
         if ( health > 0 ) {
-            OnBrickHit.Invoke(this, EventArgs.Empty);
+            
             OnDamage(req);
         }
         else {

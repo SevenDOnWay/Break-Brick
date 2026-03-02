@@ -2229,7 +2229,7 @@ GameObject:
   - component: {fileID: 1152629734}
   - component: {fileID: 1152629740}
   m_Layer: 5
-  m_Name: BlockerPanel
+  m_Name: BlockerOptionPanel
   m_TagString: OptionPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2535,7 +2535,7 @@ GameObject:
   - component: {fileID: 1188766586}
   - component: {fileID: 1188766584}
   m_Layer: 5
-  m_Name: BlockerPanel
+  m_Name: BlockerUpgradePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

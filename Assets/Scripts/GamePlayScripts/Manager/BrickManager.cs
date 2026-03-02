@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using VContainer;
-using static BrickData;
-using static UnityEditor.PlayerSettings;
 
 public class BrickManager : MonoBehaviour {
 
