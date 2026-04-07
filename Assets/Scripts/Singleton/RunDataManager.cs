@@ -60,9 +60,11 @@ public class RunDataManager : MonoBehaviour {
             Debug.Log($"RunData saved at: {savePath}");
 
             // Also save a plain JSON version for debugging
-            string debugPath = Path.Combine(Application.persistentDataPath, "rundata_debug.json");
-            await File.WriteAllTextAsync(debugPath, json);
-            Debug.Log($"RunData saved (plain JSON) at: {debugPath}");
+            // This is optional and can be removed in production builds
+
+            //string debugPath = Path.Combine(Application.persistentDataPath, "rundata_debug.json");
+            //await File.WriteAllTextAsync(debugPath, json);
+            //Debug.Log($"RunData saved (plain JSON) at: {debugPath}");
         }
         catch ( Exception e ) {
             Debug.LogError($"Failed to save RunData: {e.Message}");

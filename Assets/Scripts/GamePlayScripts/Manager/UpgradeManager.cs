@@ -176,9 +176,7 @@ public class UpgradeManager {
     //TODO: Read rundatat and restore upgrades
     #region Restore
 
-    public void RestoreUpgrades() {
-
-    }
+    public void RestoreUpgrades() {}
 
     #endregion
 }

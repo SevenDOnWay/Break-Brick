@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -18,6 +19,7 @@ public class BrickManager : MonoBehaviour {
     public BrickScript[,] bricks = new BrickScript[column, row];
     // public IReadOnlyList<BrickScript> Bricks => bricks;
 
+    public event Action GameOverEvent;
 
     Queue<DamageRequest> damageQueue = new();
     HashSet<BrickScript> damagedThisTick = new();
@@ -107,10 +109,9 @@ public class BrickManager : MonoBehaviour {
 
                 // TODO Game Over
                 if ( y == row - 1 ) {
-                    Debug.Log("Game Over!");
+                    //TODO: add vfx in here before invoking game over event
 
-                    HandleBrickDestroyed(new Vector2Int(x, y)); //delete brick from grid for now
-                    continue;
+                    GameOverEvent.Invoke();
                 }
 
                 bricks[x, y + 1] = brick;
