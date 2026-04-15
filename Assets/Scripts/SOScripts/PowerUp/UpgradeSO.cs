@@ -27,7 +27,7 @@ public abstract class UpgradeSO : ScriptableObject {
     }
 #endif
 
-    public virtual void ApplyStat( StatManager statManager, UpgradeManager upgradeManager ) {}
+    public virtual void ApplyStat( StatManager statManager, ProcessFactory processFactory, UpgradeManager upgradeManager ) {}
 
     public virtual void ApplyBehavior( UpgradeManager upgradeManager ) { }
 

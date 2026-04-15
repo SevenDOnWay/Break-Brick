@@ -1,4 +1,6 @@
+using FMOD;
 using NUnit.Framework.Internal.Commands;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +18,7 @@ public class UpgradeStatSO : UpgradeSO {
 
     [SerializeField] List<UpgradePair> KeyValueMap;
 
-    public override void ApplyStat( StatManager statManager, UpgradeManager upgradeManager ) {
+    public override void ApplyStat( StatManager statManager, ProcessFactory processFactory, UpgradeManager upgradeManager ) {
         foreach ( var pair in KeyValueMap ) {
 
             if ( pair.Type == UpgradeType.ExtraBalls ) {
@@ -27,22 +29,15 @@ public class UpgradeStatSO : UpgradeSO {
             statManager.ModifyStat(pair.Type, pair.Value);
 
             //TOOD : add processing for upgrade
-            switch ( pair.Type ) {
-                case UpgradeType.ExplosionChance:
-                    upgradeManager.ApplyProcess(new ExplosionProcess());
-                    break;
-                case UpgradeType.CritChance:
-                    upgradeManager.ApplyProcess(new CritProcess());
-                    break;
-                default:
-                    break;
+            var process = processFactory.CreateProcess(pair.Type);
+            if ( process != null ) {
+                upgradeManager.ApplyProcess((Process)process);
             }
+
 
         }
 
-    }   
-
-    //TODO: Add Process to upgrade manger when applying upgrade
+    }
 }
 
 

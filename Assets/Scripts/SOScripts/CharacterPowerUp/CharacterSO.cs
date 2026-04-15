@@ -35,8 +35,8 @@ public class CharacterSO : ScriptableObject {
     }
 #endif
 
-    public void Apply(StatManager statManager, UpgradeManager upgradeManager) {
-        UpgradeStatSO?.ApplyStat(statManager, upgradeManager);
+    public void Apply(StatManager statManager, ProcessFactory processFactory,UpgradeManager upgradeManager) {
+        UpgradeStatSO?.ApplyStat(statManager, processFactory,upgradeManager);
         UpgradeBehaviorSO?.ApplyBehavior(upgradeManager);
     }
 

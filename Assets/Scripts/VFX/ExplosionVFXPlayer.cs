@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class ExplosionVFXPlayer : VFXPlayerBase{
+public class ExplosionVFXPlayer : VFXPlayerBase {
 
     public override VFXType GetVFXType() => VFXType.Explosion;
     [SerializeField] ParticleSystem particleSystem;

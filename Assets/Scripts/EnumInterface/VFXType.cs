@@ -6,5 +6,7 @@ public enum VFXType {
     Smoke,
     Spark,
     PoisonCloud,
-
+    Lightning,
+    Freeze,
+    Poison,
 }

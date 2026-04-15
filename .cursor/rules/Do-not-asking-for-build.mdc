@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+
+- **Unity Project:** This is a Unity (C#) project. Never suggest running terminal commands like `dotnet build`, `msbuild`, or `make`. All compilation and building are handled exclusively within the Unity Editor.
+- **Verification:** To verify changes, simply instruct the user to "Return to the Unity Editor to let the scripts compile."

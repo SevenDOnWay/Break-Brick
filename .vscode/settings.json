@@ -56,5 +56,10 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Break-Brick.sln"
+    "dotnet.server.useOmnisharp": false,
+    "[csharp]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "dotnet.defaultSolution": "Break Brick.sln"
 }

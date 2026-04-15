@@ -111,7 +111,7 @@ public class GameStateManager : MonoBehaviour {
     }
 
     public void HandleAllBallsDone() {
-        brickManager.MoveBrick();
+        brickManager.HandleAllBallDone();
         spawnController.SpawnBrick();
         //playerController.HandleAllBallsDone();
 

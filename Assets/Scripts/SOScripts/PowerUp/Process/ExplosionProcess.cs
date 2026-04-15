@@ -16,14 +16,13 @@ public class ExplosionProcess : Process {
         throw new NotImplementedException();
     }
 
-    public override int OnHit( StatManager statManager , Vector2 pos ) {
-        float explosionChance = statManager.GetStat( UpgradeType.ExplosionChance );
-        float explosionRadius = statManager.GetStat( UpgradeType.ExplosionRadius );
+    protected override float GetChance( StatManager statManager ) {
+        return statManager.GetStat(UpgradeType.ExplosionChance);
+    }
 
-        float roll = UnityEngine.Random.Range( 0f, 1f );
-
-        if ( roll >= explosionChance ) return 0; //no explosion
-
+    protected override int Execute( StatManager statManager, BrickScript brick ) {
+        float explosionRadius = statManager.GetStat(UpgradeType.ExplosionRadius);
+        Vector2 pos = brick.transform.position;
         Explose(pos, explosionRadius);
 
         RaiseVFXCommand(new ExplosionVFXCommand(pos, explosionRadius));
@@ -40,7 +39,7 @@ public class ExplosionProcess : Process {
 
         //TODO: add explosion VFX 
         //OBSLETE: change to raise vfx instead
-        
+
 
         foreach ( var hitCollider in hitColliders ) {
             BrickScript brick = hitCollider.GetComponent<BrickScript>();

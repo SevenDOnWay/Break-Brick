@@ -99,6 +99,7 @@ public class BallScript : MonoBehaviour {
         bounceTime = 0;
         endLineTriggerCount = 0;
         EnableTrail(true);
+        ResetProcesses();
     }
 
     private void OnCollisionEnter2D( Collision2D collision ) {
@@ -125,16 +126,16 @@ public class BallScript : MonoBehaviour {
 
             //features: 
 
-            ApplyProcess();
+            ApplyProcess(brick);
 
             brick.NotifyHit(DamageSource.Ball);
             bounceTime = 0;
         }
     }
 
-    public void ApplyProcess() {
+    public void ApplyProcess(BrickScript brick) {
         foreach ( var process in currentProcesses ) {
-            process.OnHit(statManager, transform.position);
+            process.OnHit(statManager, brick);
         }
     }
 
@@ -167,4 +168,17 @@ public class BallScript : MonoBehaviour {
         currentProcesses.Add(process);
     }
 
+    /// <summary>
+    /// Resets per-turn counters on processes like Sniper and Rally.
+    /// </summary>
+    void ResetProcesses() {
+        foreach ( var process in currentProcesses ) {
+            if ( process is SniperProcess sniper ) {
+                sniper.ResetCounter();
+            }
+            else if ( process is RallyProcess rally ) {
+                rally.ResetCounter();
+            }
+        }
+    }
 }

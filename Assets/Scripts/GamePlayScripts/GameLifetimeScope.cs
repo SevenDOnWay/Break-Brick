@@ -37,6 +37,7 @@ public class GameLifetimeScope : LifetimeScope {
 
         builder.Register<BallScript>(Lifetime.Transient);
         builder.Register<BrickScript>(Lifetime.Transient);
+        builder.Register<ProcessFactory>(Lifetime.Singleton);
 
     }
 }

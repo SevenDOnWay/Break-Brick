@@ -7,5 +7,5 @@ public enum UpgradeBehaviourType {
     Fire,
     Ice,
     Poison,
-
+    Magnet,
 }

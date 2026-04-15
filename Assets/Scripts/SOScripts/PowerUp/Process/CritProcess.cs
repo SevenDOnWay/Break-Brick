@@ -3,8 +3,7 @@ using UnityEngine;
 public class CritProcess : Process {
     public override ProcessType GetProssType() => ProcessType.Crit;
 
-
-    public override int OnHit( StatManager statManager , Vector2 pos ) {
+    public override int OnHit( StatManager statManager, BrickScript brick ) {
 
         float critChance = statManager.GetStat( UpgradeType.CritChance );
         float CritMultiplier = statManager.GetStat( UpgradeType.CritMultiplier );
@@ -13,7 +12,7 @@ public class CritProcess : Process {
 
         if ( roll <= critChance ) return (int)Mathf.Floor(1 * CritMultiplier);
 
-        return 1; //return normal hit
+        return 2; //return double dame for now
     }
 
 

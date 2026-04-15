@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+
+## Description
+Always prioritize understanding the project architecture via README files before analyzing or modifying source code.
+
+## Guidelines
+- **Read Order:** Before responding to any prompt involving code changes, you MUST locate and read the `README.md` in the current directory and its parent directories.
+- **Alignment:** Ensure all proposed logic, naming conventions, and patterns align with the architecture described in those manifests.
+- **Update Protocol:** If a code change alters the folder's responsibility or introduces a new script, you MUST automatically propose an update to the corresponding `README.md`.
+- **Dependency Awareness:** Pay special attention to the "Communication" section in READMEs to avoid breaking modular boundaries or violating dependency patterns (e.g., DI/VContainer).

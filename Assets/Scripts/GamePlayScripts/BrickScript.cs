@@ -1,72 +1,80 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using VContainer;
 
-public class BrickScript : MonoBehaviour {
+public class BrickScript : MonoBehaviour
+{
+    [Serializable]
+    public struct EffectLayerBinding
+    {
+        public EffectType effectType;
+        public GameObject layerObject;
+    }
+
+    static readonly int[] ColorThresholds = { 0, 25, 50, 75, 100 };
+    static readonly Color[] CachedColors = {
+        new Color32(57, 57, 204, 255),
+        new Color32(73, 197, 204, 255),
+        new Color32(69, 204, 69, 255),
+        new Color32(230, 224, 119, 255),
+        new Color32(230, 70, 62, 255)
+    };
+
     LevelManager levelManager;
-    
+
     public bool IsDead => health <= 0;
     public int health;
     public Vector2Int GridPosition { get; set; }
 
+    [Header("Effect Layer")]
+    [SerializeField] public List<EffectLayerBinding> effectLayerBindings = new();
+
     [SerializeField] TextMeshPro healText;
     SpriteRenderer spriteRenderer;
-
     IBrickVariant[] variants;
 
-    //TODO: Find a better way to manage colors, or better color scheme
-    Dictionary<int, string> colors = new Dictionary<int, string>{
-            { 0, "#3939CC" },
-            { 25, "#49C5CC" },
-            { 50, "#45CC45" },
-            { 75, "#E6E077" },
-            { 100, "#E6463E" }
-    };
+    readonly Dictionary<EffectType, IEffect> activeEffects = new();
+    readonly List<ITickableEffect> tickableEffects = new();
+    readonly List<EffectType> pendingRemoval = new();
+    readonly Dictionary<EffectType, GameObject> effectLayerMap = new();
 
-    //CONSIDER: Delete this change if not needed
     public static event EventHandler OnBrickDestroyed;
     public static event EventHandler OnBrickHit;
 
     public event Action<BrickScript, DamageSource, int> OnHit;
     public event Action<DamageRequest> OnDamaged;
     public event Action<Vector2Int> OnDestroyed;
+    public event Action<EffectType, bool> OnEffectChanged;
 
     [Inject]
-    public void Constructor( LevelManager levelManager ) {
+    public void Constructor(LevelManager levelManager)
+    {
         this.levelManager = levelManager;
     }
 
-    public void Init( int health, BrickManager brickManager ) {
-        this.health = health;
-        variants = GetComponents<IBrickVariant>();
-    }
-
-    /// <summary>
-    /// Method to notify the brick that it has been hit by a damage source.
-    /// Call this method order to trigger OnHit event.
-    /// </summary>
-    /// <param name="source"></param>
-    public void NotifyHit( DamageSource source, int damage = 1) {
-        OnHit?.Invoke(this, source, damage);
-    }
-    
-
-    public void Init( int health ) {
+    public void Init(int health)
+    {
         this.health = health;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-
-        if ( spriteRenderer == null ) Debug.LogError("SpriteRenderer is null in BrickScript.");
-
         variants = GetComponents<IBrickVariant>();
 
-        foreach ( var variant in variants ) {
-            try {
+        SubscribeEffectLayer(null, false);
+
+        if (spriteRenderer == null)
+        {
+            Debug.LogError("SpriteRenderer is null in BrickScript.");
+        }
+
+        foreach (var variant in variants)
+        {
+            try
+            {
                 variant.OnSpawn(this);
             }
-            catch ( Exception e ) {
+            catch (Exception e)
+            {
                 Debug.LogException(e);
             }
         }
@@ -74,112 +82,233 @@ public class BrickScript : MonoBehaviour {
         UpdateBrickVisual();
     }
 
-    public void ApplyDamageInternal( DamageRequest req ) {
-        //Debug.Log($"Taking damage: {damage}");
-        int damage = req.damage;
+    public void NotifyHit(DamageSource source, int damage = 1)
+    {
+        OnHit?.Invoke(this, source, damage);
+    }
 
+    public void SubscribeEffectLayer(IEffect effect, bool isActive)
+    {
+        if (effectLayerMap.Count == 0)
+        {
+            foreach (var binding in effectLayerBindings)
+            {
+                if (binding.layerObject == null) continue;
+                effectLayerMap[binding.effectType] = binding.layerObject;
+                binding.layerObject.SetActive(false);
+            }
+        }
+
+        if (effect != null)
+        {
+            UpdateEffectLayer(effect.Type, isActive);
+        }
+    }
+
+    public void ApplyDamageInternal(DamageRequest req)
+    {
+        int damage = req.damage;
         health -= damage;
 
-        //TODO: change this to use the new event system
-        //fix naming
-        //this call fmod to play the hit sound
-        
-        OnBrickHit.Invoke(this, EventArgs.Empty); 
+        OnBrickHit?.Invoke(this, EventArgs.Empty);
+        OnDamaged?.Invoke(req);
 
         UpdateBrickVisual();
-
         levelManager.AddExp(damage);
 
-        if ( health > 0 ) {
-            
+        if (health > 0)
+        {
             OnDamage(req);
         }
-        else {
+        else
+        {
             OnDeath(req);
         }
     }
 
-    #region Update Visuals
-    void UpdateBrickVisual() {
+    public void TickEffects()
+    {
+        pendingRemoval.Clear();
+
+        for (int i = 0; i < tickableEffects.Count; i++)
+        {
+            ITickableEffect effect = tickableEffects[i];
+            effect.Tick();
+
+            if (!effect.IsActive() || effect.IsExpired)
+            {
+                pendingRemoval.Add(effect.Type);
+            }
+        }
+
+        for (int i = 0; i < pendingRemoval.Count; i++)
+        {
+            RemoveEffect(pendingRemoval[i]);
+        }
+    }
+
+    public bool HasActiveEffect(EffectType type)
+    {
+        return activeEffects.ContainsKey(type);
+    }
+
+    void UpdateBrickVisual()
+    {
         UpdateHealthText();
         UpdateColor();
+        UpdateEffectLayer();
     }
 
-    public void UpdateHealthText() {
-        healText.text = health.ToString();
-    }
-
-    void UpdateColor() {
-        List<int> keys = new List<int>(colors.Keys);
-        keys.Sort();
-
-        for ( int i = 0; i < keys.Count - 1; i++ ) {
-            int lowerKey = keys[i];
-            int upperKey = keys[i + 1];
-
-            if ( health >= lowerKey && health <= upperKey ) {
-                Color lowerColor = ConvertStringToHex(colors[lowerKey]);
-                Color upperColor = ConvertStringToHex(colors[upperKey]);
-
-                float t = (health - lowerKey) / (float)(upperKey - lowerKey);
-
-                Color lerpedColor = Color.Lerp(lowerColor, upperColor, t);
-                spriteRenderer.color = lerpedColor;
-
-                break;
-            }
-
+    public void UpdateHealthText()
+    {
+        if (healText != null)
+        {
+            healText.text = health.ToString();
         }
     }
-    #endregion
 
-    void OnDamage(DamageRequest req) {
-        foreach ( var variant in variants ) {
-            try {
+    void UpdateColor()
+    {
+        if (spriteRenderer == null) return;
+
+        if (health <= ColorThresholds[0])
+        {
+            spriteRenderer.color = CachedColors[0];
+            return;
+        }
+
+        int lastIndex = ColorThresholds.Length - 1;
+        if (health >= ColorThresholds[lastIndex])
+        {
+            spriteRenderer.color = CachedColors[lastIndex];
+            return;
+        }
+
+        for (int i = 0; i < lastIndex; i++)
+        {
+            int lower = ColorThresholds[i];
+            int upper = ColorThresholds[i + 1];
+            if (health < lower || health > upper) continue;
+
+            float t = (health - lower) / (float)(upper - lower);
+            spriteRenderer.color = Color.Lerp(CachedColors[i], CachedColors[i + 1], t);
+            return;
+        }
+    }
+
+    void UpdateEffectLayer()
+    {
+        foreach (var pair in effectLayerMap)
+        {
+            bool isActive = activeEffects.ContainsKey(pair.Key);
+            if (pair.Value.activeSelf != isActive)
+            {
+                pair.Value.SetActive(isActive);
+            }
+        }
+    }
+
+    void UpdateEffectLayer(EffectType effectType, bool isActive)
+    {
+        if (effectLayerMap.TryGetValue(effectType, out var layer) && layer != null)
+        {
+            layer.SetActive(isActive);
+        }
+    }
+
+    void OnDamage(DamageRequest req)
+    {
+        foreach (var variant in variants)
+        {
+            try
+            {
                 variant.OnHit(this);
             }
-            catch ( Exception e ) {
+            catch (Exception e)
+            {
                 Debug.LogException(e);
             }
         }
     }
 
-    void OnDeath(DamageRequest req ) {
-        foreach ( var variant in variants ) {
-            try {
+    void OnDeath(DamageRequest req)
+    {
+        foreach (var variant in variants)
+        {
+            try
+            {
                 variant.OnDie(this);
             }
-            catch ( Exception e ) {
+            catch (Exception e)
+            {
                 Debug.LogException(e);
             }
+        }
+
+        for (int i = tickableEffects.Count - 1; i >= 0; i--)
+        {
+            RemoveEffect(tickableEffects[i].Type);
         }
 
         gameObject.SetActive(false);
         DestroyBrick();
     }
 
-    void DestroyBrick() {
+    void DestroyBrick()
+    {
         OnDestroyed?.Invoke(GridPosition);
+        OnBrickDestroyed?.Invoke(this, EventArgs.Empty);
         Destroy(gameObject);
     }
 
-    public Color ConvertStringToHex( string hex ) {
-        if ( UnityEngine.ColorUtility.TryParseHtmlString(hex, out var color) )
-            return color;
-
-        Debug.LogWarning($"Invalid hex color: {hex}");
-        return Color.magenta;
-    }
-
-    public void UpdateGridPosition(Vector2Int pos) {
+    public void UpdateGridPosition(Vector2Int pos)
+    {
         GridPosition = pos;
     }
 
-    //private void OnTriggerEnter2D( Collider2D collision ) {
-    //    if ( collision.CompareTag("EndLine") ) {
-    //        Debug.Log("Brick hit the end line!");
-    //    }
-    //}
+    public void ApplyOrRefreshEffect(IEffect newEffect)
+    {
+        if (newEffect == null) return;
 
+        if (activeEffects.TryGetValue(newEffect.Type, out var existingEffect))
+        {
+            existingEffect.Refresh(newEffect);
+            if (existingEffect is ITickableEffect tickable && !tickableEffects.Contains(tickable))
+            {
+                tickableEffects.Add(tickable);
+            }
+            UpdateEffectLayer(existingEffect.Type, true);
+            return;
+        }
 
+        activeEffects[newEffect.Type] = newEffect;
+        newEffect.OnApply(this);
+
+        if (newEffect is ITickableEffect tickableEffect)
+        {
+            tickableEffects.Add(tickableEffect);
+        }
+
+        OnEffectChanged?.Invoke(newEffect.Type, true);
+        UpdateEffectLayer(newEffect.Type, true);
+    }
+
+    void RemoveEffect(EffectType effectType)
+    {
+        if (!activeEffects.TryGetValue(effectType, out var effect))
+        {
+            return;
+        }
+
+        effect.OnRemove(this);
+        activeEffects.Remove(effectType);
+
+        if (effect is ITickableEffect tickable)
+        {
+            tickableEffects.Remove(tickable);
+        }
+
+        OnEffectChanged?.Invoke(effectType, false);
+        UpdateEffectLayer(effectType, false);
+    }
 }

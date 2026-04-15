@@ -16,4 +16,8 @@ public abstract class VFXPlayerBase : MonoBehaviour, IVFXPlayer {
 
     public virtual void PlayVerticalBeam( IVFXCommand cmd, Action onComplete ) { }
 
+    public virtual void Play( Vector2 position, Action onComplete ) { }
+
+    public virtual void Play( Vector2 start, Vector2 end, Action onComplete ) { }
+
 }

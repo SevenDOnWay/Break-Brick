@@ -1,0 +1,13 @@
+---
+description: 
+alwaysApply: true
+---
+
+1. **Purpose:** A high-level explanation of why this folder exists.
+2. **Component Registry:** A list describing every script and subfolder within this directory.
+3. **Communication:** - Explain how scripts in this folder interact with other modules.
+   - List external dependencies or events this module listens to.
+   - Define the expected outputs or side effects of this module.
+
+## Enforcement
+- If you notice a folder missing a `README.md`, your first action should be to create one based on your analysis of the existing scripts.

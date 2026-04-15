@@ -8,6 +8,7 @@ public class BrickManager : MonoBehaviour {
     RunDataManager runDataManager;
     PlayScreen playScreen;
     WaveScript waveScript;
+    StatManager statManager;
 
     const int row = 10;
     const int column = 8;
@@ -30,11 +31,13 @@ public class BrickManager : MonoBehaviour {
     public void Constructor(
         RunDataManager runDataManager,
         PlayScreen playScreen,
-        WaveScript waveScript
+        WaveScript waveScript,
+        StatManager statManager
      ) {
         this.runDataManager = runDataManager;
         this.playScreen = playScreen;
         this.waveScript = waveScript;
+        this.statManager = statManager;
     }
 
 
@@ -46,18 +49,31 @@ public class BrickManager : MonoBehaviour {
 
     }
 
+    const int MaxChainDepth = 3;
+
     public void Update() {
         damagedThisTick.Clear();
 
         while ( damageQueue.Count > 0 ) {
             var request = damageQueue.Dequeue();
 
+            if ( request.depth >= MaxChainDepth ) continue;
             if ( request.target == null || request.target.IsDead ) continue;
             if ( damagedThisTick.Contains(request.target) ) continue;
 
+            var target = request.target;
             request.target.ApplyDamageInternal(request);
-            damagedThisTick.Add(request.target);
+            damagedThisTick.Add(target);
+
+            // Shockwave check: if the brick died from this damage, try shockwave
+            if ( target.IsDead ) {
+                ShockwaveProcess.TryShockwave(statManager, this, target.GridPosition, request.depth);
+            }
         }
+    }
+
+    public void HandleAllBallDone() {
+        MoveBrick();
     }
 
     public void RegisterBrick( BrickScript brick, Vector2Int pos, int? savedHealth = null ) {
@@ -82,7 +98,7 @@ public class BrickManager : MonoBehaviour {
         brick.OnDestroyed += HandleBrickDestroyed;
     }
 
-    void HandleBrickHit( BrickScript brick, DamageSource source, int damage = 1) {
+    void HandleBrickHit( BrickScript brick, DamageSource source, int damage = 1 ) {
         RequestDamage(new DamageRequest(brick, damage, source, null));
     }
 
@@ -102,10 +118,14 @@ public class BrickManager : MonoBehaviour {
 
                 var brick = bricks[x, y];
 
-                if ( brick == null ) continue; // Skip if the brick is null
-                //Debug.Log($"{x}, {y}");
-                brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
-                brick.UpdateGridPosition(new Vector2Int(x, y + 1));
+                if ( brick == null ) continue;
+
+                // Tick effects before movement so turn-based state is deterministic.
+                TickBrickEffects(brick);
+
+                if ( brick.HasActiveEffect(EffectType.Freeze) ) {
+                    continue;
+                }
 
                 // TODO Game Over
                 if ( y == row - 1 ) {
@@ -114,21 +134,29 @@ public class BrickManager : MonoBehaviour {
                     GameOverEvent.Invoke();
                 }
 
+                brick.transform.position = new Vector3(brick.transform.position.x, brick.transform.position.y - playScreen.squareSize);
+                brick.UpdateGridPosition(new Vector2Int(x, y + 1));
+
                 bricks[x, y + 1] = brick;
                 bricks[x, y] = null;
             }
         }
     }
 
+    private void TickBrickEffects( BrickScript brick ) {
+        brick.TickEffects();
+    }
+
     public void RequestDamage(
     BrickScript target,
     int damage,
     DamageSource source,
-    BrickScript origin = null
+    BrickScript origin = null,
+    int depth = 0
     ) {
         if ( target == null ) return;
 
-        damageQueue.Enqueue(new DamageRequest(target, damage, source, null));
+        damageQueue.Enqueue(new DamageRequest(target, damage, source, origin, depth));
     }
 
     public void RequestDamage( DamageRequest damageRequest ) {
@@ -244,6 +272,13 @@ public class BrickManager : MonoBehaviour {
     //    }
     //    return null; // Not Found
     //}
+
+    public BrickScript GetBrickAt( Vector2Int pos ) {
+        if ( pos.x < 0 || pos.x >= column || pos.y < 0 || pos.y >= row ) {
+            return null;
+        }
+        return bricks[pos.x, pos.y];
+    }
 }
 
 
@@ -252,16 +287,19 @@ public readonly struct DamageRequest {
     public readonly int damage;
     public readonly DamageSource source;
     public readonly BrickScript origin;
+    public readonly int depth;
 
     public DamageRequest(
         BrickScript target,
         int damage,
         DamageSource source,
-        BrickScript origin = null
+        BrickScript origin = null,
+        int depth = 0
     ) {
         this.target = target;
         this.damage = damage;
         this.source = source;
         this.origin = origin;
+        this.depth = depth;
     }
 }

@@ -5,5 +5,9 @@ public enum DamageSource {
     Horizontal,
     Vertical,
     Explosion,
-    Variant
+    Lightning,
+    Poison,
+    Freeze,
+    Shockwave,
+    Variant,
 }
