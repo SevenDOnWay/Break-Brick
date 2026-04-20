@@ -8,7 +8,7 @@ public class FreezeProcess : Process {
         return statManager.GetStat(UpgradeType.FreezeChance);
     }
 
-    protected override int Execute( StatManager statManager, BrickScript brick ) {
+    protected override int Execute( StatManager statManager, BrickScript brick, int baseDamage ) {
         int freezeDuration = Mathf.FloorToInt(statManager.GetStat(UpgradeType.FreezeDuration));
         if ( freezeDuration <= 0 ) {
             return 0;

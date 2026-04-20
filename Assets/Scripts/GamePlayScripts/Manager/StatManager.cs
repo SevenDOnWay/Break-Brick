@@ -4,11 +4,13 @@ using UnityEngine;
 public class StatManager {
     private Dictionary<UpgradeType, float> baseStat = new Dictionary<UpgradeType, float> {
         { UpgradeType.Speed, 5f },
+        { UpgradeType.BaseDamage, 1f },
         { UpgradeType.CritChance, 0f },
         { UpgradeType.CritMultiplier, 2f },
         { UpgradeType.FireChance, 0f },
         { UpgradeType.LightningChance, 0f },
         { UpgradeType.LightningBounces, 3f },
+        { UpgradeType.LightningArcRadius, 2.5f },
         { UpgradeType.ExplosionChance, 0f },
         { UpgradeType.ExplosionRadius, 0f },
         { UpgradeType.PoisonChance, 0f },

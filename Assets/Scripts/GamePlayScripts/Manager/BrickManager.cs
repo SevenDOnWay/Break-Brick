@@ -83,13 +83,12 @@ public class BrickManager : MonoBehaviour {
 
         if ( savedHealth.HasValue ) {
             health = savedHealth.Value;
-        }
-        else {
+        } else {
             float value = curve.Evaluate(waveScript.GetWaveIndex());
             health = Mathf.CeilToInt(value);
         }
 
-        brick.Init(health);
+        brick.Init(health, squareSize);
         brick.UpdateGridPosition(pos);
 
         bricks[pos.x, pos.y] = brick;
@@ -98,8 +97,8 @@ public class BrickManager : MonoBehaviour {
         brick.OnDestroyed += HandleBrickDestroyed;
     }
 
-    void HandleBrickHit( BrickScript brick, DamageSource source, int damage = 1 ) {
-        RequestDamage(new DamageRequest(brick, damage, source, null));
+    void HandleBrickHit( BrickScript brick, DamageSource source, int damage = 1, Vector2 hitNormal = default ) {
+        RequestDamage(new DamageRequest(brick, damage, source, null, 0, hitNormal));
     }
 
     private void HandleBrickDestroyed( Vector2Int pos ) {
@@ -120,7 +119,7 @@ public class BrickManager : MonoBehaviour {
 
                 if ( brick == null ) continue;
 
-                // Tick effects before movement so turn-based state is deterministic.
+
                 TickBrickEffects(brick);
 
                 if ( brick.HasActiveEffect(EffectType.Freeze) ) {
@@ -145,6 +144,7 @@ public class BrickManager : MonoBehaviour {
 
     private void TickBrickEffects( BrickScript brick ) {
         brick.TickEffects();
+        brick.CallVariantEndTurn();
     }
 
     public void RequestDamage(
@@ -215,6 +215,42 @@ public class BrickManager : MonoBehaviour {
     //    }
     //}
 
+    public void RequestRadialDamage(
+        BrickScript origin,
+        Vector2Int pos,
+        int radius,
+        int damage,
+        DamageSource source
+    ) {
+        for ( int dx = -radius; dx <= radius; dx++ ) {
+            for ( int dy = -radius; dy <= radius; dy++ ) {
+                if ( dx == 0 && dy == 0 ) continue;
+                var neighbor = GetBrickAt(new Vector2Int(pos.x + dx, pos.y + dy));
+                if ( neighbor == null || neighbor == origin ) continue;
+                RequestDamage(neighbor, damage, source, origin);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Restores <paramref name="healAmount"/> HP to every living brick within
+    /// <paramref name="radius"/> cells (Chebyshev distance) of <paramref name="pos"/>,
+    /// excluding <paramref name="origin"/> itself.
+    /// </summary>
+    public void RequestHeal( BrickScript origin, Vector2Int pos, int radius, int healAmount ) {
+        for ( int dx = -radius; dx <= radius; dx++ ) {
+            for ( int dy = -radius; dy <= radius; dy++ ) {
+                if ( dx == 0 && dy == 0 ) continue;
+
+                BrickScript neighbour = GetBrickAt(new Vector2Int(pos.x + dx, pos.y + dy));
+                if ( neighbour == null || neighbour == origin || neighbour.IsDead ) continue;
+
+                neighbour.health += healAmount;
+                neighbour.UpdateHealthText();
+            }
+        }
+    }
+
     public void SaveBrick() {
         List<BrickData> newBricks = new List<BrickData>();
 
@@ -232,8 +268,7 @@ public class BrickManager : MonoBehaviour {
                     }
 
                     newBricks.Add(new BrickData(col, r, hp, type));
-                }
-                catch ( System.Exception e ) {
+                } catch ( System.Exception e ) {
                     Debug.LogWarning($"Error saving brick at [{col},{row}]: {e.Message}");
                     continue;
                 }
@@ -288,18 +323,21 @@ public readonly struct DamageRequest {
     public readonly DamageSource source;
     public readonly BrickScript origin;
     public readonly int depth;
+    public readonly Vector2 hitNormal;
 
     public DamageRequest(
         BrickScript target,
         int damage,
         DamageSource source,
         BrickScript origin = null,
-        int depth = 0
+        int depth = 0,
+        Vector2 hitNormal = default
     ) {
         this.target = target;
         this.damage = damage;
         this.source = source;
         this.origin = origin;
         this.depth = depth;
+        this.hitNormal = hitNormal;
     }
 }

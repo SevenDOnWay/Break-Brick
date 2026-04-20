@@ -8,7 +8,7 @@ public class PoisonProcess : Process {
         return statManager.GetStat(UpgradeType.PoisonChance);
     }
 
-    protected override int Execute( StatManager statManager, BrickScript brick ) {
+    protected override int Execute( StatManager statManager, BrickScript brick, int baseDamage ) {
         int poisonDuration = Mathf.FloorToInt(statManager.GetStat(UpgradeType.PoisonDuration));
         if ( poisonDuration <= 0 ) {
             return 0;

@@ -17,5 +17,7 @@ MonoBehaviour:
   upgradeId: 30621c1f-a47a-4e33-9c28-f6272d4ab2c8
   description: explosion +50%
   KeyValueMap:
-  - type: 6
+  - type: 9
     value: 0.5
+  - type: 10
+    value: 1

@@ -15,7 +15,7 @@ The core **data-driven upgrade system**. Contains the ScriptableObject definitio
 
 | Script | Type | Purpose |
 |---|---|---|
-| `UpgradeStatSO` | `ScriptableObject` | Stat-based upgrade: modifies `StatManager` values and optionally creates a `Process` via `ProcessFactory`. |
+| `UpgradeStatSO` | `ScriptableObject` | Stat-only upgrade: modifies `StatManager` values and returns its applied key/value data to the caller. |
 | `UpgradeBehaviorSO` | `ScriptableObject` | Behavior-based upgrade: applies `IBehavior` implementations (e.g., magnet). |
 | `IBehavior` | Interface | Contract for behavior upgrades: `Apply(UpgradeManager)` and `Type`. |
 | `Process` (base class) | Abstract class | Base for on-hit process strategies. Provides `GetChance()`, `CheckChance()`, `OnHit(BrickScript, ...)`. |
@@ -25,8 +25,8 @@ The core **data-driven upgrade system**. Contains the ScriptableObject definitio
 
 ### Internal
 
-1. `UpgradeStatSO.ApplyStat()` calls `StatManager.ModifyStat()` to bump a stat.
-2. If the `UpgradeType` maps to a process, it creates one via `ProcessFactory.CreateProcess()` and registers it with `UpgradeManager.ApplyProcess()`.
+1. `UpgradeStatSO.ApplyStat()` calls `StatManager.ModifyStat()` and returns its `UpgradePair` data.
+2. `UpgradeManager` consumes that returned data, handles non-stat actions like `ExtraBalls`, then creates/registers processes via `ProcessFactory.CreateProcess()`.
 3. `UpgradeBehaviorSO.ApplyBehavior()` iterates its `IBehavior[]` list and calls `Apply(upgradeManager)`.
 
 ### External
@@ -34,8 +34,8 @@ The core **data-driven upgrade system**. Contains the ScriptableObject definitio
 | Dependency | Relationship |
 |---|---|
 | `Manager/StatManager` | `UpgradeStatSO` modifies stats. |
-| `Manager/UpgradeManager` | `UpgradeStatSO` registers processes. `UpgradeBehaviorSO` activates behaviors. |
-| `Utils/ProcessFactory` | `UpgradeStatSO` creates process instances. |
+| `Manager/UpgradeManager` | Applies returned stat-pair data, registers processes, and activates behaviors. |
+| `Utils/ProcessFactory` | Used by `UpgradeManager` to create process instances. |
 | `VFX/VFXEvent` | `Process` subclasses raise VFX commands. |
 | `BrickVariant/BrickEffect/*` | Some processes (Freeze, Poison) add effect components to bricks. |
 
@@ -57,9 +57,10 @@ sequenceDiagram
 
     Note over USO: Player picks upgrade
     USO->>SM: ModifyStat(type, value)
-    USO->>PF: CreateProcess(type)
-    PF-->>USO: Process instance
-    USO->>UM: ApplyProcess(process)
+    USO-->>UM: Return applied UpgradePair list
+    UM->>PF: CreateProcess(type)
+    PF-->>UM: Process instance
+    UM->>UM: ApplyProcess(process)
 
     Note over BS: Ball hits brick
     BS->>UM: GetCurrentProcess()

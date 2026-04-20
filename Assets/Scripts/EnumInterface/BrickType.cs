@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public enum BrickType {
@@ -8,6 +8,12 @@ public enum BrickType {
     HorizontalDamageBoost,
     VerticalDamageBoost,
     PlusBallBoost,
+
+    Shielded,
+    Healing,
+    TNT,
+    Ghost,
+    Fog,
 
     //======MINIBOSS======
 

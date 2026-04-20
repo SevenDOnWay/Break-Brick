@@ -1,0 +1,186 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5476058023538952078
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 718055627377299413, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.101532415
+      objectReference: {fileID: 0}
+    - target: {fileID: 718055627377299413, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.101532415
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Name
+      value: HealBrick Variant Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_FlipX
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Size.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1352037793338775557, guid: 81df49ce03e2b8242ba646b5f25954e3, type: 3}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_DrawMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_SpriteSortPoint
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6444194836663007396, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.101532415
+      objectReference: {fileID: 0}
+    - target: {fileID: 6444194836663007396, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.101532415
+      objectReference: {fileID: 0}
+    - target: {fileID: 6444194836663007396, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6444194836663007396, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6444194836663007396, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2220477184783505757}
+  m_SourcePrefab: {fileID: 100100000, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+--- !u!1 &579421203885693601 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+  m_PrefabInstance: {fileID: 5476058023538952078}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2220477184783505757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579421203885693601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0430ce528b1135e4d894891bb21cef9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealingBrick
+  healCooldownTurns: 1
+  healAmount: 10
+  healRadius: 1

@@ -10,4 +10,5 @@ public enum DamageSource {
     Freeze,
     Shockwave,
     Variant,
+    TNT,
 }

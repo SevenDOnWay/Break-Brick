@@ -4,11 +4,9 @@ using TMPro;
 using UnityEngine;
 using VContainer;
 
-public class BrickScript : MonoBehaviour
-{
+public class BrickScript : MonoBehaviour {
     [Serializable]
-    public struct EffectLayerBinding
-    {
+    public struct EffectLayerBinding {
         public EffectType effectType;
         public GameObject layerObject;
     }
@@ -27,6 +25,7 @@ public class BrickScript : MonoBehaviour
     public bool IsDead => health <= 0;
     public int health;
     public Vector2Int GridPosition { get; set; }
+    public float SquareSize { get; private set; }
 
     [Header("Effect Layer")]
     [SerializeField] public List<EffectLayerBinding> effectLayerBindings = new();
@@ -43,38 +42,32 @@ public class BrickScript : MonoBehaviour
     public static event EventHandler OnBrickDestroyed;
     public static event EventHandler OnBrickHit;
 
-    public event Action<BrickScript, DamageSource, int> OnHit;
+    public event Action<BrickScript, DamageSource, int, Vector2> OnHit;
     public event Action<DamageRequest> OnDamaged;
     public event Action<Vector2Int> OnDestroyed;
     public event Action<EffectType, bool> OnEffectChanged;
 
     [Inject]
-    public void Constructor(LevelManager levelManager)
-    {
+    public void Constructor( LevelManager levelManager ) {
         this.levelManager = levelManager;
     }
 
-    public void Init(int health)
-    {
+    public void Init( int health, float squareSize ) {
         this.health = health;
+        this.SquareSize = squareSize;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         variants = GetComponents<IBrickVariant>();
 
         SubscribeEffectLayer(null, false);
 
-        if (spriteRenderer == null)
-        {
+        if ( spriteRenderer == null ) {
             Debug.LogError("SpriteRenderer is null in BrickScript.");
         }
 
-        foreach (var variant in variants)
-        {
-            try
-            {
+        foreach ( var variant in variants ) {
+            try {
                 variant.OnSpawn(this);
-            }
-            catch (Exception e)
-            {
+            } catch ( Exception e ) {
                 Debug.LogException(e);
             }
         }
@@ -82,31 +75,31 @@ public class BrickScript : MonoBehaviour
         UpdateBrickVisual();
     }
 
-    public void NotifyHit(DamageSource source, int damage = 1)
-    {
-        OnHit?.Invoke(this, source, damage);
+    public void NotifyHit( DamageSource source, int damage = 1, Vector2 hitNormal = default ) {
+        OnHit?.Invoke(this, source, damage, hitNormal);
     }
 
-    public void SubscribeEffectLayer(IEffect effect, bool isActive)
-    {
-        if (effectLayerMap.Count == 0)
-        {
-            foreach (var binding in effectLayerBindings)
-            {
-                if (binding.layerObject == null) continue;
+    public void SubscribeEffectLayer( IEffect effect, bool isActive ) {
+        if ( effectLayerMap.Count == 0 ) {
+            foreach ( var binding in effectLayerBindings ) {
+                if ( binding.layerObject == null ) continue;
                 effectLayerMap[binding.effectType] = binding.layerObject;
                 binding.layerObject.SetActive(false);
             }
         }
 
-        if (effect != null)
-        {
+        if ( effect != null ) {
             UpdateEffectLayer(effect.Type, isActive);
         }
     }
 
-    public void ApplyDamageInternal(DamageRequest req)
-    {
+    public void ApplyDamageInternal( DamageRequest req ) {
+        foreach ( var variant in variants ) {
+            if ( variant is IDamageBlocker blocker && blocker.TryBlock(req) ) {
+                return;
+            }
+        }
+
         int damage = req.damage;
         health -= damage;
 
@@ -116,79 +109,64 @@ public class BrickScript : MonoBehaviour
         UpdateBrickVisual();
         levelManager.AddExp(damage);
 
-        if (health > 0)
-        {
+        if ( health > 0 ) {
             OnDamage(req);
-        }
-        else
-        {
+        } else {
             OnDeath(req);
         }
     }
 
-    public void TickEffects()
-    {
+    public void TickEffects() {
         pendingRemoval.Clear();
 
-        for (int i = 0; i < tickableEffects.Count; i++)
-        {
+        for ( int i = 0; i < tickableEffects.Count; i++ ) {
             ITickableEffect effect = tickableEffects[i];
             effect.Tick();
 
-            if (!effect.IsActive() || effect.IsExpired)
-            {
+            if ( !effect.IsActive() || effect.IsExpired ) {
                 pendingRemoval.Add(effect.Type);
             }
         }
 
-        for (int i = 0; i < pendingRemoval.Count; i++)
-        {
+        for ( int i = 0; i < pendingRemoval.Count; i++ ) {
             RemoveEffect(pendingRemoval[i]);
         }
     }
 
-    public bool HasActiveEffect(EffectType type)
-    {
+    public bool HasActiveEffect( EffectType type ) {
         return activeEffects.ContainsKey(type);
     }
 
-    void UpdateBrickVisual()
-    {
+    void UpdateBrickVisual() {
         UpdateHealthText();
         UpdateColor();
         UpdateEffectLayer();
     }
 
-    public void UpdateHealthText()
-    {
-        if (healText != null)
-        {
+    public void UpdateHealthText() {
+        if ( healText != null ) {
             healText.text = health.ToString();
         }
     }
 
-    void UpdateColor()
-    {
-        if (spriteRenderer == null) return;
+    void UpdateColor() {
+        if ( spriteRenderer == null ) return;
 
-        if (health <= ColorThresholds[0])
-        {
+        if ( health <= ColorThresholds[0] ) {
             spriteRenderer.color = CachedColors[0];
             return;
         }
 
         int lastIndex = ColorThresholds.Length - 1;
-        if (health >= ColorThresholds[lastIndex])
-        {
+        if ( health >= ColorThresholds[lastIndex] ) {
             spriteRenderer.color = CachedColors[lastIndex];
             return;
         }
 
-        for (int i = 0; i < lastIndex; i++)
-        {
+        for ( int i = 0; i < lastIndex; i++ ) {
             int lower = ColorThresholds[i];
             int upper = ColorThresholds[i + 1];
-            if (health < lower || health > upper) continue;
+            if ( health < lower || health > upper ) continue;
 
             float t = (health - lower) / (float)(upper - lower);
             spriteRenderer.color = Color.Lerp(CachedColors[i], CachedColors[i + 1], t);
@@ -196,57 +174,41 @@ public class BrickScript : MonoBehaviour
         }
     }
 
-    void UpdateEffectLayer()
-    {
-        foreach (var pair in effectLayerMap)
-        {
+    void UpdateEffectLayer() {
+        foreach ( var pair in effectLayerMap ) {
             bool isActive = activeEffects.ContainsKey(pair.Key);
-            if (pair.Value.activeSelf != isActive)
-            {
+            if ( pair.Value.activeSelf != isActive ) {
                 pair.Value.SetActive(isActive);
             }
         }
     }
 
-    void UpdateEffectLayer(EffectType effectType, bool isActive)
-    {
-        if (effectLayerMap.TryGetValue(effectType, out var layer) && layer != null)
-        {
+    void UpdateEffectLayer( EffectType effectType, bool isActive ) {
+        if ( effectLayerMap.TryGetValue(effectType, out var layer) && layer != null ) {
             layer.SetActive(isActive);
         }
     }
 
-    void OnDamage(DamageRequest req)
-    {
-        foreach (var variant in variants)
-        {
-            try
-            {
+    void OnDamage( DamageRequest req ) {
+        foreach ( var variant in variants ) {
+            try {
                 variant.OnHit(this);
-            }
-            catch (Exception e)
-            {
+            } catch ( Exception e ) {
                 Debug.LogException(e);
             }
         }
     }
 
-    void OnDeath(DamageRequest req)
-    {
-        foreach (var variant in variants)
-        {
-            try
-            {
+    void OnDeath( DamageRequest req ) {
+        foreach ( var variant in variants ) {
+            try {
                 variant.OnDie(this);
-            }
-            catch (Exception e)
-            {
+            } catch ( Exception e ) {
                 Debug.LogException(e);
             }
         }
 
-        for (int i = tickableEffects.Count - 1; i >= 0; i--)
-        {
+        for ( int i = tickableEffects.Count - 1; i >= 0; i-- ) {
             RemoveEffect(tickableEffects[i].Type);
         }
 
@@ -254,27 +216,32 @@ public class BrickScript : MonoBehaviour
         DestroyBrick();
     }
 
-    void DestroyBrick()
-    {
+    void DestroyBrick() {
         OnDestroyed?.Invoke(GridPosition);
         OnBrickDestroyed?.Invoke(this, EventArgs.Empty);
         Destroy(gameObject);
     }
 
-    public void UpdateGridPosition(Vector2Int pos)
-    {
+    public void UpdateGridPosition( Vector2Int pos ) {
         GridPosition = pos;
     }
 
-    public void ApplyOrRefreshEffect(IEffect newEffect)
-    {
-        if (newEffect == null) return;
+    public void CallVariantEndTurn() {
+        foreach ( var variant in variants ) {
+            try {
+                variant.OnEndTurn(this);
+            } catch ( Exception e ) {
+                Debug.LogException(e);
+            }
+        }
+    }
 
-        if (activeEffects.TryGetValue(newEffect.Type, out var existingEffect))
-        {
+    public void ApplyOrRefreshEffect( IEffect newEffect ) {
+        if ( newEffect == null ) return;
+
+        if ( activeEffects.TryGetValue(newEffect.Type, out var existingEffect) ) {
             existingEffect.Refresh(newEffect);
-            if (existingEffect is ITickableEffect tickable && !tickableEffects.Contains(tickable))
-            {
+            if ( existingEffect is ITickableEffect tickable && !tickableEffects.Contains(tickable) ) {
                 tickableEffects.Add(tickable);
             }
             UpdateEffectLayer(existingEffect.Type, true);
@@ -284,8 +251,7 @@ public class BrickScript : MonoBehaviour
         activeEffects[newEffect.Type] = newEffect;
         newEffect.OnApply(this);
 
-        if (newEffect is ITickableEffect tickableEffect)
-        {
+        if ( newEffect is ITickableEffect tickableEffect ) {
             tickableEffects.Add(tickableEffect);
         }
 
@@ -293,18 +259,15 @@ public class BrickScript : MonoBehaviour
         UpdateEffectLayer(newEffect.Type, true);
     }
 
-    void RemoveEffect(EffectType effectType)
-    {
-        if (!activeEffects.TryGetValue(effectType, out var effect))
-        {
+    void RemoveEffect( EffectType effectType ) {
+        if ( !activeEffects.TryGetValue(effectType, out var effect) ) {
             return;
         }
 
         effect.OnRemove(this);
         activeEffects.Remove(effectType);
 
-        if (effect is ITickableEffect tickable)
-        {
+        if ( effect is ITickableEffect tickable ) {
             tickableEffects.Remove(tickable);
         }
 

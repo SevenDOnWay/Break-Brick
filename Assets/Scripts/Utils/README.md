@@ -8,7 +8,7 @@ Cross-cutting utility scripts used by multiple modules. Includes the `ProcessFac
 
 | Script | Type | VContainer Registration | Purpose |
 |---|---|---|---|
-| `ProcessFactory` | `MonoBehaviour` | `Singleton` in `GameLifetimeScope` | **Factory Pattern** — Maps `UpgradeType` to `Process` instances via a switch expression. |
+| `ProcessFactory` | POCO | `Singleton` in `GameLifetimeScope` | **Factory Pattern** — Maps `UpgradeType` to `Process` instances and injects dependencies via `IObjectResolver.Inject`. |
 | `ListExtension` | Static class | — | Extension method `GetRandomElements<T>()` for random subset selection. |
 | `GridAutoFit` | `MonoBehaviour` | — | Auto-resizes `GridLayoutGroup` cells based on container width. |
 | `CloseScript` | `MonoBehaviour` | — | Generic close-panel button handler. |
@@ -36,7 +36,7 @@ No inter-dependencies between scripts in this folder.
 
 ## Decoupling Notes
 
-> `ProcessFactory` inherits `MonoBehaviour` unnecessarily — it has no serialized fields or lifecycle needs. Could be a plain class registered as `Singleton` in VContainer.
+> `ProcessFactory` is a plain C# class registered as `Singleton` and uses `IObjectResolver` to inject dependencies into dynamically created processes.
 
 ## Mermaid Diagram
 

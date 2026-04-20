@@ -19,5 +19,5 @@ MonoBehaviour:
 
 '
   KeyValueMap:
-  - type: 2
+  - type: 3
     value: 0.5

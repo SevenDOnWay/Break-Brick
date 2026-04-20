@@ -67,7 +67,8 @@ public class UpgradeManager {
 
         CharacterSO characterSO = await characterDataBase.GetCharacterByID(upgradeIds);
 
-        characterSO?.Apply(statManager, processFactory, this);
+        IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = characterSO?.Apply(statManager, this);
+        RegisterProcessesAndActions(statPairs);
 
     }
 
@@ -85,7 +86,8 @@ public class UpgradeManager {
 
         if ( upgrade is UpgradeStatSO statUpgrade ) {
             currentUpgrades.Add(statUpgrade);
-            upgrade.ApplyStat(statManager, processFactory, this);
+            IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = statUpgrade.ApplyStat(statManager);
+            RegisterProcessesAndActions(statPairs);
         }
         else if ( upgrade is UpgradeBehaviorSO behaviorUpgrade ) {
             currentUpgrades.Add(behaviorUpgrade);
@@ -101,8 +103,27 @@ public class UpgradeManager {
     }
 
     public void ApplyProcess( Process process ) {
+        if(currentProcess.Exists(p => p.GetType() == process.GetType()) ) return; // Prevent duplicate processes of the same type. This is a simple check, you might want to implement a more robust system depending on your needs.
         currentProcess.Add(process);
         OnProcessAdded?.Invoke(process);
+    }
+
+    void RegisterProcessesAndActions( IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs ) {
+        if ( statPairs == null ) {
+            return;
+        }
+
+        foreach ( UpgradeStatSO.UpgradePair pair in statPairs ) {
+            if ( pair.Type == UpgradeType.ExtraBalls ) {
+                AddBall((int)pair.Value);
+                continue;
+            }
+
+            Process process = processFactory.CreateProcess(pair.Type);
+            if ( process != null ) {
+                ApplyProcess(process);
+            }
+        }
     }
 
     //public void OnProcessAddedInvoke( Process process ) {

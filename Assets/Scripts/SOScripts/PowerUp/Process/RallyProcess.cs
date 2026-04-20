@@ -6,21 +6,20 @@ public class RallyProcess : Process {
 
     public override ProcessType GetProssType() => ProcessType.Rally;
 
-    public override int OnHit( StatManager statManager, BrickScript brick ) {
-        float rallyBonus = statManager.GetStat(UpgradeType.RallyBonus);
-
-        consecutiveHits++;
-
-        int bonusDamage = Mathf.FloorToInt(consecutiveHits * rallyBonus);
-
-        return 1 + bonusDamage;
-    }
-
     public override void OnApply() {
         consecutiveHits = 0;
     }
 
-    public void ResetCounter() {
+    public override void Reset() {
         consecutiveHits = 0;
+    }
+
+    protected override int Execute( StatManager statManager, BrickScript brick, int baseDamage ) {
+        float rallyBonus = statManager.GetStat(UpgradeType.RallyBonus);
+
+        consecutiveHits++;
+
+        // Return only the bonus damage; base damage is applied by BallScript.
+        return Mathf.FloorToInt(consecutiveHits * rallyBonus);
     }
 }

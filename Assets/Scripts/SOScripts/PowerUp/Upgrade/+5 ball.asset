@@ -18,4 +18,4 @@ MonoBehaviour:
   description: +5 ball
   KeyValueMap:
   - type: 0
-    value: 3
+    value: 5

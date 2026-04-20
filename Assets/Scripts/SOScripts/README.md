@@ -25,7 +25,7 @@
 | `Enum/UpgradeBehaviourType` | Keys for behavior upgrades. |
 | `GamePlayScripts/Manager/StatManager` | `UpgradeStatSO.ApplyStat()` modifies stats. |
 | `GamePlayScripts/Manager/UpgradeManager` | Manages upgrade inventory. |
-| `Utils/ProcessFactory` | `UpgradeStatSO.ApplyStat()` creates processes via factory. |
+| `Utils/ProcessFactory` | `UpgradeManager` creates processes via factory from `UpgradeStatSO` returned data. |
 
 ## Design Patterns
 

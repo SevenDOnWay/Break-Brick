@@ -25,19 +25,17 @@ public class BallScript : MonoBehaviour {
 
     float squareSize;
 
+    BrickScript lastBrickScript;
+    int lastCollisionFrame = -1;
+
 
     public event Action<BallScript> OnBallFinished;
     private TrailRenderer trail;
 
     [Header("Stat")]
     float speed;
-    float critChance;
-    float critMultiplier;
-    float fireChance;
-    float lightningChance;
-    float explosiveChance;
+    float baseDamage;
 
-    private Dictionary<UpgradeType, FieldInfo> statFieldMap;
     private List<Process> currentProcesses = new List<Process>();
 
     public void Init( BallManager ballManager,
@@ -53,7 +51,8 @@ public class BallScript : MonoBehaviour {
     }
 
     private void InitCurrentUpgrade( UpgradeManager upgradeManager ) {
-        currentProcesses = upgradeManager.GetAllProcess();
+        // Create a copy to avoid double-adding processes when OnProcessAdded event fires
+        currentProcesses = new List<Process>(upgradeManager.GetAllProcess());
     }
 
     private void Awake() {
@@ -68,6 +67,7 @@ public class BallScript : MonoBehaviour {
         //BuildReflectionMap();
 
         speed = statManager.GetStat(UpgradeType.Speed);
+        baseDamage = statManager.GetStat(UpgradeType.BaseDamage);
 
         upgradeManager.OnProcessAdded += AddProcess;
     }
@@ -98,6 +98,8 @@ public class BallScript : MonoBehaviour {
         collider2D.enabled = true;
         bounceTime = 0;
         endLineTriggerCount = 0;
+        lastBrickScript = null;
+        lastCollisionFrame = -1;
         EnableTrail(true);
         ResetProcesses();
     }
@@ -124,19 +126,30 @@ public class BallScript : MonoBehaviour {
         // ===== BrickScript Collision Logic =====
         if ( collision.gameObject.TryGetComponent<BrickScript>(out BrickScript brick) ) {
 
-            //features: 
+            // Prevent processing the same collision multiple times in the same frame
+            if ( brick == lastBrickScript && Time.frameCount == lastCollisionFrame ) {
+                return;
+            }
 
-            ApplyProcess(brick);
+            lastBrickScript = brick;
+            lastCollisionFrame = Time.frameCount;
 
-            brick.NotifyHit(DamageSource.Ball);
+            baseDamage = statManager.GetStat(UpgradeType.BaseDamage);
+            int bonusDamage = ApplyProcess(brick, (int)baseDamage);
+
+            Vector2 hitNormal = collision.contacts.Length > 0 ? collision.contacts[0].normal : Vector2.zero;
+            brick.NotifyHit(DamageSource.Ball, (int)baseDamage + bonusDamage, hitNormal);
+            Debug.Log("Ball hit brick at " + brick.GridPosition + " with base damage " + baseDamage + " and bonus damage " + bonusDamage);
             bounceTime = 0;
         }
     }
 
-    public void ApplyProcess(BrickScript brick) {
+    public int ApplyProcess( BrickScript brick, int baseDamage ) {
+        int totalBonus = 0;
         foreach ( var process in currentProcesses ) {
-            process.OnHit(statManager, brick);
+            totalBonus += process.OnHit(statManager, brick, baseDamage);
         }
+        return totalBonus;
     }
 
 
@@ -169,16 +182,11 @@ public class BallScript : MonoBehaviour {
     }
 
     /// <summary>
-    /// Resets per-turn counters on processes like Sniper and Rally.
+    /// Resets per-turn counters on all processes (e.g. Sniper, Rally).
     /// </summary>
     void ResetProcesses() {
         foreach ( var process in currentProcesses ) {
-            if ( process is SniperProcess sniper ) {
-                sniper.ResetCounter();
-            }
-            else if ( process is RallyProcess rally ) {
-                rally.ResetCounter();
-            }
+            process.Reset();
         }
     }
 }

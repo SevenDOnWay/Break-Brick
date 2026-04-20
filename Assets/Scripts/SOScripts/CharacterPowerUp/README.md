@@ -23,8 +23,7 @@ No internal dependencies.
 | `SOScripts/PowerUp/UpgradeStatSO` | `CharacterSO.Apply()` delegates to `UpgradeStatSO.ApplyStat()`. |
 | `SOScripts/PowerUp/UpgradeBehaviorSO` | Delegates to `UpgradeBehaviorSO.ApplyBehavior()`. |
 | `Manager/StatManager` | Passed through to `UpgradeStatSO.ApplyStat()`. |
-| `Manager/UpgradeManager` | Passed through to both stat and behavior SO. |
-| `Utils/ProcessFactory` | Passed through to `UpgradeStatSO.ApplyStat()`. |
+| `Manager/UpgradeManager` | Passed through for behavior application and returned stat-pair handoff. |
 | `Singleton/CharacterDataBase` | `CharacterSO` assets are loaded via Addressables and cached. |
 
 ## Design Patterns
@@ -33,7 +32,7 @@ No internal dependencies.
 
 ## Decoupling Notes
 
-> `CharacterSO.Apply()` takes three parameters (`StatManager`, `ProcessFactory`, `UpgradeManager`) — this is a **pass-through coupling**. Consider a single context object.
+> `CharacterSO.Apply()` now focuses on stat application + behavior delegation and returns applied stat-pair data to the caller for runtime process registration.
 
 > The `OnValidate()` auto-ID generation uses `#if UNITY_EDITOR` correctly.
 
@@ -48,12 +47,12 @@ classDiagram
         -string description
         -UpgradeStatSO upgradeStatSO
         -UpgradeBehaviorSO upgradeBehaviorSO
-        +Apply(StatManager, ProcessFactory, UpgradeManager)
+        +Apply(StatManager, UpgradeManager) IReadOnlyList~UpgradePair~
         +GetCharacterId() string
     }
 
     class UpgradeStatSO {
-        +ApplyStat(StatManager, ProcessFactory, UpgradeManager)
+        +ApplyStat(StatManager) IReadOnlyList~UpgradePair~
     }
 
     class UpgradeBehaviorSO {

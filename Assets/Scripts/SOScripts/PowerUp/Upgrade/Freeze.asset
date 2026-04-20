@@ -17,7 +17,7 @@ MonoBehaviour:
   upgradeId: dacdf5a5-bdf0-4b87-8c94-e91c52a90b8f
   description: +50% freeze chance
   KeyValueMap:
-  - type: 11
+  - type: 13
     value: 0.5
-  - type: 12
+  - type: 14
     value: 1

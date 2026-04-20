@@ -1,8 +1,14 @@
-using UnityEngine;
+using VContainer;
 
-public class ProcessFactory : MonoBehaviour {
-    public IProcess CreateProcess( UpgradeType type ) {
-        return type switch {
+public class ProcessFactory {
+    readonly IObjectResolver resolver;
+
+    public ProcessFactory( IObjectResolver resolver ) {
+        this.resolver = resolver;
+    }
+
+    public Process CreateProcess( UpgradeType type ) {
+        Process process = type switch {
             UpgradeType.ExplosionChance => new ExplosionProcess(),
             UpgradeType.CritChance => new CritProcess(),
             UpgradeType.LightningChance => new LightningProcess(),
@@ -13,5 +19,11 @@ public class ProcessFactory : MonoBehaviour {
             UpgradeType.RallyBonus => new RallyProcess(),
             _ => null
         };
+
+        if ( process != null ) {
+            resolver.Inject(process);
+        }
+
+        return process;
     }
 }
