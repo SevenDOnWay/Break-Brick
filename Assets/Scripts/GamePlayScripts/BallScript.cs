@@ -52,7 +52,7 @@ public class BallScript : MonoBehaviour {
 
     private void InitCurrentUpgrade( UpgradeManager upgradeManager ) {
         // Create a copy to avoid double-adding processes when OnProcessAdded event fires
-        currentProcesses = new List<Process>(upgradeManager.GetAllProcess());
+            
     }
 
     private void Awake() {

@@ -2086,44 +2086,44 @@ MonoBehaviour:
   - type: 1
     prefab: {fileID: 7710773107683314135, guid: 2950904f7d7a2dd4f8587aff3c9fa3c8, type: 3}
     minWave: 5
-    baseChance: 0.072
-    growthPerWave: 0.0069
+    baseChance: 0.3
+    growthPerWave: 0.05
     isMiniBoss: 0
   - type: 2
     prefab: {fileID: 685578362987215932, guid: c82a53985a34be247ba5df89275f9598, type: 3}
     minWave: 10
     baseChance: 0.25
-    growthPerWave: 0.0259
+    growthPerWave: 0.03
     isMiniBoss: 0
   - type: 3
     prefab: {fileID: 4896636833092869423, guid: d8881137086707e48b49478b552a1d53, type: 3}
     minWave: 2
-    baseChance: 0.101
-    growthPerWave: 0.0609
+    baseChance: 0.05
+    growthPerWave: 0
     isMiniBoss: 0
   - type: 4
     prefab: {fileID: 942642231873179046, guid: ba32536dac0fee643a99b6d19444eae2, type: 3}
     minWave: 2
-    baseChance: 0.091
-    growthPerWave: 0.0609
+    baseChance: 0.05
+    growthPerWave: 0
     isMiniBoss: 0
   - type: 7
     prefab: {fileID: 579421203885693601, guid: 92ca14f629a467b48a575662d148f8f4, type: 3}
-    minWave: 10
+    minWave: 20
     baseChance: 0.109
     growthPerWave: 0.01
     isMiniBoss: 0
   - type: 8
     prefab: {fileID: 1212619689254543116, guid: 7a696327d13b1c344b1373e751e67f0c, type: 3}
-    minWave: 10
-    baseChance: 0.434
-    growthPerWave: 0.0609
+    minWave: 15
+    baseChance: 0.1
+    growthPerWave: 0.01
     isMiniBoss: 0
   - type: 6
     prefab: {fileID: 817622486880190092, guid: 52db0c00f3d59554fa6975ac9cc508da, type: 3}
-    minWave: 2
-    baseChance: 0.434
-    growthPerWave: 0.0609
+    minWave: 15
+    baseChance: 0.2
+    growthPerWave: 0.02
     isMiniBoss: 0
   Pool: {fileID: 600349753}
   wallLayer:
