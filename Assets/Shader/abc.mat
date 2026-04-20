@@ -99,9 +99,9 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _BeamColor: 0
-    - _BeamScale: -0.6
-    - _BeamSpeed: 0
-    - _BeamThickness: 1.21
+    - _BeamScale: -0.9
+    - _BeamSpeed: 2
+    - _BeamThickness: -1
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -114,7 +114,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EdgeColor: 0
-    - _EdgeSmoothness: 2.99
+    - _EdgeSmoothness: 3.5
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -134,7 +134,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BeamColor: {r: 1, g: 0.91886795, b: 0.91886795, a: 0}
+    - _BeamColor: {r: 0.40491986, g: 0.5292272, b: 0.8037735, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

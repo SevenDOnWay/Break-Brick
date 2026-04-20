@@ -15,32 +15,8 @@ MonoBehaviour:
   m_GroupName: Upgrade
   m_GUID: 4f56ee7a7de4bb14780917ae2e50fd7e
   m_SerializeEntries:
-  - m_GUID: 4973f516badc3ec4e83b57cbe5a02143
-    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/+5 ball.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Upgrade
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 682d6ac2b16893745be31c9e7d7516e9
-    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/+1 ball.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Upgrade
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 6e6248d3aa4317042bd129445409411c
-    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/+2 ball.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Upgrade
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f6461085f1499c544a67f42932117d99
-    m_Address: Assets/Scripts/SOScripts/PowerUp/CritSO/Crit1.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Upgrade
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: fe8c0f8d594fb4e42aeb641b211a34ad
-    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade/explosion1.asset
+  - m_GUID: d7a03424e2343964d8dd77876cb78b0e
+    m_Address: Assets/Scripts/SOScripts/PowerUp/Upgrade
     m_ReadOnly: 0
     m_SerializedLabels:
     - Upgrade

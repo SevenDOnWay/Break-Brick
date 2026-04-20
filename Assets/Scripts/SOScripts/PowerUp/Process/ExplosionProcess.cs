@@ -1,43 +1,49 @@
 using System;
 using UnityEngine;
-using UnityEngine.UIElements;
+using VContainer;
 
-public class ExplosionProcess : Process, IVFXEvent {
+public class ExplosionProcess : Process {
+    [Inject]
+    public PlayScreen playScreen { get; set; }
 
     int brickLayer = 1 << 7;
 
-    public event Action<Vector2, float> OnExplose;
-
-    public void RegisterVFXEvents( VFXManager vfxManager ) {
-        OnExplose += vfxManager.PlayExplosionVFX;
-    }
+    //public void RegisterVFXEvents( VFXManager vfxManager ) {
+    //    OnExplose += vfxManager.PlayExplosionVFX;
+    //}
 
     public override ProcessType GetProssType() => ProcessType.Explosion;
 
-    public override int OnHit( StatManager statManager , Vector2 pos ) {
-        float explosionChance = statManager.GetStat( UpgradeType.ExplosionChance );
-        float explosionRadius = statManager.GetStat( UpgradeType.ExplosionRadius );
+    public VFXType GetVFXType() {
+        return VFXType.Explosion;
+    }
 
-        float roll = UnityEngine.Random.Range( 0f, 1f );
+    protected override float GetChance( StatManager statManager ) {
+        return statManager.GetStat(UpgradeType.ExplosionChance);
+    }
 
-        if ( roll >= explosionChance ) return 1;
+    protected override int Execute( StatManager statManager, BrickScript brick, int baseDamage ) {
+        float logicalRadius = statManager.GetStat(UpgradeType.ExplosionRadius);
+        float physicalRadius = logicalRadius * (playScreen?.GetSquareSize() ?? 1f);
+        Vector2 pos = brick.transform.position;
+        Explose(pos, physicalRadius);
 
-        Explose(pos, explosionRadius);
+        RaiseVFXCommand(new ExplosionVFXCommand(pos, physicalRadius));
 
         return 1; //MAYBE: add some damage boost for explosion hit
     }
 
+    public void RaiseVFXCommand( IVFXCommand cmd ) {
+        VFXEvent.RaiseVFXCommand(cmd);
+    }
+
     private void Explose( Vector2 pos, float explosionRadius ) {
-        Collider[] hitColliders = Physics.OverlapSphere( pos, explosionRadius, brickLayer );
-
-        //TODO: add explosion VFX 
-        OnExplose?.Invoke(pos, explosionRadius);
-
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll( pos, explosionRadius, brickLayer );
 
         foreach ( var hitCollider in hitColliders ) {
             BrickScript brick = hitCollider.GetComponent<BrickScript>();
             if ( brick != null ) {
-                brick.TakeDamage(1);
+                brick.NotifyHit(DamageSource.Explosion, 1);
             }
         }
 

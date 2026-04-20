@@ -162,6 +162,6 @@ public class PlayerController : MonoBehaviour {
             line.enabled = false;
         }
 
-        Debug.Log($"PlayerController: SetCanShoot to {canShoot}");
+        //Debug.Log($"PlayerController: SetCanShoot to {canShoot}");
     }
 }

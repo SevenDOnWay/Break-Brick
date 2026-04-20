@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
@@ -16,6 +18,7 @@ public class GameStateManager : MonoBehaviour {
     BrickManager brickManager;
     LevelManager levelManager;
     UpgradeManager upgradeManager;
+    GameOverScript gameOverScript;
 
     [Inject]
     public void Constructor(
@@ -28,7 +31,8 @@ public class GameStateManager : MonoBehaviour {
         BallManager ballManager,
         BrickManager brickManager,
         LevelManager levelManager,
-        UpgradeManager upgradeManager
+        UpgradeManager upgradeManager,
+        GameOverScript gameOverScript
      ) {
         this.playScreen = playScreen;
         this.runDataManager = runDataManager;
@@ -40,10 +44,12 @@ public class GameStateManager : MonoBehaviour {
         this.brickManager = brickManager;
         this.levelManager = levelManager;
         this.upgradeManager = upgradeManager;
+        this.gameOverScript = gameOverScript;
     }
 
     bool isBallsFlying = false;
     bool isUpgrading = false;
+    bool isGameOver = false;
 
     void Start() {
 
@@ -71,6 +77,7 @@ public class GameStateManager : MonoBehaviour {
         levelManager.NotifiLevelUp += LevelUp;
         upgradeManager.OnAllUpgradesProcessed += FinishUpgrade;
         upgradeManager.RequestExtraBalls += (extraballs) => ballManager.RequestExtraBall(extraballs);
+        brickManager.GameOverEvent += CallGameOver;
     }
 
     void StartNewGame() {
@@ -104,7 +111,7 @@ public class GameStateManager : MonoBehaviour {
     }
 
     public void HandleAllBallsDone() {
-        brickManager.MoveBrick();
+        brickManager.HandleAllBallDone();
         spawnController.SpawnBrick();
         //playerController.HandleAllBallsDone();
 
@@ -124,6 +131,8 @@ public class GameStateManager : MonoBehaviour {
     }
 
     public void LevelUp( int currentLevel ) {
+        if( isGameOver) return;
+
         StartCoroutine(LevelUpRoutine(currentLevel));
     }
 
@@ -146,7 +155,7 @@ public class GameStateManager : MonoBehaviour {
 
     private void CheckTurnState() {
         // Only allow shooting if balls are NOT flying AND we are NOT upgrading
-        if ( !isBallsFlying && !isUpgrading ) {
+        if ( !isBallsFlying && !isUpgrading && !isGameOver) {
             SetPlayerCanShoot(true);
         }
         else {
@@ -156,5 +165,26 @@ public class GameStateManager : MonoBehaviour {
 
     private void SetPlayerCanShoot( bool canShoot ) {
         playerController.SetCanShoot(canShoot);
+    }
+
+    private void CallGameOver() {
+        _ = CallGameOverAsync();
+    }
+
+    private async Task CallGameOverAsync() {
+        isGameOver = true;
+        SetPlayerCanShoot(false); // prevent player from shooting when game is already over
+
+        //add observable event for game over and subscribe game over script to it,
+        //then invoke it here instead of directly calling game over script,
+        //this will make the code more decoupled and easier to manage in the long run
+
+        //TODO: add option to revive 
+        await gameOverScript.HandleGameOver();
+
+        runDataManager.DeleteRun();
+
+        await SceneManager.LoadSceneAsync(1); 
+
     }
 }

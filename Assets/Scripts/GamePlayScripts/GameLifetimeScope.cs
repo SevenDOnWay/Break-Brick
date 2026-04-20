@@ -13,6 +13,7 @@ public class GameLifetimeScope : LifetimeScope {
             .WithParameter("padding", 0.9f);
 
         builder.RegisterComponentInHierarchy<WaveScript>();
+        builder.RegisterComponentInHierarchy<GameOverScript>();
 
         builder.RegisterComponentInHierarchy<GameStateManager>();
 
@@ -36,6 +37,7 @@ public class GameLifetimeScope : LifetimeScope {
 
         builder.Register<BallScript>(Lifetime.Transient);
         builder.Register<BrickScript>(Lifetime.Transient);
+        builder.Register<ProcessFactory>(Lifetime.Singleton);
 
     }
 }

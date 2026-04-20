@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
 
 
 public abstract class UpgradeSO : ScriptableObject {
@@ -20,14 +21,20 @@ public abstract class UpgradeSO : ScriptableObject {
     public void OnValidate() {
 
         if ( string.IsNullOrEmpty(upgradeId) ) {
-            upgradeId = System.Guid.NewGuid().ToString();
+            // Use the internal Unity GUID for this asset file
+            string path = AssetDatabase.GetAssetPath(this);
+            upgradeId = AssetDatabase.AssetPathToGUID(path);
+
             EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
         }
 
     }
 #endif
 
-    public virtual void ApplyStat( StatManager statManager, UpgradeManager upgradeManager ) {}
+    public virtual IReadOnlyList<UpgradeStatSO.UpgradePair> ApplyStat( StatManager statManager ) {
+        return System.Array.Empty<UpgradeStatSO.UpgradePair>();
+    }
 
     public virtual void ApplyBehavior( UpgradeManager upgradeManager ) { }
 

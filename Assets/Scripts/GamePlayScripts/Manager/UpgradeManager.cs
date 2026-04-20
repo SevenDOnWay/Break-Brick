@@ -6,9 +6,10 @@ using VContainer;
 
 public class UpgradeManager {
     RunDataManager runDataManager;
+    StatManager statManager;
+    ProcessFactory processFactory;
     CharacterDataBase characterDataBase;
     UpgradeDataBase upgradeDataBase;
-    StatManager statManager;
 
 
     [Header("List")]
@@ -34,11 +35,13 @@ public class UpgradeManager {
     public void Construct(
         RunDataManager runDataManager,
         StatManager statManager,
+        ProcessFactory processFactory,
         UpgradeDataBase upgradeDataBase,
         CharacterDataBase characterDataBase
         ) {
         this.runDataManager = runDataManager;
         this.statManager = statManager;
+        this.processFactory = processFactory;
         this.upgradeDataBase = upgradeDataBase;
         this.characterDataBase = characterDataBase;
     }
@@ -64,7 +67,8 @@ public class UpgradeManager {
 
         CharacterSO characterSO = await characterDataBase.GetCharacterByID(upgradeIds);
 
-        characterSO?.Apply(statManager, this);
+        IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = characterSO?.Apply(statManager, this);
+        RegisterProcessesAndActions(statPairs);
 
     }
 
@@ -76,14 +80,14 @@ public class UpgradeManager {
 
     //TODO: Initialize UpgradeManager
 
-    //TODO: Get Random Upgrades for shop
 
     public void ApplyUpgrade( UpgradeSO upgrade ) {
         Debug.Log($"Applied upgrade: {upgrade.name}");
 
         if ( upgrade is UpgradeStatSO statUpgrade ) {
             currentUpgrades.Add(statUpgrade);
-            upgrade.ApplyStat(statManager, this);
+            IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = statUpgrade.ApplyStat(statManager);
+            RegisterProcessesAndActions(statPairs);
         }
         else if ( upgrade is UpgradeBehaviorSO behaviorUpgrade ) {
             currentUpgrades.Add(behaviorUpgrade);
@@ -99,8 +103,27 @@ public class UpgradeManager {
     }
 
     public void ApplyProcess( Process process ) {
+        if(currentProcess.Exists(p => p.GetType() == process.GetType()) ) return; // Prevent duplicate processes of the same type. This is a simple check, you might want to implement a more robust system depending on your needs.
         currentProcess.Add(process);
         OnProcessAdded?.Invoke(process);
+    }
+
+    void RegisterProcessesAndActions( IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs ) {
+        if ( statPairs == null ) {
+            return;
+        }
+
+        foreach ( UpgradeStatSO.UpgradePair pair in statPairs ) {
+            if ( pair.Type == UpgradeType.ExtraBalls ) {
+                AddBall((int)pair.Value);
+                continue;
+            }
+
+            Process process = processFactory.CreateProcess(pair.Type);
+            if ( process != null ) {
+                ApplyProcess(process);
+            }
+        }
     }
 
     //public void OnProcessAddedInvoke( Process process ) {
@@ -119,6 +142,7 @@ public class UpgradeManager {
     //TODO: Get Current Processes
 
 
+    #region Setup Upgrade UI
     //TODO: Call upgradeUI to show upgrade options
     public void SetUpUpgrade( int currentLevel ) {
         pendingUpgrades.Enqueue(currentLevel);
@@ -162,6 +186,7 @@ public class UpgradeManager {
 
         return result;
     }
+    #endregion
 
     //TODO: Clear Current Upgrades and Processes
     public void ClearUpgradesAndProcesses() {
@@ -176,9 +201,19 @@ public class UpgradeManager {
     //TODO: Read rundatat and restore upgrades
     #region Restore
 
-    public void RestoreUpgrades() {
+    public void RestoreUpgrades() {}
 
+    #endregion
+
+    #region Magnet
+
+    bool isMagnetActive = false;
+
+    public void SetMagnetActive( bool active ) {
+        isMagnetActive = active;
     }
+
+    public bool IsMagnetActive() => isMagnetActive;
 
     #endregion
 }

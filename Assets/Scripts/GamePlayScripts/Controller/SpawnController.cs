@@ -55,14 +55,16 @@ public class SpawnController : MonoBehaviour {
     }
 
     [SerializeField] Brick[] bricks;
-
     [SerializeField] GameObject Pool;
+
+    [SerializeField] LayerMask wallLayer;
 
     [SerializeField] GameObject ballPrefab;
     [SerializeField] GameObject BackGround;
 
     int difficult;
     float squareSize;
+
 
     void Start() {
         squareSize = playScreen.GetSquareSize();
@@ -101,11 +103,9 @@ public class SpawnController : MonoBehaviour {
                 return;
             }
 
-
-
             // ===== Scale BrickScript =====
-            var TargetSquareSize = squareSize / brickSpriteRenderer.sprite.bounds.size.x;
-            brickSpriteRenderer.transform.localScale = new Vector3(TargetSquareSize, TargetSquareSize, 1f);
+            float targetSquareSize = squareSize / brickSpriteRenderer.sprite.bounds.size.x;
+            brickSpriteRenderer.transform.localScale = new Vector3(targetSquareSize, targetSquareSize, 1f);
 
             if ( !brick.prefab.TryGetComponent<BoxCollider2D>(out var boxCollider) ) {
                 Debug.LogError("Prefab does not have a BoxCollider2D component.");
@@ -114,7 +114,18 @@ public class SpawnController : MonoBehaviour {
 
             // Set collider size relative to sprite size (in local space)   
             Vector2 spriteSize = brickSpriteRenderer.sprite.bounds.size;
-            boxCollider.size = spriteSize * TargetSquareSize;
+            boxCollider.size = spriteSize * targetSquareSize;
+
+            // ===== Scale Effect Layer =====
+            var brickScript = brick.prefab.GetComponent<BrickScript>();
+            if ( brickScript != null ) {
+                foreach ( var binding in brickScript.effectLayerBindings ) {
+                    if ( binding.layerObject != null ) {
+                        // Scale the effect layer to match the visual scale
+                        binding.layerObject.transform.localScale = new Vector3(targetSquareSize, targetSquareSize, 1f);
+                    }
+                }
+            }
         }
         // ===== Scale BackGround =====
         var backGroundSpriteRenderer = BackGround.GetComponent<SpriteRenderer>();
@@ -133,10 +144,10 @@ public class SpawnController : MonoBehaviour {
     void SetUpScreen() {
         CreateBackGround();
         CreateTriggerLine();
-        CreateWall("TopWall", "Wall", new Vector2(0, squareSize * 5), new Vector2(squareSize * 8, 0.1f));
-        CreateWall("BottomWall", "Bottom_Wall", new Vector2(0, -squareSize * 6), new Vector2(squareSize * 8, 0.1f));
-        CreateWall("LeftWall", "Wall", new Vector2(-squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
-        CreateWall("RightWall", "Wall", new Vector2(squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
+        CreateWall("TopWall", "Wall", wallLayer, new Vector2(0, squareSize * 5), new Vector2(squareSize * 8, 0.1f));
+        CreateWall("BottomWall", "Bottom_Wall", wallLayer, new Vector2(0, -squareSize * 6), new Vector2(squareSize * 8, 0.1f));
+        CreateWall("LeftWall", "Wall", wallLayer, new Vector2(-squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
+        CreateWall("RightWall", "Wall", wallLayer, new Vector2(squareSize * 4, 0), new Vector2(0.1f, squareSize * 12));
 
     }
 
@@ -162,11 +173,12 @@ public class SpawnController : MonoBehaviour {
     }
 
     //TODO: Find solution if ball move to fast wall will not be detected
-    void CreateWall( string name, string tag, Vector2 position, Vector2 size ) {
+    void CreateWall( string name, string tag, LayerMask mask, Vector2 position, Vector2 size ) {
         GameObject wall = new GameObject(name);
         wall.transform.parent = transform;
         wall.tag = tag;
         wall.transform.position = position;
+        wall.layer = mask;
 
         BoxCollider2D col = wall.AddComponent<BoxCollider2D>();
         col.size = size;
@@ -278,22 +290,7 @@ public class SpawnController : MonoBehaviour {
         // float startX = ((column - 1) * squareSize) / 2f;
         // float startY = ((row - 1) * squareSize) / 2f;
 
-
-        float spawnChance;
-        switch ( difficult ) {
-            case 0: // Easy
-                spawnChance = 0.4f;
-                break;
-            case 1: // Normal
-                spawnChance = 0.5f;
-                break;
-            case 2: // Hard
-                spawnChance = 0.75f;
-                break;
-            default:
-                spawnChance = 0.5f;
-                break;
-        }
+        float spawnChance = difficult switch { 0 => 0.5f, 1 => 0.75f, 2 => 0.9f, _ => 0.5f };
 
         for ( int i = 0; i < column; i++ ) {
             if ( Random.value > spawnChance ) continue;

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
-using UnityEditor.Overlays;
 using UnityEngine;
 
 [System.Serializable]
@@ -29,11 +25,9 @@ public class PlayerDataManager : MonoBehaviour {
 
         savePath = Path.Combine(Application.persistentDataPath, "playerdata.dat");
 
-        option = new JsonSerializerOptions
-                {
+        option = new JsonSerializerOptions {
             WriteIndented = true,
             IncludeFields = true, // IMPORTANT so private fields get deserialized
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         playerData = await Load();

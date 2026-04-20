@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: +2 ball
   m_EditorClassIdentifier: 
   icon: {fileID: 0}
-  upgradeName: 
-  upgradeId: 
-  description: 
-  KeyValueMap: []
+  upgradeName: +2 ball
+  upgradeId: d5e8022a-5bf8-4d2e-b2f3-3bd5b57af25f
+  description: +2 ball
+  KeyValueMap:
+  - type: 0
+    value: 2

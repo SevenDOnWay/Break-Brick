@@ -1,13 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using VContainer.Unity;
 
 [System.Serializable]
 public class RunDataManager : MonoBehaviour {
@@ -25,7 +22,6 @@ public class RunDataManager : MonoBehaviour {
         option = new JsonSerializerOptions {
             WriteIndented = true,
             IncludeFields = true, // IMPORTANT so private fields get deserialized
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         _ = InitializeAsync();
@@ -60,9 +56,11 @@ public class RunDataManager : MonoBehaviour {
             Debug.Log($"RunData saved at: {savePath}");
 
             // Also save a plain JSON version for debugging
-            string debugPath = Path.Combine(Application.persistentDataPath, "rundata_debug.json");
-            await File.WriteAllTextAsync(debugPath, json);
-            Debug.Log($"RunData saved (plain JSON) at: {debugPath}");
+            // This is optional and can be removed in production builds
+
+            //string debugPath = Path.Combine(Application.persistentDataPath, "rundata_debug.json");
+            //await File.WriteAllTextAsync(debugPath, json);
+            //Debug.Log($"RunData saved (plain JSON) at: {debugPath}");
         }
         catch ( Exception e ) {
             Debug.LogError($"Failed to save RunData: {e.Message}");

@@ -1,4 +1,6 @@
 using NUnit.Framework.Constraints;
+using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -27,17 +29,20 @@ public class CharacterSO : ScriptableObject {
     public void OnValidate() {
 
         if ( string.IsNullOrEmpty(characterId) ) {
+            // Use the internal Unity GUID for this asset file
+
             characterId = System.Guid.NewGuid().ToString();
             EditorUtility.SetDirty(this);
-            Debug.Log($"[Auto-ID] Generated new ID for {name}: {characterId}");
         }
 
     }
 #endif
 
-    public void Apply(StatManager statManager, UpgradeManager upgradeManager) {
-        UpgradeStatSO?.ApplyStat(statManager, upgradeManager);
+    public IReadOnlyList<UpgradeStatSO.UpgradePair> Apply( StatManager statManager, UpgradeManager upgradeManager ) {
+        IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = UpgradeStatSO?.ApplyStat(statManager)
+            ?? Array.Empty<UpgradeStatSO.UpgradePair>();
         UpgradeBehaviorSO?.ApplyBehavior(upgradeManager);
+        return statPairs;
     }
 
     //public CharacterUpgradeData ToData() => new CharacterUpgradeData(this);
