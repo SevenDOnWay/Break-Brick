@@ -12,6 +12,8 @@ public class PlayScreen {
         float worldHeight = camera.orthographicSize * 2f;
         float worldWidth = worldHeight * camera.aspect;
 
+
+        Debug.Log($"World Height: {worldHeight}, World Width: {worldWidth}");
         //TODO: add method to Handle PC, and Ipad aspect ratio
 
         squareSize = (worldWidth * padding) / column;
