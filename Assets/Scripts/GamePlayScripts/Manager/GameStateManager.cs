@@ -72,6 +72,7 @@ public class GameStateManager : MonoBehaviour {
 
     private void SetUpObserver() {
         ballManager.requestBall += RequestBall;
+        ballManager.requestTypedBall += RequestBall;
         playerController.OnBallLaunch += NotifyLaunchBall;
         ballManager.OnAllBallsDone += HandleAllBallsDone;
         levelManager.NotifiLevelUp += LevelUp;
@@ -128,6 +129,10 @@ public class GameStateManager : MonoBehaviour {
 
     public GameObject RequestBall() {
         return spawnController.SpawnBall(ballManager, statManager, upgradeManager, playScreen.GetSquareSize());
+    }
+
+    public GameObject RequestBall( BallType ballType ) {
+        return spawnController.SpawnBall(ballManager, statManager, upgradeManager, playScreen.GetSquareSize(), ballType);
     }
 
     public void LevelUp( int currentLevel ) {
