@@ -38,6 +38,8 @@ public class BallManager : MonoBehaviour {
     public event Action OnAllBallsDone;
     public delegate GameObject RequestBall();
     public RequestBall requestBall;
+    public delegate GameObject RequestTypedBall( BallType ballType );
+    public RequestTypedBall requestTypedBall;
 
 
     private Coroutine timeoutCoroutine;
@@ -75,6 +77,19 @@ public class BallManager : MonoBehaviour {
         }
 
         //TODO: Update text in here for now.
+
+        UpdateText();
+    }
+
+    public void RequestExtraBall( BallType ballType, int extraballs = 1 ) {
+        for ( int i = 0; i < extraballs; i++ ) {
+            if ( ballType == BallType.Normal || requestTypedBall == null ) {
+                balls.Add(requestBall());
+            }
+            else {
+                balls.Add(requestTypedBall(ballType));
+            }
+        }
 
         UpdateText();
     }

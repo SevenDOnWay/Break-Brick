@@ -60,10 +60,19 @@ public class SpawnController : MonoBehaviour {
     [SerializeField] LayerMask wallLayer;
 
     [SerializeField] GameObject ballPrefab;
+    [SerializeField] SpecialBallConfig normalBallConfig;
+    [SerializeField] BallPrefabBinding[] specialBallPrefabs;
     [SerializeField] GameObject BackGround;
 
     int difficult;
     float squareSize;
+
+    [System.Serializable]
+    public class BallPrefabBinding {
+        [SerializeField] public BallType type;
+        [SerializeField] public GameObject prefab;
+        [SerializeField] public SpecialBallConfig config;
+    }
 
 
     void Start() {
@@ -274,16 +283,47 @@ public class SpawnController : MonoBehaviour {
     #endregion
 
     public GameObject SpawnBall( BallManager ballManager, StatManager statManager, UpgradeManager upgradeManager, float squareSize, int extraBall = 1 ) {
+        return SpawnBall(ballManager, statManager, upgradeManager, squareSize, BallType.Normal, extraBall);
+    }
+
+    public GameObject SpawnBall(
+        BallManager ballManager,
+        StatManager statManager,
+        UpgradeManager upgradeManager,
+        float squareSize,
+        BallType ballType,
+        int extraBall = 1
+    ) {
 
         Vector2 ballPos = ballManager.GetBallPos();
-        var temp = resolver.Instantiate(ballPrefab, ballPos, Quaternion.identity);
+        BallPrefabBinding binding = GetBallBinding(ballType);
+        GameObject prefab = binding?.prefab != null ? binding.prefab : ballPrefab;
+        SpecialBallConfig config = binding?.config != null ? binding.config : normalBallConfig;
+
+        var temp = resolver.Instantiate(prefab, ballPos, Quaternion.identity);
         BallScript ballScript = temp.GetComponent<BallScript>();
 
         ballScript.Init(ballManager, statManager, upgradeManager, squareSize);
+        ballScript.SetSpecialBallConfig(config);
 
         temp.transform.position = ballPos;
 
         return temp;
+    }
+
+    BallPrefabBinding GetBallBinding( BallType ballType ) {
+        if ( ballType == BallType.Normal || specialBallPrefabs == null ) {
+            return null;
+        }
+
+        foreach ( var binding in specialBallPrefabs ) {
+            if ( binding != null && binding.type == ballType ) {
+                return binding;
+            }
+        }
+
+        Debug.LogWarning($"Special ball type {ballType} is not configured. Spawning normal ball.");
+        return null;
     }
 
     public void SpawnBrick() {
