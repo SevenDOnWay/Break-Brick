@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: +1 ball
   m_EditorClassIdentifier: 
   icon: {fileID: 0}
-  upgradeName: +1 ball
+  upgradeName: +1 Lightning ball
   upgradeId: 005322be-81c6-4e9c-89f2-c19f434dd2fd
-  description: +1 ball
+  description: +1 Lightning ball
   KeyValueMap:
   - type: 0
     value: 1
+    ballType: 1

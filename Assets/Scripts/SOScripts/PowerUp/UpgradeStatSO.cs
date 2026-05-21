@@ -8,9 +8,11 @@ public class UpgradeStatSO : UpgradeSO {
     public struct UpgradePair {
         [SerializeField] UpgradeType type;
         [SerializeField] float value;
+        [SerializeField] BallType ballType;
 
         public UpgradeType Type => type;
         public float Value => value;
+        public BallType BallType => ballType;
     }
 
     [SerializeField] List<UpgradePair> KeyValueMap;

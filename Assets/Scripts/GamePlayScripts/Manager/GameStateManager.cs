@@ -77,7 +77,7 @@ public class GameStateManager : MonoBehaviour {
         ballManager.OnAllBallsDone += HandleAllBallsDone;
         levelManager.NotifiLevelUp += LevelUp;
         upgradeManager.OnAllUpgradesProcessed += FinishUpgrade;
-        upgradeManager.RequestExtraBalls += (extraballs) => ballManager.RequestExtraBall(extraballs);
+        upgradeManager.RequestExtraBalls += (ballType, extraballs) => ballManager.RequestExtraBall(ballType, extraballs);
         brickManager.GameOverEvent += CallGameOver;
     }
 

@@ -28,7 +28,7 @@ public class BallScript : MonoBehaviour {
     BrickScript lastBrickScript;
     int lastCollisionFrame = -1;
     int specialEffectFrame = -1;
-    readonly HashSet<int> triggeredSpecialEffectsThisFrame = new();
+    readonly HashSet<SpecialEffectTriggerKey> triggeredSpecialEffectsThisFrame = new();
 
 
     public event Action<BallScript> OnBallFinished;
@@ -266,8 +266,30 @@ public class BallScript : MonoBehaviour {
             triggeredSpecialEffectsThisFrame.Clear();
         }
 
-        int key = unchecked((effect.GetInstanceID() * 397) ^ brick.GetInstanceID());
+        SpecialEffectTriggerKey key = new(effect.GetType(), brick.GetInstanceID());
         return triggeredSpecialEffectsThisFrame.Add(key);
+    }
+
+    readonly struct SpecialEffectTriggerKey : IEquatable<SpecialEffectTriggerKey> {
+        readonly Type effectType;
+        readonly int brickInstanceId;
+
+        public SpecialEffectTriggerKey( Type effectType, int brickInstanceId ) {
+            this.effectType = effectType;
+            this.brickInstanceId = brickInstanceId;
+        }
+
+        public bool Equals( SpecialEffectTriggerKey other ) {
+            return effectType == other.effectType && brickInstanceId == other.brickInstanceId;
+        }
+
+        public override bool Equals( object obj ) {
+            return obj is SpecialEffectTriggerKey other && Equals(other);
+        }
+
+        public override int GetHashCode() {
+            return unchecked(((effectType != null ? effectType.GetHashCode() : 0) * 397) ^ brickInstanceId);
+        }
     }
 
     float GetConfiguredSpeed() {
