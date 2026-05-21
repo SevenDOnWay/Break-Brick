@@ -22,8 +22,11 @@ public class BossBrick : MonoBehaviour, IBrickVariant {
     public BrickType GetBrickType() => BrickType.Boss;
 
     public void OnSpawn( BrickScript brickScript ) {
-        brickScript.health *= Mathf.Max(1, healthMultiplier);
-        brickScript.UpdateHealthText();
+        if ( !brickScript.IsRestoringSavedHealth ) {
+            brickScript.health *= Mathf.Max(1, healthMultiplier);
+            brickScript.UpdateHealthText();
+        }
+
         turnsUntilRally = Mathf.Max(1, rallyCooldownTurns);
     }
 
