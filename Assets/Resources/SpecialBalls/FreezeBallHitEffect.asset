@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 215492a52177f4e438dfc10fd2457709, type: 3}
   m_Name: FreezeBallHitEffect
   m_EditorClassIdentifier: 
-  durationTurns: 1
+  durationTurns: 2

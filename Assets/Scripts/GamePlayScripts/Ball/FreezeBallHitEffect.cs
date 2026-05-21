@@ -2,7 +2,7 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "FreezeBallHitEffect", menuName = "Break Brick/Ball Effects/Freeze")]
 public class FreezeBallHitEffect : BallHitEffect {
-    [SerializeField, Min(1)] int durationTurns = 1;
+    [SerializeField, Min(2)] int durationTurns = 2;
 
     public override BallType BallType => BallType.Freeze;
 
