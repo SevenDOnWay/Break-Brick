@@ -63,7 +63,15 @@ public class BallScript : MonoBehaviour {
 
     private void InitCurrentUpgrade( UpgradeManager upgradeManager ) {
         // Create a copy to avoid double-adding processes when OnProcessAdded event fires
-            
+        currentProcesses.Clear();
+
+        if ( upgradeManager == null ) {
+            return;
+        }
+
+        foreach ( var process in upgradeManager.GetAllProcess() ) {
+            AddProcess(process);
+        }
     }
 
     private void Awake() {
@@ -220,6 +228,10 @@ public class BallScript : MonoBehaviour {
     }
 
     void AddProcess( Process process ) {
+        if ( process == null || currentProcesses.Contains(process) ) {
+            return;
+        }
+
         currentProcesses.Add(process);
     }
 

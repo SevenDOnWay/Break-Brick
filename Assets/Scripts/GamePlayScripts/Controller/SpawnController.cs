@@ -19,6 +19,7 @@ public class SpawnController : MonoBehaviour {
 
     const int row = 10;
     const int column = 8;
+    const string SpecialBallConfigResourcePath = "SpecialBalls/{0}BallConfig";
 
     IObjectResolver resolver;
     RunDataManager runDataManager;
@@ -298,7 +299,7 @@ public class SpawnController : MonoBehaviour {
         Vector2 ballPos = ballManager.GetBallPos();
         BallPrefabBinding binding = GetBallBinding(ballType);
         GameObject prefab = binding?.prefab != null ? binding.prefab : ballPrefab;
-        SpecialBallConfig config = binding?.config != null ? binding.config : normalBallConfig;
+        SpecialBallConfig config = GetBallConfig(ballType, binding);
 
         var temp = resolver.Instantiate(prefab, ballPos, Quaternion.identity);
         BallScript ballScript = temp.GetComponent<BallScript>();
@@ -322,8 +323,27 @@ public class SpawnController : MonoBehaviour {
             }
         }
 
-        Debug.LogWarning($"Special ball type {ballType} is not configured. Spawning normal ball.");
+        Debug.LogWarning($"Special ball prefab for {ballType} is not configured. Using the default ball prefab.");
         return null;
+    }
+
+    SpecialBallConfig GetBallConfig( BallType ballType, BallPrefabBinding binding ) {
+        if ( ballType == BallType.Normal ) {
+            return normalBallConfig;
+        }
+
+        if ( binding?.config != null ) {
+            return binding.config;
+        }
+
+        string resourcePath = string.Format(SpecialBallConfigResourcePath, ballType);
+        SpecialBallConfig resourceConfig = Resources.Load<SpecialBallConfig>(resourcePath);
+        if ( resourceConfig != null ) {
+            return resourceConfig;
+        }
+
+        Debug.LogWarning($"Special ball config not found at Resources/{resourcePath}. Falling back to normal ball config.");
+        return normalBallConfig;
     }
 
     public void SpawnBrick() {
