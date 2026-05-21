@@ -116,5 +116,20 @@ InitTestScene*.unity*
 # Log files can be ignored.
 fmod_editor.log
 
+
+
+# Local Node tooling
+tools
+tools/**/node_modules/
+tools/**/.env
+
+# Local Codex autorunner queue files
+.codex-autorunner/tickets/*.md
+!.codex-autorunner/tickets/README.md
+.codex-autorunner/working/*.md
+!.codex-autorunner/working/README.md
+.codex-autorunner/done/*.md
+!.codex-autorunner/done/README.md
+
 Assets/Plugins/FMOD/**/*.bundle text eol=lf
 Assets/Plugins/FMOD/**/Info.plist text eol=lf
