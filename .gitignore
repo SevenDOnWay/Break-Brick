@@ -130,6 +130,8 @@ tools/**/.env
 !.codex-autorunner/working/README.md
 .codex-autorunner/done/*.md
 !.codex-autorunner/done/README.md
+.codex-autorunner/blocked/*.md
+!.codex-autorunner/blocked/README.md
 
 Assets/Plugins/FMOD/**/*.bundle text eol=lf
 Assets/Plugins/FMOD/**/Info.plist text eol=lf

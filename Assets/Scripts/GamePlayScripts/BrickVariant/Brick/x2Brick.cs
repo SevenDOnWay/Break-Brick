@@ -9,6 +9,8 @@ public class x2Brick : MonoBehaviour, IBrickVariant {
     public void OnHit( BrickScript brickScript ) { }
 
     public void OnSpawn( BrickScript brickScript ) {
+        if ( brickScript.IsRestoringSavedHealth ) return;
+
         brickScript.health *= 2;
         brickScript.UpdateHealthText();
     }

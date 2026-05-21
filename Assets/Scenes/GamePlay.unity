@@ -2125,6 +2125,13 @@ MonoBehaviour:
     baseChance: 0.2
     growthPerWave: 0.02
     isMiniBoss: 0
+  - type: 12
+    prefab: {fileID: 7326087917622591853, guid: a4d24e19a39a4ec48bceab2336f1c7b7, type: 3}
+    minWave: 50
+    baseChance: 0
+    growthPerWave: 0
+    isMiniBoss: 0
+    isBoss: 1
   Pool: {fileID: 600349753}
   wallLayer:
     serializedVersion: 2
