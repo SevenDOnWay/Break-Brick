@@ -120,7 +120,7 @@ public class GameStateManager : MonoBehaviour {
         isBallsFlying = false;
 
         if(waveScript.GetWaveIndex() % 50 == 0) {
-            spawnController.SpawnMiniBoss();
+            spawnController.SpawnBoss();
         }
 
         CheckTurnState();

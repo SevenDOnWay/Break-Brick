@@ -51,7 +51,7 @@ public class SpawnController : MonoBehaviour {
         [SerializeField, Range(0f, 0.1f)] public float growthPerWave; // how much chance increase per wave
 
         [SerializeField] public bool isMiniBoss;
-        //[SerializeField] public bool isBoss; // future use
+        [SerializeField] public bool isBoss;
     }
 
     [SerializeField] Brick[] bricks;
@@ -328,9 +328,31 @@ public class SpawnController : MonoBehaviour {
 
     }
 
-    //public void SpawnBoss() { } for future use
+    public void SpawnBoss() {
+        Brick bossBrick = bricks.FirstOrDefault(b => b.isBoss || b.type == BrickType.Boss);
+        if ( bossBrick == null || bossBrick.prefab == null ) {
+            Debug.LogWarning("Boss brick prefab is not configured on SpawnController.");
+            return;
+        }
+
+        Vector2Int spawnPos = new(column / 2, 0);
+        if ( brickManager.IsPositionOccupied(spawnPos) ) {
+            OverideBrick(spawnPos);
+        }
+
+        Vector3 worldPos = GetBrickWorldPosition(spawnPos);
+        GameObject brick = resolver.Instantiate(bossBrick.prefab, worldPos, Quaternion.identity);
+        brick.name = bossBrick.prefab.name;
+        brick.transform.SetParent(Pool.transform, true);
+        brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPos);
+    }
 
     void OverideBrick( Vector2Int pos ) {
+        BrickScript existingBrick = brickManager.GetBrickAt(pos);
+        if ( existingBrick != null ) {
+            Destroy(existingBrick.gameObject);
+        }
+
         brickManager.bricks[pos.x, pos.y] = null;
 
     }
@@ -357,7 +379,7 @@ public class SpawnController : MonoBehaviour {
 
     GameObject GetRandomBrick() {
         int waveIndex = waveScript.GetWaveIndex();
-        var eligibleBricks = bricks.Where(b => waveIndex >= b.minWave).ToList();
+        var eligibleBricks = bricks.Where(b => waveIndex >= b.minWave && !b.isMiniBoss && !b.isBoss).ToList();
 
         if ( eligibleBricks.Count == 0 ) {
             Debug.LogError("No eligible bricks found for the current wave index.");
