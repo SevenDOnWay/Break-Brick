@@ -72,11 +72,12 @@ public class GameStateManager : MonoBehaviour {
 
     private void SetUpObserver() {
         ballManager.requestBall += RequestBall;
+        ballManager.requestTypedBall += RequestBall;
         playerController.OnBallLaunch += NotifyLaunchBall;
         ballManager.OnAllBallsDone += HandleAllBallsDone;
         levelManager.NotifiLevelUp += LevelUp;
         upgradeManager.OnAllUpgradesProcessed += FinishUpgrade;
-        upgradeManager.RequestExtraBalls += (extraballs) => ballManager.RequestExtraBall(extraballs);
+        upgradeManager.RequestExtraBalls += (ballType, extraballs) => ballManager.RequestExtraBall(ballType, extraballs);
         brickManager.GameOverEvent += CallGameOver;
     }
 
@@ -120,7 +121,7 @@ public class GameStateManager : MonoBehaviour {
         isBallsFlying = false;
 
         if(waveScript.GetWaveIndex() % 50 == 0) {
-            spawnController.SpawnMiniBoss();
+            spawnController.SpawnBoss();
         }
 
         CheckTurnState();
@@ -128,6 +129,10 @@ public class GameStateManager : MonoBehaviour {
 
     public GameObject RequestBall() {
         return spawnController.SpawnBall(ballManager, statManager, upgradeManager, playScreen.GetSquareSize());
+    }
+
+    public GameObject RequestBall( BallType ballType ) {
+        return spawnController.SpawnBall(ballManager, statManager, upgradeManager, playScreen.GetSquareSize(), ballType);
     }
 
     public void LevelUp( int currentLevel ) {

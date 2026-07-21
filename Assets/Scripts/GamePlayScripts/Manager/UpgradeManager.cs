@@ -18,7 +18,7 @@ public class UpgradeManager {
     List<Process> currentProcess= new List<Process>();
     Queue<int> pendingUpgrades = new Queue<int>();
 
-    public event Action<int> RequestExtraBalls;
+    public event Action<BallType, int> RequestExtraBalls;
     public event Action<UpgradeSO[]> OnUpgradeReady;
     public event Action<Process> OnProcessAdded;
     public event Action<UpgradeSO> OnUpgradeAdded;
@@ -115,7 +115,7 @@ public class UpgradeManager {
 
         foreach ( UpgradeStatSO.UpgradePair pair in statPairs ) {
             if ( pair.Type == UpgradeType.ExtraBalls ) {
-                AddBall((int)pair.Value);
+                AddBall(pair.BallType, (int)pair.Value);
                 continue;
             }
 
@@ -132,8 +132,8 @@ public class UpgradeManager {
 
     public List<Process> GetAllProcess() => currentProcess;
 
-    public void AddBall( int extraBall ) {
-        RequestExtraBalls?.Invoke(extraBall);
+    public void AddBall( BallType ballType, int extraBall ) {
+        RequestExtraBalls?.Invoke(ballType, extraBall);
     }
 
 

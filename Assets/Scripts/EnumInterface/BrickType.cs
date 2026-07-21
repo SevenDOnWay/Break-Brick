@@ -21,4 +21,5 @@ public enum BrickType {
 
     //======BOSS======
 
+    Boss,
 }

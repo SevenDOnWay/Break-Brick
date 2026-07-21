@@ -23,6 +23,7 @@ public class BrickScript : MonoBehaviour {
     LevelManager levelManager;
 
     public bool IsDead => health <= 0;
+    public bool IsRestoringSavedHealth { get; private set; }
     public int health;
     public Vector2Int GridPosition { get; set; }
     public float SquareSize { get; private set; }
@@ -52,8 +53,9 @@ public class BrickScript : MonoBehaviour {
         this.levelManager = levelManager;
     }
 
-    public void Init( int health, float squareSize ) {
+    public void Init( int health, float squareSize, bool isRestoringSavedHealth = false ) {
         this.health = health;
+        IsRestoringSavedHealth = isRestoringSavedHealth;
         this.SquareSize = squareSize;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         variants = GetComponents<IBrickVariant>();
@@ -64,12 +66,16 @@ public class BrickScript : MonoBehaviour {
             Debug.LogError("SpriteRenderer is null in BrickScript.");
         }
 
-        foreach ( var variant in variants ) {
-            try {
-                variant.OnSpawn(this);
-            } catch ( Exception e ) {
-                Debug.LogException(e);
+        try {
+            foreach ( var variant in variants ) {
+                try {
+                    variant.OnSpawn(this);
+                } catch ( Exception e ) {
+                    Debug.LogException(e);
+                }
             }
+        } finally {
+            IsRestoringSavedHealth = false;
         }
 
         UpdateBrickVisual();

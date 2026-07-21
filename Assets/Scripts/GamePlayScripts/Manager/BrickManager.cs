@@ -88,7 +88,7 @@ public class BrickManager : MonoBehaviour {
             health = Mathf.CeilToInt(value);
         }
 
-        brick.Init(health, squareSize);
+        brick.Init(health, squareSize, savedHealth.HasValue);
         brick.UpdateGridPosition(pos);
 
         bricks[pos.x, pos.y] = brick;

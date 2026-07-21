@@ -10,7 +10,7 @@ Implements **brick variant behaviors** via the Strategy pattern. Each brick Game
 |---|---|
 | `Brick/` | Concrete `IBrickVariant` implementations for special brick types. |
 | `BrickEffect/` | `ITickableEffect` components for duration-based effects (Poison, Freeze). |
-| `MiniBoss/` | Planned mini-boss brick variants (currently empty). |
+| `MiniBoss/` | Boss and mini-boss brick variants for scheduled enemy pressure spikes. |
 
 ## Scripts (Root)
 

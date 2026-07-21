@@ -9,14 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 863f3b8d16565de48ae7aa42bee7532e, type: 3}
-  m_Name: +5 ball
+  m_Script: {fileID: 11500000, guid: 6be4dcb6c6de1a14ba908f9b60250129, type: 3}
+  m_Name: BombBallHitEffect
   m_EditorClassIdentifier: 
-  icon: {fileID: 0}
-  upgradeName: +5 ball
-  upgradeId: 7464c4e7-ca9f-49fd-a31f-81c262bdeb4f
-  description: +5 ball
-  KeyValueMap:
-  - type: 0
-    value: 5
-    ballType: 0
+  radiusCells: 1.5
+  damage: 1
+  includeHitBrick: 0

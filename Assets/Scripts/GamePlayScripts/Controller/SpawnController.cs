@@ -19,6 +19,7 @@ public class SpawnController : MonoBehaviour {
 
     const int row = 10;
     const int column = 8;
+    const string SpecialBallConfigResourcePath = "SpecialBalls/{0}BallConfig";
 
     IObjectResolver resolver;
     RunDataManager runDataManager;
@@ -51,7 +52,7 @@ public class SpawnController : MonoBehaviour {
         [SerializeField, Range(0f, 0.1f)] public float growthPerWave; // how much chance increase per wave
 
         [SerializeField] public bool isMiniBoss;
-        //[SerializeField] public bool isBoss; // future use
+        [SerializeField] public bool isBoss;
     }
 
     [SerializeField] Brick[] bricks;
@@ -60,10 +61,19 @@ public class SpawnController : MonoBehaviour {
     [SerializeField] LayerMask wallLayer;
 
     [SerializeField] GameObject ballPrefab;
+    [SerializeField] SpecialBallConfig normalBallConfig;
+    [SerializeField] BallPrefabBinding[] specialBallPrefabs;
     [SerializeField] GameObject BackGround;
 
     int difficult;
     float squareSize;
+
+    [System.Serializable]
+    public class BallPrefabBinding {
+        [SerializeField] public BallType type;
+        [SerializeField] public GameObject prefab;
+        [SerializeField] public SpecialBallConfig config;
+    }
 
 
     void Start() {
@@ -274,16 +284,66 @@ public class SpawnController : MonoBehaviour {
     #endregion
 
     public GameObject SpawnBall( BallManager ballManager, StatManager statManager, UpgradeManager upgradeManager, float squareSize, int extraBall = 1 ) {
+        return SpawnBall(ballManager, statManager, upgradeManager, squareSize, BallType.Normal, extraBall);
+    }
+
+    public GameObject SpawnBall(
+        BallManager ballManager,
+        StatManager statManager,
+        UpgradeManager upgradeManager,
+        float squareSize,
+        BallType ballType,
+        int extraBall = 1
+    ) {
 
         Vector2 ballPos = ballManager.GetBallPos();
-        var temp = resolver.Instantiate(ballPrefab, ballPos, Quaternion.identity);
+        BallPrefabBinding binding = GetBallBinding(ballType);
+        GameObject prefab = binding?.prefab != null ? binding.prefab : ballPrefab;
+        SpecialBallConfig config = GetBallConfig(ballType, binding);
+
+        var temp = resolver.Instantiate(prefab, ballPos, Quaternion.identity);
         BallScript ballScript = temp.GetComponent<BallScript>();
 
         ballScript.Init(ballManager, statManager, upgradeManager, squareSize);
+        ballScript.SetSpecialBallConfig(config);
 
         temp.transform.position = ballPos;
 
         return temp;
+    }
+
+    BallPrefabBinding GetBallBinding( BallType ballType ) {
+        if ( ballType == BallType.Normal || specialBallPrefabs == null ) {
+            return null;
+        }
+
+        foreach ( var binding in specialBallPrefabs ) {
+            if ( binding != null && binding.type == ballType ) {
+                return binding;
+            }
+        }
+
+        Debug.LogWarning($"Special ball prefab for {ballType} is not configured. Using the default ball prefab.");
+        return null;
+    }
+
+    SpecialBallConfig GetBallConfig( BallType ballType, BallPrefabBinding binding ) {
+        if ( ballType == BallType.Normal ) {
+            return normalBallConfig;
+        }
+
+        if ( binding?.config != null ) {
+            return binding.config;
+        }
+
+        string resourcePath = string.Format(SpecialBallConfigResourcePath, ballType);
+        SpecialBallConfig resourceConfig = Resources.Load<SpecialBallConfig>(resourcePath);
+        if ( resourceConfig != null ) {
+            return resourceConfig;
+        }
+
+        Debug.LogWarning($"Special ball config not found at Resources/{resourcePath}. Falling back to normal ball config.");
+        return normalBallConfig;
     }
 
     public void SpawnBrick() {
@@ -328,9 +388,31 @@ public class SpawnController : MonoBehaviour {
 
     }
 
-    //public void SpawnBoss() { } for future use
+    public void SpawnBoss() {
+        Brick bossBrick = bricks.FirstOrDefault(b => b.isBoss || b.type == BrickType.Boss);
+        if ( bossBrick == null || bossBrick.prefab == null ) {
+            Debug.LogWarning("Boss brick prefab is not configured on SpawnController.");
+            return;
+        }
+
+        Vector2Int spawnPos = new(column / 2, 0);
+        if ( brickManager.IsPositionOccupied(spawnPos) ) {
+            OverideBrick(spawnPos);
+        }
+
+        Vector3 worldPos = GetBrickWorldPosition(spawnPos);
+        GameObject brick = resolver.Instantiate(bossBrick.prefab, worldPos, Quaternion.identity);
+        brick.name = bossBrick.prefab.name;
+        brick.transform.SetParent(Pool.transform, true);
+        brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), spawnPos);
+    }
 
     void OverideBrick( Vector2Int pos ) {
+        BrickScript existingBrick = brickManager.GetBrickAt(pos);
+        if ( existingBrick != null ) {
+            Destroy(existingBrick.gameObject);
+        }
+
         brickManager.bricks[pos.x, pos.y] = null;
 
     }
@@ -357,7 +439,7 @@ public class SpawnController : MonoBehaviour {
 
     GameObject GetRandomBrick() {
         int waveIndex = waveScript.GetWaveIndex();
-        var eligibleBricks = bricks.Where(b => waveIndex >= b.minWave).ToList();
+        var eligibleBricks = bricks.Where(b => waveIndex >= b.minWave && !b.isMiniBoss && !b.isBoss).ToList();
 
         if ( eligibleBricks.Count == 0 ) {
             Debug.LogError("No eligible bricks found for the current wave index.");

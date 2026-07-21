@@ -27,14 +27,25 @@ public class BallScript : MonoBehaviour {
 
     BrickScript lastBrickScript;
     int lastCollisionFrame = -1;
+    int specialEffectFrame = -1;
+    readonly HashSet<SpecialEffectTriggerKey> triggeredSpecialEffectsThisFrame = new();
 
 
     public event Action<BallScript> OnBallFinished;
     private TrailRenderer trail;
+    private SpriteRenderer spriteRenderer;
+    private Color defaultTrailStartColor;
+    private Color defaultTrailEndColor;
+    private Color defaultSpriteColor;
 
     [Header("Stat")]
     float speed;
     float baseDamage;
+
+    [Header("Special Ball")]
+    [SerializeField] SpecialBallConfig specialBallConfig;
+    int remainingPierces;
+    Vector2 lastVelocity;
 
     private List<Process> currentProcesses = new List<Process>();
 
@@ -52,13 +63,31 @@ public class BallScript : MonoBehaviour {
 
     private void InitCurrentUpgrade( UpgradeManager upgradeManager ) {
         // Create a copy to avoid double-adding processes when OnProcessAdded event fires
-            
+        currentProcesses.Clear();
+
+        if ( upgradeManager == null ) {
+            return;
+        }
+
+        foreach ( var process in upgradeManager.GetAllProcess() ) {
+            AddProcess(process);
+        }
     }
 
     private void Awake() {
         collider2D = GetComponent<Collider2D>();
         trail = GetComponent<TrailRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        if ( trail != null ) {
+            defaultTrailStartColor = trail.startColor;
+            defaultTrailEndColor = trail.endColor;
+        }
+
+        if ( spriteRenderer != null ) {
+            defaultSpriteColor = spriteRenderer.color;
+        }
     }
 
     void Start() {
@@ -66,7 +95,7 @@ public class BallScript : MonoBehaviour {
 
         //BuildReflectionMap();
 
-        speed = statManager.GetStat(UpgradeType.Speed);
+        speed = GetConfiguredSpeed();
         baseDamage = statManager.GetStat(UpgradeType.BaseDamage);
 
         upgradeManager.OnProcessAdded += AddProcess;
@@ -92,7 +121,16 @@ public class BallScript : MonoBehaviour {
     }
 
 
-    public void LaunchBall( Vector2 dir ) => rb.AddForce(dir * speed, ForceMode2D.Impulse);
+    void FixedUpdate() {
+        if ( rb != null && rb.linearVelocity.sqrMagnitude > 0.001f ) {
+            lastVelocity = rb.linearVelocity;
+        }
+    }
+
+    public void LaunchBall( Vector2 dir ) {
+        speed = GetConfiguredSpeed();
+        rb.AddForce(dir * speed, ForceMode2D.Impulse);
+    }
 
     void NewLauch() {
         collider2D.enabled = true;
@@ -100,7 +138,11 @@ public class BallScript : MonoBehaviour {
         endLineTriggerCount = 0;
         lastBrickScript = null;
         lastCollisionFrame = -1;
+        specialEffectFrame = -1;
+        triggeredSpecialEffectsThisFrame.Clear();
+        remainingPierces = specialBallConfig != null ? specialBallConfig.PierceLimit : 0;
         EnableTrail(true);
+        ApplyConfiguredVisuals();
         ResetProcesses();
     }
 
@@ -135,12 +177,20 @@ public class BallScript : MonoBehaviour {
             lastCollisionFrame = Time.frameCount;
 
             baseDamage = statManager.GetStat(UpgradeType.BaseDamage);
-            int bonusDamage = ApplyProcess(brick, (int)baseDamage);
+            int directDamage = GetConfiguredDirectDamage((int)baseDamage);
+            int bonusDamage = ApplyProcess(brick, directDamage);
 
             Vector2 hitNormal = collision.contacts.Length > 0 ? collision.contacts[0].normal : Vector2.zero;
-            brick.NotifyHit(DamageSource.Ball, (int)baseDamage + bonusDamage, hitNormal);
-            Debug.Log("Ball hit brick at " + brick.GridPosition + " with base damage " + baseDamage + " and bonus damage " + bonusDamage);
+            var hitContext = new BallHitContext(this, brick, collision, statManager, directDamage, hitNormal, squareSize);
+            specialBallConfig?.ApplyHitEffects(hitContext);
+
+            brick.NotifyHit(DamageSource.Ball, directDamage + bonusDamage, hitNormal);
+            Debug.Log("Ball hit brick at " + brick.GridPosition + " with direct damage " + directDamage + " and bonus damage " + bonusDamage);
             bounceTime = 0;
+
+            if ( TryPierceBrick(collision) ) {
+                return;
+            }
         }
     }
 
@@ -178,7 +228,121 @@ public class BallScript : MonoBehaviour {
     }
 
     void AddProcess( Process process ) {
+        if ( process == null || currentProcesses.Contains(process) ) {
+            return;
+        }
+
         currentProcesses.Add(process);
+    }
+
+    public void SetSpecialBallConfig( SpecialBallConfig config ) {
+        specialBallConfig = config;
+        remainingPierces = specialBallConfig != null ? specialBallConfig.PierceLimit : 0;
+        ApplyConfiguredVisuals();
+    }
+
+    public BallType GetBallType() {
+        return specialBallConfig != null ? specialBallConfig.BallType : BallType.Normal;
+    }
+
+    public void ApplySpecialBallColor( Color color ) {
+        if ( spriteRenderer != null ) {
+            spriteRenderer.color = color;
+        }
+
+        if ( trail != null ) {
+            trail.startColor = color;
+            trail.endColor = new Color(color.r, color.g, color.b, Mathf.Min(color.a, defaultTrailEndColor.a));
+        }
+    }
+
+    internal bool TryMarkSpecialEffect( BallHitEffect effect, BrickScript brick ) {
+        if ( effect == null || brick == null ) {
+            return false;
+        }
+
+        if ( specialEffectFrame != Time.frameCount ) {
+            specialEffectFrame = Time.frameCount;
+            triggeredSpecialEffectsThisFrame.Clear();
+        }
+
+        SpecialEffectTriggerKey key = new(effect.GetType(), brick.GetInstanceID());
+        return triggeredSpecialEffectsThisFrame.Add(key);
+    }
+
+    readonly struct SpecialEffectTriggerKey : IEquatable<SpecialEffectTriggerKey> {
+        readonly Type effectType;
+        readonly int brickInstanceId;
+
+        public SpecialEffectTriggerKey( Type effectType, int brickInstanceId ) {
+            this.effectType = effectType;
+            this.brickInstanceId = brickInstanceId;
+        }
+
+        public bool Equals( SpecialEffectTriggerKey other ) {
+            return effectType == other.effectType && brickInstanceId == other.brickInstanceId;
+        }
+
+        public override bool Equals( object obj ) {
+            return obj is SpecialEffectTriggerKey other && Equals(other);
+        }
+
+        public override int GetHashCode() {
+            return unchecked(((effectType != null ? effectType.GetHashCode() : 0) * 397) ^ brickInstanceId);
+        }
+    }
+
+    float GetConfiguredSpeed() {
+        float statSpeed = statManager != null ? statManager.GetStat(UpgradeType.Speed) : speed;
+        float multiplier = specialBallConfig != null ? specialBallConfig.SpeedMultiplier : 1f;
+        return statSpeed * multiplier;
+    }
+
+    int GetConfiguredDirectDamage( int damage ) {
+        return specialBallConfig != null ? specialBallConfig.GetDirectDamage(damage) : damage;
+    }
+
+    void ApplyConfiguredVisuals() {
+        if ( specialBallConfig != null && specialBallConfig.BallType != BallType.Normal ) {
+            specialBallConfig.ApplyVisuals(this);
+            return;
+        }
+
+        if ( spriteRenderer != null ) {
+            spriteRenderer.color = defaultSpriteColor;
+        }
+
+        if ( trail != null ) {
+            trail.startColor = defaultTrailStartColor;
+            trail.endColor = defaultTrailEndColor;
+        }
+    }
+
+    bool TryPierceBrick( Collision2D collision ) {
+        if ( specialBallConfig == null || specialBallConfig.BallType != BallType.Piercing || remainingPierces <= 0 ) {
+            return false;
+        }
+
+        remainingPierces--;
+
+        if ( collision.collider != null ) {
+            Physics2D.IgnoreCollision(collider2D, collision.collider, true);
+            StartCoroutine(RestoreCollision(collision.collider));
+        }
+
+        if ( lastVelocity.sqrMagnitude > 0.001f ) {
+            rb.linearVelocity = lastVelocity;
+        }
+
+        return true;
+    }
+
+    IEnumerator RestoreCollision( Collider2D ignoredCollider ) {
+        yield return new WaitForSeconds(0.2f);
+
+        if ( collider2D != null && ignoredCollider != null ) {
+            Physics2D.IgnoreCollision(collider2D, ignoredCollider, false);
+        }
     }
 
     /// <summary>
