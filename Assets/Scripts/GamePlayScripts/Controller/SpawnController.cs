@@ -7,7 +7,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class SpawnController : MonoBehaviour {
+public class SpawnController : MonoBehaviour, IBrickSpawnContext {
 
     /*
     enum Difficult{
@@ -435,6 +435,16 @@ public class SpawnController : MonoBehaviour {
 
         brick.transform.SetParent(Pool.transform, true);
         brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), pos);
+    }
+
+    public void SpawnSplitChildren( IGridPosition origin ) {
+        if ( origin == null ) {
+            return;
+        }
+
+        Vector2Int pos = origin.GridPosition;
+        SpawnBrickAt(new Vector2Int(pos.x - 1, pos.y));
+        SpawnBrickAt(new Vector2Int(pos.x + 1, pos.y));
     }
 
     GameObject GetRandomBrick() {

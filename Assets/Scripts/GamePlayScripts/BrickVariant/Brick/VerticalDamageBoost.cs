@@ -1,18 +1,16 @@
-using NUnit.Framework.Constraints;
 using UnityEngine;
 using VContainer;
 public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
-    BrickManager brickManager;
+    IBrickGridContext brickGridContext;
 
     [Inject]
-    void Constructor( BrickManager brickManager ) {
-        this.brickManager = brickManager;
+    void Constructor( IBrickGridContext brickGridContext ) {
+        this.brickGridContext = brickGridContext;
     }
 
     #region IBrickVariant implementation
     public void OnHit( BrickScript brickScript ) {
-        var pos = brickManager.GetBrickGridIndex(brickScript.transform.position);
-        DealDamage(brickScript, pos);
+        brickGridContext?.DamageColumn(brickScript, 1, DamageSource.Vertical);
 
         Vector2 tempPos = transform.position;
         VFXEvent.RaiseVFXCommand(new VerticalBeamVFXCommand(tempPos));
@@ -28,9 +26,4 @@ public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
     }
     #endregion
 
-    private void DealDamage(BrickScript brickScript ,Vector2Int pos ) {
-        brickManager.RequestVerticalDamage(brickScript, pos);
-    }
-
-    
 }

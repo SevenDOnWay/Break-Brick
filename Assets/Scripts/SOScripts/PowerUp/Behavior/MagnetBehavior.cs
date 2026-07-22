@@ -6,7 +6,7 @@ public class MagnetBehavior : ScriptableObject, IBehavior {
     public UpgradeBehaviourType Type => UpgradeBehaviourType.Magnet;
 
     //TODO: Add magnet behavior here
-    public void Apply( UpgradeManager upgradeManager ) {
-        //upgradeManager.SetMagnetActive(true);
+    public void Apply( IUpgradeContext context ) {
+        context?.SetBehaviorActive(Type);
     }
 }

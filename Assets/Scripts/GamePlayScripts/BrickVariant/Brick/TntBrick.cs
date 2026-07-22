@@ -6,20 +6,20 @@ using VContainer;
 /// within a configurable Chebyshev radius (i.e. 8-connected square at radius 1).
 /// </summary>
 /// <remarks>
-/// Damage is queued via <see cref="BrickManager.RequestRadialDamage"/> so chain-explosion
-/// depth limits from <see cref="BrickManager.MaxChainDepth"/> are fully respected.
+/// Damage is delegated through <see cref="IBrickGridContext"/> so the grid owns
+/// queueing and chain-depth limits.
 /// </remarks>
 public class TntBrick : MonoBehaviour, IBrickVariant {
     [SerializeField] int explosionRadius = 1;
     [SerializeField] int explosionDamage = 3;
 
-    BrickManager brickManager;
+    IBrickGridContext brickGridContext;
 
     // ── VContainer ─────────────────────────────────────────────────────────────
 
     [Inject]
-    void Constructor( BrickManager brickManager ) {
-        this.brickManager = brickManager;
+    void Constructor( IBrickGridContext brickGridContext ) {
+        this.brickGridContext = brickGridContext;
     }
 
     // ── IBrickVariant ──────────────────────────────────────────────────────────
@@ -27,13 +27,7 @@ public class TntBrick : MonoBehaviour, IBrickVariant {
     public BrickType GetBrickType() => BrickType.TNT;
 
     public void OnDie( BrickScript brickScript ) {
-        brickManager.RequestRadialDamage(
-            brickScript,
-            brickScript.GridPosition,
-            explosionRadius,
-            explosionDamage,
-            DamageSource.TNT
-        );
+        brickGridContext?.DamageRadial(brickScript, explosionRadius, explosionDamage, DamageSource.TNT);
     }
 
     public void OnSpawn( BrickScript brickScript ) { }

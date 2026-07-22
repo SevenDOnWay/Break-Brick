@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
-public class UpgradeManager {
+public class UpgradeManager : IUpgradeContext, IUpgradeSelectionService {
     RunDataManager runDataManager;
     StatManager statManager;
     ProcessFactory processFactory;
+    UpgradeApplicationService upgradeApplicationService;
     CharacterDataBase characterDataBase;
     UpgradeDataBase upgradeDataBase;
 
@@ -19,7 +20,7 @@ public class UpgradeManager {
     Queue<int> pendingUpgrades = new Queue<int>();
 
     public event Action<BallType, int> RequestExtraBalls;
-    public event Action<UpgradeSO[]> OnUpgradeReady;
+    public event Action<UpgradeOffer[]> UpgradeOffersReady;
     public event Action<Process> OnProcessAdded;
     public event Action<UpgradeSO> OnUpgradeAdded;
     public event Action OnAllUpgradesProcessed;
@@ -36,12 +37,14 @@ public class UpgradeManager {
         RunDataManager runDataManager,
         StatManager statManager,
         ProcessFactory processFactory,
+        UpgradeApplicationService upgradeApplicationService,
         UpgradeDataBase upgradeDataBase,
         CharacterDataBase characterDataBase
         ) {
         this.runDataManager = runDataManager;
         this.statManager = statManager;
         this.processFactory = processFactory;
+        this.upgradeApplicationService = upgradeApplicationService;
         this.upgradeDataBase = upgradeDataBase;
         this.characterDataBase = characterDataBase;
     }
@@ -67,8 +70,12 @@ public class UpgradeManager {
 
         CharacterSO characterSO = await characterDataBase.GetCharacterByID(upgradeIds);
 
-        IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = characterSO?.Apply(statManager, this);
-        RegisterProcessesAndActions(statPairs);
+        if ( characterSO == null ) {
+            return;
+        }
+
+        ApplyDefinition(characterSO.GetStatUpgrade());
+        ApplyDefinition(characterSO.GetBehaviorUpgrade());
 
     }
 
@@ -84,46 +91,26 @@ public class UpgradeManager {
     public void ApplyUpgrade( UpgradeSO upgrade ) {
         Debug.Log($"Applied upgrade: {upgrade.name}");
 
-        if ( upgrade is UpgradeStatSO statUpgrade ) {
-            currentUpgrades.Add(statUpgrade);
-            IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = statUpgrade.ApplyStat(statManager);
-            RegisterProcessesAndActions(statPairs);
-        }
-        else if ( upgrade is UpgradeBehaviorSO behaviorUpgrade ) {
-            currentUpgrades.Add(behaviorUpgrade);
-            behaviorUpgrade.ApplyBehavior(this);
-        }
-        else {
-            Debug.LogWarning("UpgradeManager: Unknown upgrade type."); //Fallback just in case
-            return;
-        }
+        ApplyDefinition(upgrade);
 
         isUpgradeMenuOpen = false;
         TryShowNextUpgrade();
+    }
+
+    void ApplyDefinition( UpgradeSO upgrade ) {
+        if ( upgrade == null ) {
+            return;
+        }
+
+        currentUpgrades.Add(upgrade);
+        upgradeApplicationService.Apply(upgrade, this);
+        OnUpgradeAdded?.Invoke(upgrade);
     }
 
     public void ApplyProcess( Process process ) {
         if(currentProcess.Exists(p => p.GetType() == process.GetType()) ) return; // Prevent duplicate processes of the same type. This is a simple check, you might want to implement a more robust system depending on your needs.
         currentProcess.Add(process);
         OnProcessAdded?.Invoke(process);
-    }
-
-    void RegisterProcessesAndActions( IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs ) {
-        if ( statPairs == null ) {
-            return;
-        }
-
-        foreach ( UpgradeStatSO.UpgradePair pair in statPairs ) {
-            if ( pair.Type == UpgradeType.ExtraBalls ) {
-                AddBall(pair.BallType, (int)pair.Value);
-                continue;
-            }
-
-            Process process = processFactory.CreateProcess(pair.Type);
-            if ( process != null ) {
-                ApplyProcess(process);
-            }
-        }
     }
 
     //public void OnProcessAddedInvoke( Process process ) {
@@ -134,6 +121,23 @@ public class UpgradeManager {
 
     public void AddBall( BallType ballType, int extraBall ) {
         RequestExtraBalls?.Invoke(ballType, extraBall);
+    }
+
+    public void ModifyStat( UpgradeType type, float value ) {
+        statManager.ModifyStat(type, value);
+    }
+
+    public void AddProcess( ProcessType type ) {
+        Process process = processFactory.CreateProcess(type);
+        if ( process != null ) {
+            ApplyProcess(process);
+        }
+    }
+
+    public void SetBehaviorActive( UpgradeBehaviourType type, bool active = true ) {
+        if ( type == UpgradeBehaviourType.Magnet ) {
+            SetMagnetActive(active);
+        }
     }
 
 
@@ -164,8 +168,7 @@ public class UpgradeManager {
         int levelForUpgrade = pendingUpgrades.Dequeue();
         Debug.Log($"Showing Upgrades for Level {levelForUpgrade}...");
 
-        var options = GetRandomUpgrade();
-        OnUpgradeReady?.Invoke(options);
+        UpgradeOffersReady?.Invoke(GetRandomUpgradeOffers());
     }
 
     public UpgradeSO[] GetRandomUpgrade() {
@@ -185,6 +188,33 @@ public class UpgradeManager {
         }
 
         return result;
+    }
+
+    UpgradeOffer[] GetRandomUpgradeOffers() {
+        UpgradeSO[] upgrades = GetRandomUpgrade();
+        UpgradeOffer[] offers = new UpgradeOffer[upgrades.Length];
+
+        for ( int i = 0; i < upgrades.Length; i++ ) {
+            UpgradeSO upgrade = upgrades[i];
+            offers[i] = new UpgradeOffer(
+                upgrade.GetUpgradeId(),
+                upgrade.GetIcon(),
+                upgrade.GetUpgradeName(),
+                upgrade.GetDescription()
+            );
+        }
+
+        return offers;
+    }
+
+    public void SelectUpgrade( string upgradeId ) {
+        UpgradeSO selectedUpgrade = upgrades.Find(upgrade => upgrade != null && upgrade.GetUpgradeId() == upgradeId);
+        if ( selectedUpgrade == null ) {
+            Debug.LogWarning($"UpgradeManager: no upgrade with id {upgradeId} is available.");
+            return;
+        }
+
+        ApplyUpgrade(selectedUpgrade);
     }
     #endregion
 

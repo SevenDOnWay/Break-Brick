@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LevelManager : MonoBehaviour {
+public class LevelManager : MonoBehaviour, ILevelProgressSource {
 
 
     [SerializeField] AnimationCurve levelProgression;
@@ -18,6 +18,21 @@ public class LevelManager : MonoBehaviour {
     public event Action<int, float> NotifiExpChanged; 
     public event Action<int> NotifiLevelUp;           
     public event Action NotifiShowExpUI;
+
+    public event Action<int, float> ExperienceChanged {
+        add => NotifiExpChanged += value;
+        remove => NotifiExpChanged -= value;
+    }
+
+    public event Action<int> LevelChanged {
+        add => NotifiLevelUp += value;
+        remove => NotifiLevelUp -= value;
+    }
+
+    public event Action ExperiencePanelRequested {
+        add => NotifiShowExpUI += value;
+        remove => NotifiShowExpUI -= value;
+    }
 
     //serialized fields for testing in runtime 
 

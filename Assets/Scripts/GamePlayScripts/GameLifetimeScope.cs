@@ -7,6 +7,7 @@ public class GameLifetimeScope : LifetimeScope {
         builder.RegisterInstance(Camera.main);
         builder.Register<PlayScreen>(Lifetime.Singleton)
             .AsSelf()
+            .As<IPlayFieldMetrics>()
             .WithParameter("camera", Camera.main)
             .WithParameter("column", 8)
             .WithParameter("row", 10)
@@ -18,15 +19,25 @@ public class GameLifetimeScope : LifetimeScope {
         builder.RegisterComponentInHierarchy<GameStateManager>();
 
 
-        builder.RegisterComponentInHierarchy<SpawnController>();
+        builder.RegisterComponentInHierarchy<SpawnController>()
+            .AsSelf()
+            .As<IBrickSpawnContext>();
         builder.RegisterComponentInHierarchy<PlayerController>();
 
         builder.Register<StatManager>(Lifetime.Singleton);
-        builder.Register<UpgradeManager>(Lifetime.Singleton);
+        builder.Register<UpgradeManager>(Lifetime.Singleton)
+            .AsSelf()
+            .As<IUpgradeContext>()
+            .As<IUpgradeSelectionService>();
+        builder.Register<UpgradeApplicationService>(Lifetime.Singleton);
 
-        builder.RegisterComponentInHierarchy<BrickManager>();
+        builder.RegisterComponentInHierarchy<BrickManager>()
+            .AsSelf()
+            .As<IBrickGridContext>();
         builder.RegisterComponentInHierarchy<BallManager>();
-        builder.RegisterComponentInHierarchy<LevelManager>();
+        builder.RegisterComponentInHierarchy<LevelManager>()
+            .AsSelf()
+            .As<ILevelProgressSource>();
         builder.RegisterComponentInHierarchy<VFXManager>();
 
         builder.RegisterComponentInHierarchy<LevelUi>();
