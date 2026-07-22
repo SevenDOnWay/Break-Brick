@@ -73,7 +73,8 @@ public class VFXManager : MonoBehaviour {
 
         VFXPlayerBase player = queue.Dequeue();
 
-        player.Execute(cmd, () => ReturnToPool(type, player));
+        player.gameObject.SetActive(true);
+        player.Play(cmd, () => ReturnToPool(type, player));
     }
 
     private void ReturnToPool( VFXType type, VFXPlayerBase player ) {

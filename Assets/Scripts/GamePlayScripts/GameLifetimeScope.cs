@@ -19,21 +19,15 @@ public class GameLifetimeScope : LifetimeScope {
         builder.RegisterComponentInHierarchy<GameStateManager>();
 
 
-        builder.RegisterComponentInHierarchy<SpawnController>()
-            .AsSelf()
-            .As<IBrickSpawnContext>();
+        builder.RegisterComponentInHierarchy<SpawnController>();
         builder.RegisterComponentInHierarchy<PlayerController>();
 
         builder.Register<StatManager>(Lifetime.Singleton);
         builder.Register<UpgradeManager>(Lifetime.Singleton)
             .AsSelf()
-            .As<IUpgradeContext>()
             .As<IUpgradeSelectionService>();
-        builder.Register<UpgradeApplicationService>(Lifetime.Singleton);
 
-        builder.RegisterComponentInHierarchy<BrickManager>()
-            .AsSelf()
-            .As<IBrickGridContext>();
+        builder.RegisterComponentInHierarchy<BrickManager>();
         builder.RegisterComponentInHierarchy<BallManager>();
         builder.RegisterComponentInHierarchy<LevelManager>()
             .AsSelf()

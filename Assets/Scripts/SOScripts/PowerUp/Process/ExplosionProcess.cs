@@ -14,10 +14,6 @@ public class ExplosionProcess : Process {
 
     public override ProcessType GetProssType() => ProcessType.Explosion;
 
-    public VFXType GetVFXType() {
-        return VFXType.Explosion;
-    }
-
     protected override float GetChance( StatManager statManager ) {
         return statManager.GetStat(UpgradeType.ExplosionChance);
     }

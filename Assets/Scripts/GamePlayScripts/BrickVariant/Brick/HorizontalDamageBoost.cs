@@ -1,21 +1,21 @@
 using UnityEngine;
 using VContainer;
 public class HorizontalDamageBoost : MonoBehaviour, IBrickVariant{
-    IBrickGridContext brickGridContext;
+    BrickManager brickManager;
 
     [Inject]
-    void Constructor( IBrickGridContext brickGridContext) {
-        this.brickGridContext = brickGridContext;
+    void Constructor( BrickManager brickManager ) {
+        this.brickManager = brickManager;
     }
 
     #region IBrickVariant implementation
     public void OnHit(BrickScript brickScript ) {
-        brickGridContext?.DamageRow(brickScript, 1, DamageSource.Horizontal);
+        brickManager?.RequestHorizontalDamage(brickScript, brickScript.GridPosition, 1);
 
         //add vfx here
         //TODO: FIX name
         Vector2 tempPos = transform.position;
-        VFXEvent.RaiseVFXCommand(new HorizontalBeamVFXCommand(tempPos));
+        VFXEvent.RaiseVFXCommand(new BeamVFXCommand(tempPos, Vector2.left));
     }
     public void OnSpawn( BrickScript brickScript ) { }
     public void OnEndTurn( BrickScript brickScript ) { }

@@ -2,15 +2,15 @@ using UnityEngine;
 using VContainer;
 
 public class SplitBrick : MonoBehaviour, IBrickVariant {
-    IBrickSpawnContext brickSpawnContext;
+    SpawnController spawnController;
 
     [Inject]
-    void Constructor( IBrickSpawnContext brickSpawnContext ) {
-        this.brickSpawnContext = brickSpawnContext;
+    void Constructor( SpawnController spawnController ) {
+        this.spawnController = spawnController;
     }
 
     public void OnDie( BrickScript brickScript ) {
-        brickSpawnContext?.SpawnSplitChildren(brickScript);
+        spawnController?.SpawnSplitChildren(brickScript);
     }
 
     public BrickType GetBrickType( ) {

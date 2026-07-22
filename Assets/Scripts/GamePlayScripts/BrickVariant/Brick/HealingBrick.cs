@@ -8,21 +8,21 @@ using VContainer;
 /// </summary>
 /// <remarks>
 /// Turn counting is driven via <see cref="OnEndTurn"/> when bricks advance. The
-/// variant uses an <see cref="IBrickGridContext"/> rather than a concrete manager.
+/// Grid changes are owned by <see cref="BrickManager"/>.
 /// </remarks>
 public class HealingBrick : MonoBehaviour, IBrickVariant {
     [SerializeField] int healCooldownTurns = 3;
     [SerializeField] int healAmount = 1;
     [SerializeField] int healRadius = 1;
 
-    IBrickGridContext brickGridContext;
+    BrickManager brickManager;
     int turnCounter;
 
     // ── VContainer ─────────────────────────────────────────────────────────────
 
     [Inject]
-    void Constructor( IBrickGridContext brickGridContext ) {
-        this.brickGridContext = brickGridContext;
+    void Constructor( BrickManager brickManager ) {
+        this.brickManager = brickManager;
     }
 
     // ── IBrickVariant ──────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ public class HealingBrick : MonoBehaviour, IBrickVariant {
         turnCounter--;
         if ( turnCounter > 0 ) return;
 
-        brickGridContext?.HealNeighbors(brickScript, healRadius, healAmount);
+        brickManager?.RequestHeal(brickScript, brickScript.GridPosition, healRadius, healAmount);
         turnCounter = healCooldownTurns;
     }
 

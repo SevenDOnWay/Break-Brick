@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-public class BrickManager : MonoBehaviour, IBrickGridContext {
+public class BrickManager : MonoBehaviour {
 
     RunDataManager runDataManager;
     PlayScreen playScreen;
@@ -251,33 +251,7 @@ public class BrickManager : MonoBehaviour, IBrickGridContext {
         }
     }
 
-    public void HealNeighbors( IGridPosition origin, int radius, int healAmount ) {
-        if ( origin is not BrickScript brick ) {
-            return;
-        }
-
-        RequestHeal(brick, origin.GridPosition, radius, healAmount);
-    }
-
-    public void DamageRow( IGridPosition origin, int damage, DamageSource source ) {
-        if ( origin is BrickScript brick ) {
-            RequestHorizontalDamage(brick, origin.GridPosition, damage);
-        }
-    }
-
-    public void DamageColumn( IGridPosition origin, int damage, DamageSource source ) {
-        if ( origin is BrickScript brick ) {
-            RequestVerticalDamage(brick, origin.GridPosition, damage);
-        }
-    }
-
-    public void DamageRadial( IGridPosition origin, int radius, int damage, DamageSource source ) {
-        if ( origin is BrickScript brick ) {
-            RequestRadialDamage(brick, origin.GridPosition, radius, damage, source);
-        }
-    }
-
-    public void DamageOrthogonalNeighbors( IGridPosition origin, int damage, DamageSource source, int depth ) {
+    public void RequestOrthogonalDamage( BrickScript origin, int damage, DamageSource source, int depth ) {
         if ( origin == null ) {
             return;
         }
@@ -295,7 +269,7 @@ public class BrickManager : MonoBehaviour, IBrickGridContext {
                 continue;
             }
 
-            RequestDamage(neighbor, damage, source, origin as BrickScript, depth);
+            RequestDamage(neighbor, damage, source, origin, depth);
         }
     }
 

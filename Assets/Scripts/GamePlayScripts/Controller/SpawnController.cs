@@ -7,7 +7,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class SpawnController : MonoBehaviour, IBrickSpawnContext {
+public class SpawnController : MonoBehaviour {
 
     /*
     enum Difficult{
@@ -437,7 +437,7 @@ public class SpawnController : MonoBehaviour, IBrickSpawnContext {
         brickManager.RegisterBrick(brick.GetComponent<BrickScript>(), pos);
     }
 
-    public void SpawnSplitChildren( IGridPosition origin ) {
+    public void SpawnSplitChildren( BrickScript origin ) {
         if ( origin == null ) {
             return;
         }

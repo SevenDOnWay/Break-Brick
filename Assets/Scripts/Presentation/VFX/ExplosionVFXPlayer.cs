@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class ExplosionVFXPlayer : VFXPlayerBase {
 
-    public override VFXType GetVFXType() => VFXType.Explosion;
     [SerializeField] ParticleSystem particleSystem;
 
     Action onCompleteCallback;
 
-    public override void PlayExplosion( IVFXCommand cmd, Action onComplete ) {
+    public override void Play( IVFXCommand command, Action onComplete ) {
 
         onCompleteCallback = onComplete;
-        if ( cmd is not ExplosionVFXCommand explosionCmd ) {
+        if ( command is not ExplosionVFXCommand explosionCmd ) {
             Debug.LogError("Wrong command type passed to ExplosionVFXPlayer");
             onComplete?.Invoke();
             return;

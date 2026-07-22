@@ -4,11 +4,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
-public class UpgradeManager : IUpgradeContext, IUpgradeSelectionService {
+public class UpgradeManager : IUpgradeSelectionService {
     RunDataManager runDataManager;
     StatManager statManager;
     ProcessFactory processFactory;
-    UpgradeApplicationService upgradeApplicationService;
     CharacterDataBase characterDataBase;
     UpgradeDataBase upgradeDataBase;
 
@@ -37,14 +36,12 @@ public class UpgradeManager : IUpgradeContext, IUpgradeSelectionService {
         RunDataManager runDataManager,
         StatManager statManager,
         ProcessFactory processFactory,
-        UpgradeApplicationService upgradeApplicationService,
         UpgradeDataBase upgradeDataBase,
         CharacterDataBase characterDataBase
         ) {
         this.runDataManager = runDataManager;
         this.statManager = statManager;
         this.processFactory = processFactory;
-        this.upgradeApplicationService = upgradeApplicationService;
         this.upgradeDataBase = upgradeDataBase;
         this.characterDataBase = characterDataBase;
     }
@@ -103,8 +100,69 @@ public class UpgradeManager : IUpgradeContext, IUpgradeSelectionService {
         }
 
         currentUpgrades.Add(upgrade);
-        upgradeApplicationService.Apply(upgrade, this);
+        switch ( upgrade ) {
+            case UpgradeStatSO statUpgrade:
+                ApplyStatUpgrade(statUpgrade);
+                break;
+            case UpgradeBehaviorSO behaviorUpgrade:
+                ApplyBehaviorUpgrade(behaviorUpgrade);
+                break;
+        }
         OnUpgradeAdded?.Invoke(upgrade);
+    }
+
+    void ApplyStatUpgrade( UpgradeStatSO upgrade ) {
+        IReadOnlyList<UpgradeStatSO.UpgradePair> pairs = upgrade.GetKeyValueMap();
+        if ( pairs == null ) {
+            return;
+        }
+
+        foreach ( UpgradeStatSO.UpgradePair pair in pairs ) {
+            if ( pair.Type == UpgradeType.ExtraBalls ) {
+                AddBall(pair.BallType, (int)pair.Value);
+                continue;
+            }
+
+            ModifyStat(pair.Type, pair.Value);
+
+            if ( TryGetProcessType(pair.Type, out ProcessType processType) ) {
+                AddProcess(processType);
+            }
+        }
+    }
+
+    void ApplyBehaviorUpgrade( UpgradeBehaviorSO upgrade ) {
+        IReadOnlyList<UpgradeBehaviourType> behaviorTypes = upgrade.GetBehaviorTypes();
+        if ( behaviorTypes == null ) {
+            return;
+        }
+
+        foreach ( UpgradeBehaviourType behaviorType in behaviorTypes ) {
+            SetBehaviorActive(behaviorType);
+        }
+    }
+
+    static bool TryGetProcessType( UpgradeType upgradeType, out ProcessType processType ) {
+        processType = upgradeType switch {
+            UpgradeType.CritChance => ProcessType.Crit,
+            UpgradeType.ExplosionChance => ProcessType.Explosion,
+            UpgradeType.LightningChance => ProcessType.Lightning,
+            UpgradeType.PoisonChance => ProcessType.Poison,
+            UpgradeType.FreezeChance => ProcessType.Freeze,
+            UpgradeType.SniperInterval => ProcessType.Sniper,
+            UpgradeType.ShockwaveChance => ProcessType.Shockwave,
+            UpgradeType.RallyBonus => ProcessType.Rally,
+            _ => default
+        };
+
+        return upgradeType is UpgradeType.CritChance
+            or UpgradeType.ExplosionChance
+            or UpgradeType.LightningChance
+            or UpgradeType.PoisonChance
+            or UpgradeType.FreezeChance
+            or UpgradeType.SniperInterval
+            or UpgradeType.ShockwaveChance
+            or UpgradeType.RallyBonus;
     }
 
     public void ApplyProcess( Process process ) {

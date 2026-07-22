@@ -11,12 +11,12 @@ public class BossBrick : MonoBehaviour, IBrickVariant {
     [SerializeField] int rallyHealAmount = 2;
     [SerializeField] int rallyRadius = 1;
 
-    IBrickGridContext brickGridContext;
+    BrickManager brickManager;
     int turnsUntilRally;
 
     [Inject]
-    void Constructor( IBrickGridContext brickGridContext ) {
-        this.brickGridContext = brickGridContext;
+    void Constructor( BrickManager brickManager ) {
+        this.brickManager = brickManager;
     }
 
     public BrickType GetBrickType() => BrickType.Boss;
@@ -34,7 +34,7 @@ public class BossBrick : MonoBehaviour, IBrickVariant {
         turnsUntilRally--;
         if ( turnsUntilRally > 0 ) return;
 
-        brickGridContext?.HealNeighbors(brickScript, rallyRadius, rallyHealAmount);
+        brickManager?.RequestHeal(brickScript, brickScript.GridPosition, rallyRadius, rallyHealAmount);
         turnsUntilRally = Mathf.Max(1, rallyCooldownTurns);
     }
 

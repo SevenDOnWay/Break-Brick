@@ -32,24 +32,20 @@ public class BeamVFXPlayer : VFXPlayerBase {
         lr.endWidth = squareSize * 0.3f;
     }
 
-    public override void PlayVerticalBeam( IVFXCommand cmd, Action onComplete ) => PrepareAndPlay(cmd, Vector2.up, onComplete);
-
-    public override void PlayHorizontalBeam( IVFXCommand cmd, Action onComplete ) => PrepareAndPlay(cmd, Vector2.left, onComplete);
-
-    private void PrepareAndPlay( IVFXCommand cmd, Vector2 axis, Action onComplete ) {
-        Vector2 pos = Vector2.zero;
-
-        if ( cmd is VerticalBeamVFXCommand vCmd ) pos = vCmd.pos;
-        else if ( cmd is HorizontalBeamVFXCommand hCmd ) pos = hCmd.pos;
-        else return;
+    public override void Play( IVFXCommand command, Action onComplete ) {
+        if ( command is not BeamVFXCommand beam ) {
+            Debug.LogWarning($"BeamVFXPlayer cannot render {command?.GetType().Name}.");
+            onComplete?.Invoke();
+            return;
+        }
 
         _growthTween?.Kill();
         onCompleteCallback = onComplete;
 
-        Play(pos, axis, onCompleteCallback);
+        PlayBeam(beam.Position, beam.Axis, onCompleteCallback);
     }
 
-    public void Play( Vector2 origin, Vector2 direction, Action onComplete ) {
+    void PlayBeam( Vector2 origin, Vector2 direction, Action onComplete ) {
 
         _linePoints[0] = origin;
         _linePoints[1] = origin;
@@ -81,6 +77,4 @@ public class BeamVFXPlayer : VFXPlayerBase {
         .SetEase(Ease.OutQuad) // Makes the "spam" feel snappier
             .OnComplete(() => onComplete?.Invoke());
     }
-
-    public override VFXType GetVFXType() => VFXType.Beam;
 }
