@@ -1,4 +1,3 @@
-using DG.Tweening;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -19,8 +18,7 @@ public class LevelUi : MonoBehaviour {
     [SerializeField] float fadeDuration = 0.5f;
     [SerializeField] float visibleTime = 2f;
 
-    Tween fadeTween;
-    float hideAtTime;
+    Coroutine fadeRoutine;
 
 
     [Inject]
@@ -62,32 +60,26 @@ public class LevelUi : MonoBehaviour {
     }
 
     private void ShowExpPanel() {
-        fadeTween?.Kill(); // Stop existing fade out
+        if (fadeRoutine != null) {
+            StopCoroutine(fadeRoutine);
+        }
 
-        canvasGroup.alpha = 1f; // Make sure it's visible instantly
-
-        // Create a sequence that waits, then fades out
-        Sequence seq = DOTween.Sequence();
-        seq.AppendInterval(visibleTime);
-        seq.Append(canvasGroup.DOFade(0f, fadeDuration));
-
-        fadeTween = seq;
+        fadeRoutine = StartCoroutine(FadeOutAfterDelay());
     }
 
+    IEnumerator FadeOutAfterDelay() {
+        canvasGroup.alpha = 1f;
+        yield return new WaitForSeconds(visibleTime);
 
-    //private void FadeInOut() {
-    //    fadeTween?.Kill();
+        float elapsed = 0f;
+        while (elapsed < fadeDuration) {
+            elapsed += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+            yield return null;
+        }
 
-    //    Sequence seq = DOTween.Sequence();
-
-    //    seq.Append(canvasGroup.DOFade(1f, fadeDuration))       // Fade In
-    //       .AppendInterval(visibleTime)                       // Stay visible
-    //       .Append(canvasGroup.DOFade(0f, fadeDuration))       // Fade out
-    //       .OnComplete(() => {
-    //           fadeTween = null;
-    //       });
-
-    //    fadeTween = seq;
-    //}
+        canvasGroup.alpha = 0f;
+        fadeRoutine = null;
+    }
 
 }
