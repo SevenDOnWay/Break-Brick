@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
-public class UpgradeManager {
+public class UpgradeManager : IUpgradeSelectionService {
     RunDataManager runDataManager;
     StatManager statManager;
     ProcessFactory processFactory;
@@ -19,7 +19,7 @@ public class UpgradeManager {
     Queue<int> pendingUpgrades = new Queue<int>();
 
     public event Action<BallType, int> RequestExtraBalls;
-    public event Action<UpgradeSO[]> OnUpgradeReady;
+    public event Action<UpgradeOffer[]> UpgradeOffersReady;
     public event Action<Process> OnProcessAdded;
     public event Action<UpgradeSO> OnUpgradeAdded;
     public event Action OnAllUpgradesProcessed;
@@ -67,8 +67,12 @@ public class UpgradeManager {
 
         CharacterSO characterSO = await characterDataBase.GetCharacterByID(upgradeIds);
 
-        IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = characterSO?.Apply(statManager, this);
-        RegisterProcessesAndActions(statPairs);
+        if ( characterSO == null ) {
+            return;
+        }
+
+        ApplyDefinition(characterSO.GetStatUpgrade());
+        ApplyDefinition(characterSO.GetBehaviorUpgrade());
 
     }
 
@@ -84,46 +88,87 @@ public class UpgradeManager {
     public void ApplyUpgrade( UpgradeSO upgrade ) {
         Debug.Log($"Applied upgrade: {upgrade.name}");
 
-        if ( upgrade is UpgradeStatSO statUpgrade ) {
-            currentUpgrades.Add(statUpgrade);
-            IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs = statUpgrade.ApplyStat(statManager);
-            RegisterProcessesAndActions(statPairs);
-        }
-        else if ( upgrade is UpgradeBehaviorSO behaviorUpgrade ) {
-            currentUpgrades.Add(behaviorUpgrade);
-            behaviorUpgrade.ApplyBehavior(this);
-        }
-        else {
-            Debug.LogWarning("UpgradeManager: Unknown upgrade type."); //Fallback just in case
-            return;
-        }
+        ApplyDefinition(upgrade);
 
         isUpgradeMenuOpen = false;
         TryShowNextUpgrade();
+    }
+
+    void ApplyDefinition( UpgradeSO upgrade ) {
+        if ( upgrade == null ) {
+            return;
+        }
+
+        currentUpgrades.Add(upgrade);
+        switch ( upgrade ) {
+            case UpgradeStatSO statUpgrade:
+                ApplyStatUpgrade(statUpgrade);
+                break;
+            case UpgradeBehaviorSO behaviorUpgrade:
+                ApplyBehaviorUpgrade(behaviorUpgrade);
+                break;
+        }
+        OnUpgradeAdded?.Invoke(upgrade);
+    }
+
+    void ApplyStatUpgrade( UpgradeStatSO upgrade ) {
+        IReadOnlyList<UpgradeStatSO.UpgradePair> pairs = upgrade.GetKeyValueMap();
+        if ( pairs == null ) {
+            return;
+        }
+
+        foreach ( UpgradeStatSO.UpgradePair pair in pairs ) {
+            if ( pair.Type == UpgradeType.ExtraBalls ) {
+                AddBall(pair.BallType, (int)pair.Value);
+                continue;
+            }
+
+            ModifyStat(pair.Type, pair.Value);
+
+            if ( TryGetProcessType(pair.Type, out ProcessType processType) ) {
+                AddProcess(processType);
+            }
+        }
+    }
+
+    void ApplyBehaviorUpgrade( UpgradeBehaviorSO upgrade ) {
+        IReadOnlyList<UpgradeBehaviourType> behaviorTypes = upgrade.GetBehaviorTypes();
+        if ( behaviorTypes == null ) {
+            return;
+        }
+
+        foreach ( UpgradeBehaviourType behaviorType in behaviorTypes ) {
+            SetBehaviorActive(behaviorType);
+        }
+    }
+
+    static bool TryGetProcessType( UpgradeType upgradeType, out ProcessType processType ) {
+        processType = upgradeType switch {
+            UpgradeType.CritChance => ProcessType.Crit,
+            UpgradeType.ExplosionChance => ProcessType.Explosion,
+            UpgradeType.LightningChance => ProcessType.Lightning,
+            UpgradeType.PoisonChance => ProcessType.Poison,
+            UpgradeType.FreezeChance => ProcessType.Freeze,
+            UpgradeType.SniperInterval => ProcessType.Sniper,
+            UpgradeType.ShockwaveChance => ProcessType.Shockwave,
+            UpgradeType.RallyBonus => ProcessType.Rally,
+            _ => default
+        };
+
+        return upgradeType is UpgradeType.CritChance
+            or UpgradeType.ExplosionChance
+            or UpgradeType.LightningChance
+            or UpgradeType.PoisonChance
+            or UpgradeType.FreezeChance
+            or UpgradeType.SniperInterval
+            or UpgradeType.ShockwaveChance
+            or UpgradeType.RallyBonus;
     }
 
     public void ApplyProcess( Process process ) {
         if(currentProcess.Exists(p => p.GetType() == process.GetType()) ) return; // Prevent duplicate processes of the same type. This is a simple check, you might want to implement a more robust system depending on your needs.
         currentProcess.Add(process);
         OnProcessAdded?.Invoke(process);
-    }
-
-    void RegisterProcessesAndActions( IReadOnlyList<UpgradeStatSO.UpgradePair> statPairs ) {
-        if ( statPairs == null ) {
-            return;
-        }
-
-        foreach ( UpgradeStatSO.UpgradePair pair in statPairs ) {
-            if ( pair.Type == UpgradeType.ExtraBalls ) {
-                AddBall(pair.BallType, (int)pair.Value);
-                continue;
-            }
-
-            Process process = processFactory.CreateProcess(pair.Type);
-            if ( process != null ) {
-                ApplyProcess(process);
-            }
-        }
     }
 
     //public void OnProcessAddedInvoke( Process process ) {
@@ -134,6 +179,23 @@ public class UpgradeManager {
 
     public void AddBall( BallType ballType, int extraBall ) {
         RequestExtraBalls?.Invoke(ballType, extraBall);
+    }
+
+    public void ModifyStat( UpgradeType type, float value ) {
+        statManager.ModifyStat(type, value);
+    }
+
+    public void AddProcess( ProcessType type ) {
+        Process process = processFactory.CreateProcess(type);
+        if ( process != null ) {
+            ApplyProcess(process);
+        }
+    }
+
+    public void SetBehaviorActive( UpgradeBehaviourType type, bool active = true ) {
+        if ( type == UpgradeBehaviourType.Magnet ) {
+            SetMagnetActive(active);
+        }
     }
 
 
@@ -164,8 +226,7 @@ public class UpgradeManager {
         int levelForUpgrade = pendingUpgrades.Dequeue();
         Debug.Log($"Showing Upgrades for Level {levelForUpgrade}...");
 
-        var options = GetRandomUpgrade();
-        OnUpgradeReady?.Invoke(options);
+        UpgradeOffersReady?.Invoke(GetRandomUpgradeOffers());
     }
 
     public UpgradeSO[] GetRandomUpgrade() {
@@ -185,6 +246,33 @@ public class UpgradeManager {
         }
 
         return result;
+    }
+
+    UpgradeOffer[] GetRandomUpgradeOffers() {
+        UpgradeSO[] upgrades = GetRandomUpgrade();
+        UpgradeOffer[] offers = new UpgradeOffer[upgrades.Length];
+
+        for ( int i = 0; i < upgrades.Length; i++ ) {
+            UpgradeSO upgrade = upgrades[i];
+            offers[i] = new UpgradeOffer(
+                upgrade.GetUpgradeId(),
+                upgrade.GetIcon(),
+                upgrade.GetUpgradeName(),
+                upgrade.GetDescription()
+            );
+        }
+
+        return offers;
+    }
+
+    public void SelectUpgrade( string upgradeId ) {
+        UpgradeSO selectedUpgrade = upgrades.Find(upgrade => upgrade != null && upgrade.GetUpgradeId() == upgradeId);
+        if ( selectedUpgrade == null ) {
+            Debug.LogWarning($"UpgradeManager: no upgrade with id {upgradeId} is available.");
+            return;
+        }
+
+        ApplyUpgrade(selectedUpgrade);
     }
     #endregion
 

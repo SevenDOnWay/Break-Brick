@@ -1,0 +1,25 @@
+{
+    "name": "BreakBrick.Gameplay",
+    "rootNamespace": "",
+    "references": [
+        "BreakBrick.Core",
+        "BreakBrick.Data",
+        "BreakBrick.Presentation",
+        "VContainer",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "UniTask",
+        "FMODUnity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

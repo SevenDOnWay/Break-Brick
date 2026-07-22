@@ -7,16 +7,16 @@ public class ProcessFactory {
         this.resolver = resolver;
     }
 
-    public Process CreateProcess( UpgradeType type ) {
+    public Process CreateProcess( ProcessType type ) {
         Process process = type switch {
-            UpgradeType.ExplosionChance => new ExplosionProcess(),
-            UpgradeType.CritChance => new CritProcess(),
-            UpgradeType.LightningChance => new LightningProcess(),
-            UpgradeType.PoisonChance => new PoisonProcess(),
-            UpgradeType.FreezeChance => new FreezeProcess(),
-            UpgradeType.SniperInterval => new SniperProcess(),
-            UpgradeType.ShockwaveChance => new ShockwaveProcess(),
-            UpgradeType.RallyBonus => new RallyProcess(),
+            ProcessType.Explosion => new ExplosionProcess(),
+            ProcessType.Crit => new CritProcess(),
+            ProcessType.Lightning => new LightningProcess(),
+            ProcessType.Poison => new PoisonProcess(),
+            ProcessType.Freeze => new FreezeProcess(),
+            ProcessType.Sniper => new SniperProcess(),
+            ProcessType.Shockwave => new ShockwaveProcess(),
+            ProcessType.Rally => new RallyProcess(),
             _ => null
         };
 

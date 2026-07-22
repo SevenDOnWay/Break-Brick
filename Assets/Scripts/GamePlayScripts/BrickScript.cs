@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using VContainer;
 
-public class BrickScript : MonoBehaviour {
+public class BrickScript : MonoBehaviour, IEffectTarget {
     [Serializable]
     public struct EffectLayerBinding {
         public EffectType effectType;
@@ -39,9 +39,6 @@ public class BrickScript : MonoBehaviour {
     readonly List<ITickableEffect> tickableEffects = new();
     readonly List<EffectType> pendingRemoval = new();
     readonly Dictionary<EffectType, GameObject> effectLayerMap = new();
-
-    public static event EventHandler OnBrickDestroyed;
-    public static event EventHandler OnBrickHit;
 
     public event Action<BrickScript, DamageSource, int, Vector2> OnHit;
     public event Action<DamageRequest> OnDamaged;
@@ -109,7 +106,7 @@ public class BrickScript : MonoBehaviour {
         int damage = req.damage;
         health -= damage;
 
-        OnBrickHit?.Invoke(this, EventArgs.Empty);
+        GameplayEvents.RaiseBrickEvent(BrickEventType.Hit);
         OnDamaged?.Invoke(req);
 
         UpdateBrickVisual();
@@ -224,7 +221,7 @@ public class BrickScript : MonoBehaviour {
 
     void DestroyBrick() {
         OnDestroyed?.Invoke(GridPosition);
-        OnBrickDestroyed?.Invoke(this, EventArgs.Empty);
+        GameplayEvents.RaiseBrickEvent(BrickEventType.Destroyed);
         Destroy(gameObject);
     }
 

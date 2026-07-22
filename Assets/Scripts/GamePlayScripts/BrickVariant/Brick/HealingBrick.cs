@@ -7,8 +7,8 @@ using VContainer;
 /// (Manhattan + diagonals) and restores <see cref="healAmount"/> HP to each living neighbour.
 /// </summary>
 /// <remarks>
-/// Turn counting is driven via <see cref="OnEndTurn"/> which is called by BrickManager
-/// each time bricks advance. Injects only <see cref="BrickManager"/> — no ball knowledge.
+/// Turn counting is driven via <see cref="OnEndTurn"/> when bricks advance. The
+/// Grid changes are owned by <see cref="BrickManager"/>.
 /// </remarks>
 public class HealingBrick : MonoBehaviour, IBrickVariant {
     [SerializeField] int healCooldownTurns = 3;
@@ -37,7 +37,7 @@ public class HealingBrick : MonoBehaviour, IBrickVariant {
         turnCounter--;
         if ( turnCounter > 0 ) return;
 
-        brickManager.RequestHeal(brickScript, brickScript.GridPosition, healRadius, healAmount);
+        brickManager?.RequestHeal(brickScript, brickScript.GridPosition, healRadius, healAmount);
         turnCounter = healCooldownTurns;
     }
 

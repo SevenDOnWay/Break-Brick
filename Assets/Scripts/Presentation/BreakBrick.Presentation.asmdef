@@ -1,0 +1,20 @@
+{
+    "name": "BreakBrick.Presentation",
+    "rootNamespace": "",
+    "references": [
+        "BreakBrick.Core",
+        "VContainer",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "FMODUnity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

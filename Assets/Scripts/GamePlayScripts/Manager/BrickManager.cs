@@ -67,7 +67,7 @@ public class BrickManager : MonoBehaviour {
 
             // Shockwave check: if the brick died from this damage, try shockwave
             if ( target.IsDead ) {
-                ShockwaveProcess.TryShockwave(statManager, this, target.GridPosition, request.depth);
+                ShockwaveProcess.TryShockwave(statManager, this, target, request.depth);
             }
         }
     }
@@ -248,6 +248,28 @@ public class BrickManager : MonoBehaviour {
                 neighbour.health += healAmount;
                 neighbour.UpdateHealthText();
             }
+        }
+    }
+
+    public void RequestOrthogonalDamage( BrickScript origin, int damage, DamageSource source, int depth ) {
+        if ( origin == null ) {
+            return;
+        }
+
+        Vector2Int[] offsets = {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1),
+        };
+
+        foreach ( Vector2Int offset in offsets ) {
+            BrickScript neighbor = GetBrickAt(origin.GridPosition + offset);
+            if ( neighbor == null || neighbor.IsDead ) {
+                continue;
+            }
+
+            RequestDamage(neighbor, damage, source, origin, depth);
         }
     }
 

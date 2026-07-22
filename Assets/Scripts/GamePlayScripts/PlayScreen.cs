@@ -1,7 +1,8 @@
 using UnityEngine;
 
-public class PlayScreen {
+public class PlayScreen : IPlayFieldMetrics {
     public float squareSize;
+    public float SquareSize => squareSize;
 
     public PlayScreen( Camera camera, int column, int row, float padding ) {
 

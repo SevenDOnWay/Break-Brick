@@ -1,4 +1,3 @@
-using NUnit.Framework.Constraints;
 using UnityEngine;
 using VContainer;
 public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
@@ -11,11 +10,10 @@ public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
 
     #region IBrickVariant implementation
     public void OnHit( BrickScript brickScript ) {
-        var pos = brickManager.GetBrickGridIndex(brickScript.transform.position);
-        DealDamage(brickScript, pos);
+        brickManager?.RequestVerticalDamage(brickScript, brickScript.GridPosition, 1);
 
         Vector2 tempPos = transform.position;
-        VFXEvent.RaiseVFXCommand(new VerticalBeamVFXCommand(tempPos));
+        VFXEvent.RaiseVFXCommand(new BeamVFXCommand(tempPos, Vector2.up));
     }
     public void OnEndTurn( BrickScript brickScript ) { }
     public void OnSpawn( BrickScript brickScript ) { }
@@ -28,9 +26,4 @@ public class VerticalDamageBoost : MonoBehaviour, IBrickVariant {
     }
     #endregion
 
-    private void DealDamage(BrickScript brickScript ,Vector2Int pos ) {
-        brickManager.RequestVerticalDamage(brickScript, pos);
-    }
-
-    
 }

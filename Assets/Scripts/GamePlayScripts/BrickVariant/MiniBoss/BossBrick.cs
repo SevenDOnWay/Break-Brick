@@ -34,7 +34,7 @@ public class BossBrick : MonoBehaviour, IBrickVariant {
         turnsUntilRally--;
         if ( turnsUntilRally > 0 ) return;
 
-        brickManager.RequestHeal(brickScript, brickScript.GridPosition, rallyRadius, rallyHealAmount);
+        brickManager?.RequestHeal(brickScript, brickScript.GridPosition, rallyRadius, rallyHealAmount);
         turnsUntilRally = Mathf.Max(1, rallyCooldownTurns);
     }
 
