@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public abstract class TimedEffectBase : ITickableEffect {
-    protected BrickScript owner;
+    protected IEffectTarget owner;
     protected int remainingDuration;
 
     public abstract EffectType Type { get; }
@@ -12,12 +12,12 @@ public abstract class TimedEffectBase : ITickableEffect {
         remainingDuration = Mathf.Max(0, duration);
     }
 
-    public virtual void OnApply( BrickScript brick ) {
-        owner = brick;
+    public virtual void OnApply( IEffectTarget target ) {
+        owner = target;
     }
 
-    public virtual void OnRemove( BrickScript brick ) {
-        if ( owner == brick ) {
+    public virtual void OnRemove( IEffectTarget target ) {
+        if ( owner == target ) {
             owner = null;
         }
     }

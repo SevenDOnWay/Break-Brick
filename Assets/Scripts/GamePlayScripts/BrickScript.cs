@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using VContainer;
 
-public class BrickScript : MonoBehaviour {
+public class BrickScript : MonoBehaviour, IEffectTarget {
     [Serializable]
     public struct EffectLayerBinding {
         public EffectType effectType;
