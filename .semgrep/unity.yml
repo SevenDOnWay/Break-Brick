@@ -9,10 +9,13 @@ rules:
       include:
         - /Assets/Scripts/**
     patterns:
-      - pattern-inside: |
-          void $FRAME_METHOD(...) {
-            ...
-          }
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD(...) {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD(...) => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -20,6 +23,8 @@ rules:
           - pattern: $OBJECT.FindObjectOfType<$TYPE>(...)
           - pattern: $OBJECT.FindFirstObjectByType<$TYPE>(...)
           - pattern: $OBJECT.FindAnyObjectByType<$TYPE>(...)
+          - pattern: $OBJECT.FindObjectsOfType<$TYPE>(...)
+          - pattern: $OBJECT.FindObjectsByType<$TYPE>(...)
           - pattern: $OBJECT.FindObjectOfType(...)
           - pattern: $OBJECT.FindFirstObjectByType(...)
           - pattern: $OBJECT.FindAnyObjectByType(...)
@@ -37,10 +42,13 @@ rules:
       include:
         - /Assets/Scripts/**
     patterns:
-      - pattern-inside: |
-          void $FRAME_METHOD(...) {
-            ...
-          }
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD(...) {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD(...) => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -58,17 +66,32 @@ rules:
       include:
         - /Assets/Scripts/**
     patterns:
-      - pattern-inside: |
-          void $FRAME_METHOD(...) {
-            ...
-          }
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD(...) {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD(...) => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
       - pattern-either:
-          - pattern: $TEXT = "..." + ...;
-          - pattern: $TEXT = ... + "...";
-          - pattern: $TEXT += "...";
+          - patterns:
+              - pattern: $TEXT = $STRING + ...;
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $TEXT = ... + $STRING;
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $TEXT += $STRING;
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
           - pattern: string.Format(...)
           - pattern: string.Concat(...)
 
@@ -82,18 +105,25 @@ rules:
       include:
         - /Assets/Scripts/**
     patterns:
-      - pattern-inside: |
-          void $FRAME_METHOD(...) {
-            ...
-          }
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD(...) {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD(...) => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
       - pattern-either:
-          - pattern: $OBJ.GetComponent<$TYPE>()
-          - pattern: GetComponent<$TYPE>()
-          - pattern: $OBJ.GetComponentInChildren<$TYPE>()
-          - pattern: GetComponentInChildren<$TYPE>()
+          - pattern: $OBJ.GetComponent<$TYPE>(...)
+          - pattern: GetComponent<$TYPE>(...)
+          - pattern: $OBJ.GetComponent(...)
+          - pattern: GetComponent(...)
+          - pattern: $OBJ.GetComponentInChildren<$TYPE>(...)
+          - pattern: GetComponentInChildren<$TYPE>(...)
+          - pattern: $OBJ.GetComponentInChildren(...)
+          - pattern: GetComponentInChildren(...)
 
   - id: unity-instantiate-destroy-in-frame-loop
     languages: [csharp]
@@ -105,10 +135,13 @@ rules:
       include:
         - /Assets/Scripts/**
     patterns:
-      - pattern-inside: |
-          void $FRAME_METHOD(...) {
-            ...
-          }
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD(...) {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD(...) => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -128,19 +161,20 @@ rules:
       include:
         - /Assets/Scripts/**
     patterns:
-      - pattern-inside: |
-          void $FRAME_METHOD(...) {
-            ...
-          }
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD(...) {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD(...) => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
-      - pattern-either:
-          - pattern: $LIST.Where(...)
-          - pattern: $LIST.Select(...)
-          - pattern: $LIST.ToList()
-          - pattern: $LIST.ToArray()
-          - pattern: $LIST.FirstOrDefault(...)
+      - pattern: $LIST.$LINQ_METHOD(...)
+      - metavariable-regex:
+          metavariable: $LINQ_METHOD
+          regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Concat|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Contains|Aggregate|Sum|Average|Min|Max|ToList|ToArray|ToDictionary|ToHashSet|Reverse|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
 
   - id: unity-getcomponent-inside-coroutine-loop
     languages: [csharp]
@@ -155,10 +189,13 @@ rules:
       - pattern-inside: |
           IEnumerator $COROUTINE(...) {
             ...
-            while (...) {
-              ...
-            }
+          }
+      - pattern-inside: |
+          while (...) {
+            ...
           }
       - pattern-either:
-          - pattern: $OBJ.GetComponent<$TYPE>()
-          - pattern: GetComponent<$TYPE>()
+          - pattern: $OBJ.GetComponent<$TYPE>(...)
+          - pattern: GetComponent<$TYPE>(...)
+          - pattern: $OBJ.GetComponent(...)
+          - pattern: GetComponent(...)
