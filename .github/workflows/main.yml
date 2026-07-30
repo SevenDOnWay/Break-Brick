@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - run: bash test/check-meta-files.sh
-      - run: bash test/check-lfs-files.sh
+      - run: bash test/check-lfs-files.sh "${{ github.event.before }}" "${{ github.sha }}"
 
   unity-editmode:
     name: Unity EditMode tests
