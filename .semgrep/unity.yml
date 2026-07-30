@@ -42,3 +42,135 @@ rules:
       - pattern-either:
           - pattern: Resources.Load(...)
           - pattern: Resources.Load<$TYPE>(...)
+          
+    - id: unity-string-concat-in-frame-loop
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Avoid string concatenation or string.Format/Interpolation in Update, LateUpdate,
+      or FixedUpdate. This causes GC allocations every frame. Use StringBuilder or cache the string.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          void $FRAME_METHOD(...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: $TEXT = $A + $B;
+          - pattern: $TEXT += $A;
+          - pattern: string.Format(...)
+          - pattern: string.Concat(...)
+
+    - id: unity-getcomponent-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid calling GetComponent() in frame loops. Cache the component reference in 
+      Awake(), Start(), or inject it using your dependency injection framework.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          void $FRAME_METHOD(...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: $OBJ.GetComponent<$TYPE>()
+          - pattern: GetComponent<$TYPE>()
+          - pattern: $OBJ.GetComponentInChildren<$TYPE>()
+          - pattern: GetComponentInChildren<$TYPE>()
+
+    - id: unity-instantiate-destroy-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid calling Instantiate() or Destroy() inside Update loops. Use an Object Pool 
+      pattern instead to reuse objects without triggering GC allocations.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          void $FRAME_METHOD(...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: Instantiate(...)
+          - pattern: GameObject.Instantiate(...)
+          - pattern: Destroy(...)
+          - pattern: GameObject.Destroy(...)
+
+    - id: unity-event-subscription-leak-check
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Detected C# event subscription (+=). Ensure you unsubscribe (-=) in OnDestroy() or OnDisable()
+      to prevent memory leaks when objects are unloaded.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern: $EVENT += $METHOD;
+      - pattern-not-inside: |
+          void OnEnable(...) { ... }
+      - pattern-not-inside: |
+          void Start(...) { ... }
+      - pattern-not-inside: |
+          void Awake(...) { ... }
+
+    - id: unity-avoid-linq-in-update
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      LINQ queries cause heap allocations and garbage collection spikes when run inside frame loops.
+      Replace with standard for/foreach loops or cached array operations.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          void $FRAME_METHOD(...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: $LIST.Where(...)
+          - pattern: $LIST.Select(...)
+          - pattern: $LIST.ToList()
+          - pattern: $LIST.ToArray()
+          - pattern: $LIST.FirstOrDefault(...)
+
+    - id: unity-getcomponent-inside-coroutine-loop
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Avoid fetching components inside coroutine loops. Cache the reference before entering
+      the while loop or yield iteration.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          IEnumerator $COROUTINE(...) {
+            ...
+            while (...) {
+              ...
+            }
+          }
+      - pattern-either:
+          - pattern: $OBJ.GetComponent<$TYPE>()
+          - pattern: GetComponent<$TYPE>()
