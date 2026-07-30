@@ -17,8 +17,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: bash scripts/check-meta-files.sh
-      - run: bash scripts/check-lfs-files.sh
+      - run: bash test/check-meta-files.sh
+      - run: bash test/check-lfs-files.sh
 
   unity-editmode:
     name: Unity EditMode tests
