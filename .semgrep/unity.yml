@@ -11,11 +11,11 @@ rules:
     patterns:
       - pattern-either:
           - pattern-inside: |
-              void $FRAME_METHOD(...) {
+              void $FRAME_METHOD() {
                 ...
               }
           - pattern-inside: |
-              void $FRAME_METHOD(...) => ...;
+              void $FRAME_METHOD() => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -30,6 +30,16 @@ rules:
           - pattern: $OBJECT.FindAnyObjectByType(...)
           - pattern: $OBJECT.FindObjectsOfType(...)
           - pattern: $OBJECT.FindObjectsByType(...)
+          - pattern: FindObjectOfType<$TYPE>(...)
+          - pattern: FindFirstObjectByType<$TYPE>(...)
+          - pattern: FindAnyObjectByType<$TYPE>(...)
+          - pattern: FindObjectsOfType<$TYPE>(...)
+          - pattern: FindObjectsByType<$TYPE>(...)
+          - pattern: FindObjectOfType(...)
+          - pattern: FindFirstObjectByType(...)
+          - pattern: FindAnyObjectByType(...)
+          - pattern: FindObjectsOfType(...)
+          - pattern: FindObjectsByType(...)
           - pattern: GameObject.Find(...)
 
   - id: unity-resources-load-in-frame-loop
@@ -44,11 +54,11 @@ rules:
     patterns:
       - pattern-either:
           - pattern-inside: |
-              void $FRAME_METHOD(...) {
+              void $FRAME_METHOD() {
                 ...
               }
           - pattern-inside: |
-              void $FRAME_METHOD(...) => ...;
+              void $FRAME_METHOD() => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -68,11 +78,11 @@ rules:
     patterns:
       - pattern-either:
           - pattern-inside: |
-              void $FRAME_METHOD(...) {
+              void $FRAME_METHOD() {
                 ...
               }
           - pattern-inside: |
-              void $FRAME_METHOD(...) => ...;
+              void $FRAME_METHOD() => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -92,6 +102,16 @@ rules:
               - metavariable-regex:
                   metavariable: $STRING
                   regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $STRING + ...
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: ... + $STRING
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
           - pattern: string.Format(...)
           - pattern: string.Concat(...)
 
@@ -107,11 +127,11 @@ rules:
     patterns:
       - pattern-either:
           - pattern-inside: |
-              void $FRAME_METHOD(...) {
+              void $FRAME_METHOD() {
                 ...
               }
           - pattern-inside: |
-              void $FRAME_METHOD(...) => ...;
+              void $FRAME_METHOD() => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -137,11 +157,11 @@ rules:
     patterns:
       - pattern-either:
           - pattern-inside: |
-              void $FRAME_METHOD(...) {
+              void $FRAME_METHOD() {
                 ...
               }
           - pattern-inside: |
-              void $FRAME_METHOD(...) => ...;
+              void $FRAME_METHOD() => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
@@ -163,18 +183,18 @@ rules:
     patterns:
       - pattern-either:
           - pattern-inside: |
-              void $FRAME_METHOD(...) {
+              void $FRAME_METHOD() {
                 ...
               }
           - pattern-inside: |
-              void $FRAME_METHOD(...) => ...;
+              void $FRAME_METHOD() => ...;
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
       - pattern: $LIST.$LINQ_METHOD(...)
       - metavariable-regex:
           metavariable: $LINQ_METHOD
-          regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Aggregate|Sum|Average|Min|Max|ToList|ToArray|ToDictionary|ToHashSet|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
+          regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Aggregate|Sum|Average|ToList|ToArray|ToDictionary|ToHashSet|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
 
   - id: unity-getcomponent-inside-coroutine-loop
     languages: [csharp]
@@ -190,10 +210,23 @@ rules:
           IEnumerator $COROUTINE(...) {
             ...
           }
-      - pattern-inside: |
-          while (...) {
-            ...
-          }
+      - pattern-either:
+          - pattern-inside: |
+              while (...) {
+                ...
+              }
+          - pattern-inside: |
+              for ($INITIALIZER; $CONDITION; $ITERATOR) {
+                ...
+              }
+          - pattern-inside: |
+              foreach ($TYPE $ITEM in $COLLECTION) {
+                ...
+              }
+          - pattern-inside: |
+              do {
+                ...
+              } while (...);
       - pattern-either:
           - pattern: $OBJ.GetComponent<$TYPE>(...)
           - pattern: GetComponent<$TYPE>(...)
