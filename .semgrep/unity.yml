@@ -174,7 +174,7 @@ rules:
       - pattern: $LIST.$LINQ_METHOD(...)
       - metavariable-regex:
           metavariable: $LINQ_METHOD
-          regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Concat|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Contains|Aggregate|Sum|Average|Min|Max|ToList|ToArray|ToDictionary|ToHashSet|Reverse|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
+          regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Aggregate|Sum|Average|Min|Max|ToList|ToArray|ToDictionary|ToHashSet|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
 
   - id: unity-getcomponent-inside-coroutine-loop
     languages: [csharp]
