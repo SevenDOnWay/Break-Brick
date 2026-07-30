@@ -21,6 +21,7 @@ public class BrickScript : MonoBehaviour, IEffectTarget {
     };
 
     LevelManager levelManager;
+    RunDataManager runDataManager;
 
     public bool IsDead => health <= 0;
     public bool IsRestoringSavedHealth { get; private set; }
@@ -46,8 +47,9 @@ public class BrickScript : MonoBehaviour, IEffectTarget {
     public event Action<EffectType, bool> OnEffectChanged;
 
     [Inject]
-    public void Constructor( LevelManager levelManager ) {
+    public void Constructor( LevelManager levelManager, RunDataManager runDataManager ) {
         this.levelManager = levelManager;
+        this.runDataManager = runDataManager;
     }
 
     public void Init( int health, float squareSize, bool isRestoringSavedHealth = false ) {
@@ -99,18 +101,27 @@ public class BrickScript : MonoBehaviour, IEffectTarget {
     public void ApplyDamageInternal( DamageRequest req ) {
         foreach ( var variant in variants ) {
             if ( variant is IDamageBlocker blocker && blocker.TryBlock(req) ) {
+                ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.ShieldBlock, transform.position, req.hitNormal, radius: SquareSize * .5f));
                 return;
             }
         }
 
         int damage = req.damage;
+        int dealtDamage = Mathf.Min(Mathf.Max(0, damage), Mathf.Max(0, health));
         health -= damage;
+
+        if ( req.source == DamageSource.Piercing ) {
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.PiercingImpact, transform.position, req.hitNormal, radius: SquareSize));
+        } else if ( req.source == DamageSource.Heavy ) {
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.HeavyImpact, transform.position, req.hitNormal, radius: SquareSize));
+        }
 
         GameplayEvents.RaiseBrickEvent(BrickEventType.Hit);
         OnDamaged?.Invoke(req);
 
         UpdateBrickVisual();
         levelManager.AddExp(damage);
+        runDataManager?.runData?.RecordDamage(req.source, dealtDamage);
 
         if ( health > 0 ) {
             OnDamage(req);
@@ -203,6 +214,8 @@ public class BrickScript : MonoBehaviour, IEffectTarget {
     }
 
     void OnDeath( DamageRequest req ) {
+        runDataManager?.runData?.RecordBrickDestroyed();
+
         foreach ( var variant in variants ) {
             try {
                 variant.OnDie(this);
@@ -254,6 +267,14 @@ public class BrickScript : MonoBehaviour, IEffectTarget {
         activeEffects[newEffect.Type] = newEffect;
         newEffect.OnApply(this);
 
+        if ( newEffect.Type == EffectType.Freeze ) {
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.FreezeApply, transform.position, radius: SquareSize));
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.FreezeLoop, transform.position, radius: SquareSize, followTarget: transform, loop: true));
+        } else if ( newEffect.Type == EffectType.Poison ) {
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.PoisonApply, transform.position, radius: SquareSize));
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.PoisonLoop, transform.position, radius: SquareSize, followTarget: transform, loop: true));
+        }
+
         if ( newEffect is ITickableEffect tickableEffect ) {
             tickableEffects.Add(tickableEffect);
         }
@@ -268,6 +289,9 @@ public class BrickScript : MonoBehaviour, IEffectTarget {
         }
 
         effect.OnRemove(this);
+        if ( effectType == EffectType.Freeze || effectType == EffectType.Poison ) {
+            ArcadeVFXEvent.StopPersistent(transform);
+        }
         activeEffects.Remove(effectType);
 
         if ( effect is ITickableEffect tickable ) {

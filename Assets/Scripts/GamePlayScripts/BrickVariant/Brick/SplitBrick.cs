@@ -10,6 +10,7 @@ public class SplitBrick : MonoBehaviour, IBrickVariant {
     }
 
     public void OnDie( BrickScript brickScript ) {
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Split, brickScript.transform.position, radius: brickScript.SquareSize));
         spawnController?.SpawnSplitChildren(brickScript);
     }
 

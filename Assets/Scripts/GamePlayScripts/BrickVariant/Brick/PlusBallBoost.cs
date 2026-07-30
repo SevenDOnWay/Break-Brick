@@ -19,6 +19,7 @@ public class PlusBallBoost : MonoBehaviour, IBrickVariant {
 
     }
     public void OnDie( BrickScript brickScript ) {
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.PlusBall, brickScript.transform.position, radius: brickScript.SquareSize));
         ballManager.RequestExtraBall();
     }
 

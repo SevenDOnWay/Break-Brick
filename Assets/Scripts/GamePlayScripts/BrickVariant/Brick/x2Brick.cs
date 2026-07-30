@@ -13,6 +13,7 @@ public class x2Brick : MonoBehaviour, IBrickVariant {
 
         brickScript.health *= 2;
         brickScript.UpdateHealthText();
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Reinforce, brickScript.transform.position, radius: brickScript.SquareSize));
     }
 
     public BrickType GetBrickType() {

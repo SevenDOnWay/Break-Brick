@@ -37,7 +37,12 @@ public class HealingBrick : MonoBehaviour, IBrickVariant {
         turnCounter--;
         if ( turnCounter > 0 ) return;
 
-        brickManager?.RequestHeal(brickScript, brickScript.GridPosition, healRadius, healAmount);
+        var healed = brickManager?.RequestHeal(brickScript, brickScript.GridPosition, healRadius, healAmount);
+        if ( healed != null && healed.Count > 0 ) {
+            var targets = new System.Collections.Generic.List<Vector3>();
+            foreach (var target in healed) targets.Add(target.transform.position);
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.HealPulse, brickScript.transform.position, radius: brickScript.SquareSize, targetPositions: targets));
+        }
         turnCounter = healCooldownTurns;
     }
 

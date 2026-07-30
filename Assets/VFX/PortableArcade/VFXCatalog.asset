@@ -1,0 +1,141 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47144094c6a4c784fba028267e1c661e, type: 3}
+  m_Name: VFXCatalog
+  m_EditorClassIdentifier: BreakBrick.Presentation::VFXCatalog
+  entries:
+  - id: 0
+    prefab: {fileID: 6652995389370628038, guid: 5991781626964374e9e02d05f7531362, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 1
+    prefab: {fileID: 4809245840863784114, guid: 39145d35922691c40bf9b0f62157c015, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 2
+    prefab: {fileID: 6022529824378853780, guid: 9052b6fd18aa4df4d96a812a24711ba5, type: 3}
+    defaultPoolSize: 1
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 3
+    prefab: {fileID: 4930206534593281984, guid: 0a44b638b6f16664d9c97e7ccaf19152, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 4
+    prefab: {fileID: 2630863460047580507, guid: 6d95f385ce5065c4086db1ac395446a8, type: 3}
+    defaultPoolSize: 1
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 5
+    prefab: {fileID: 2545823467944096422, guid: 1f02e3d1bbf1a57428d376e3d5ade81b, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 6
+    prefab: {fileID: 4793737753787170355, guid: 72c9d3f55bee9bf4e9a1f445a1d8b311, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 7
+    prefab: {fileID: 3563429616537871253, guid: cca90ce36dd569c49a1adc05689611c5, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 8
+    prefab: {fileID: 7768118812310146770, guid: 87a2814f27e31274d8b45964e1936133, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 9
+    prefab: {fileID: 114830635043673699, guid: 6cf9913475a987d4d8139e24c8871bde, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 10
+    prefab: {fileID: 2118530357379533219, guid: b6f26b3f5350ad0428b8aea6372fae66, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 11
+    prefab: {fileID: 1401629314627312838, guid: c8e860661d3e4514faf26d01fb26bf01, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 12
+    prefab: {fileID: 6826429739955004834, guid: 42c0141a19eeaca43bffdcf9c7334cea, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 13
+    prefab: {fileID: 2562810937777217805, guid: 9bcb12131c5b9894e90368cc91b2724f, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 14
+    prefab: {fileID: 8727599751965512539, guid: 5460dbfae53d31f4c85bc4c546535159, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 15
+    prefab: {fileID: 5801605838379233807, guid: e6c939afd44c83946b2203773a674df0, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 16
+    prefab: {fileID: 8596046073385179823, guid: 60daf8f02836d564c9a9675c5a2faf62, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 17
+    prefab: {fileID: 8241774200958442479, guid: 429e1abc1647ced4fa80ca096c493b12, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 18
+    prefab: {fileID: 924347322658089506, guid: 9e58d2f53b9500346bd9e6004829049a, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 19
+    prefab: {fileID: 3243425726112120247, guid: 40842c3340e41984a90d25f2ccdbe695, type: 3}
+    defaultPoolSize: 2
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1
+  - id: 20
+    prefab: {fileID: 643548326922732324, guid: 1d044663c6366c74e9888fadc7148b4d, type: 3}
+    defaultPoolSize: 1
+    maximumConcurrent: 6
+    previewRadius: 1
+    previewIntensity: 1

@@ -37,6 +37,7 @@ public class GhostBrick : MonoBehaviour, IBrickVariant {
 
         isSolid = !isSolid;
         ApplyPhase();
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.GhostPhase, brickScript.transform.position, radius: brickScript.SquareSize, intensity: isSolid ? 1f : .7f));
         turnCounter = toggleIntervalTurns;
     }
 

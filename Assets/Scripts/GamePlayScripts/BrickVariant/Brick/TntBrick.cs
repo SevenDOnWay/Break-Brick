@@ -27,6 +27,7 @@ public class TntBrick : MonoBehaviour, IBrickVariant {
     public BrickType GetBrickType() => BrickType.TNT;
 
     public void OnDie( BrickScript brickScript ) {
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Explosion, brickScript.transform.position, radius: explosionRadius * brickScript.SquareSize));
         brickManager?.RequestRadialDamage(brickScript, brickScript.GridPosition, explosionRadius, explosionDamage, DamageSource.TNT);
     }
 
