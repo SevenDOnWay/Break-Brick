@@ -7,7 +7,7 @@ rules:
       reference during initialization or inject it instead.
     paths:
       include:
-        - Assets/Scripts/**
+        - /Assets/Scripts/**
     patterns:
       - pattern-inside: |
           void $FRAME_METHOD(...) {
@@ -35,7 +35,7 @@ rules:
       the asset before the frame loop.
     paths:
       include:
-        - Assets/Scripts/**
+        - /Assets/Scripts/**
     patterns:
       - pattern-inside: |
           void $FRAME_METHOD(...) {
@@ -56,7 +56,7 @@ rules:
       or FixedUpdate. This causes GC allocations every frame. Use StringBuilder or cache the string.
     paths:
       include:
-        - Assets/Scripts/**
+        - /Assets/Scripts/**
     patterns:
       - pattern-inside: |
           void $FRAME_METHOD(...) {
@@ -66,8 +66,9 @@ rules:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
       - pattern-either:
-          - pattern: $TEXT = $A + $B;
-          - pattern: $TEXT += $A;
+          - pattern: $TEXT = "..." + ...;
+          - pattern: $TEXT = ... + "...";
+          - pattern: $TEXT += "...";
           - pattern: string.Format(...)
           - pattern: string.Concat(...)
 
@@ -79,7 +80,7 @@ rules:
       Awake(), Start(), or inject it using your dependency injection framework.
     paths:
       include:
-        - Assets/Scripts/**
+        - /Assets/Scripts/**
     patterns:
       - pattern-inside: |
           void $FRAME_METHOD(...) {
@@ -102,7 +103,7 @@ rules:
       pattern instead to reuse objects without triggering GC allocations.
     paths:
       include:
-        - Assets/Scripts/**
+        - /Assets/Scripts/**
     patterns:
       - pattern-inside: |
           void $FRAME_METHOD(...) {
@@ -125,7 +126,7 @@ rules:
       Replace with standard for/foreach loops or cached array operations.
     paths:
       include:
-        - Assets/Scripts/**
+        - /Assets/Scripts/**
     patterns:
       - pattern-inside: |
           void $FRAME_METHOD(...) {
@@ -149,7 +150,7 @@ rules:
       the while loop or yield iteration.
     paths:
       include:
-        - Assets/Scripts/**
+        - /Assets/Scripts/**
     patterns:
       - pattern-inside: |
           IEnumerator $COROUTINE(...) {
