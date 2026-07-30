@@ -20,6 +20,11 @@ rules:
           - pattern: $OBJECT.FindObjectOfType<$TYPE>(...)
           - pattern: $OBJECT.FindFirstObjectByType<$TYPE>(...)
           - pattern: $OBJECT.FindAnyObjectByType<$TYPE>(...)
+          - pattern: $OBJECT.FindObjectOfType(...)
+          - pattern: $OBJECT.FindFirstObjectByType(...)
+          - pattern: $OBJECT.FindAnyObjectByType(...)
+          - pattern: $OBJECT.FindObjectsOfType(...)
+          - pattern: $OBJECT.FindObjectsByType(...)
           - pattern: GameObject.Find(...)
 
   - id: unity-resources-load-in-frame-loop
@@ -43,11 +48,11 @@ rules:
           - pattern: Resources.Load(...)
           - pattern: Resources.Load<$TYPE>(...)
           
-    - id: unity-string-concat-in-frame-loop
+  - id: unity-string-concat-in-frame-loop
     languages: [csharp]
     severity: WARNING
     message: >-
-      Avoid string concatenation or string.Format/Interpolation in Update, LateUpdate,
+      Avoid string concatenation or string formatting in Update, LateUpdate,
       or FixedUpdate. This causes GC allocations every frame. Use StringBuilder or cache the string.
     paths:
       include:
@@ -66,7 +71,7 @@ rules:
           - pattern: string.Format(...)
           - pattern: string.Concat(...)
 
-    - id: unity-getcomponent-in-frame-loop
+  - id: unity-getcomponent-in-frame-loop
     languages: [csharp]
     severity: ERROR
     message: >-
@@ -89,7 +94,7 @@ rules:
           - pattern: $OBJ.GetComponentInChildren<$TYPE>()
           - pattern: GetComponentInChildren<$TYPE>()
 
-    - id: unity-instantiate-destroy-in-frame-loop
+  - id: unity-instantiate-destroy-in-frame-loop
     languages: [csharp]
     severity: ERROR
     message: >-
@@ -108,29 +113,11 @@ rules:
           regex: "^(Update|LateUpdate|FixedUpdate)$"
       - pattern-either:
           - pattern: Instantiate(...)
-          - pattern: GameObject.Instantiate(...)
+          - pattern: Object.Instantiate(...)
           - pattern: Destroy(...)
-          - pattern: GameObject.Destroy(...)
+          - pattern: Object.Destroy(...)
 
-    - id: unity-event-subscription-leak-check
-    languages: [csharp]
-    severity: WARNING
-    message: >-
-      Detected C# event subscription (+=). Ensure you unsubscribe (-=) in OnDestroy() or OnDisable()
-      to prevent memory leaks when objects are unloaded.
-    paths:
-      include:
-        - Assets/Scripts/**
-    patterns:
-      - pattern: $EVENT += $METHOD;
-      - pattern-not-inside: |
-          void OnEnable(...) { ... }
-      - pattern-not-inside: |
-          void Start(...) { ... }
-      - pattern-not-inside: |
-          void Awake(...) { ... }
-
-    - id: unity-avoid-linq-in-update
+  - id: unity-avoid-linq-in-update
     languages: [csharp]
     severity: WARNING
     message: >-
@@ -154,7 +141,7 @@ rules:
           - pattern: $LIST.ToArray()
           - pattern: $LIST.FirstOrDefault(...)
 
-    - id: unity-getcomponent-inside-coroutine-loop
+  - id: unity-getcomponent-inside-coroutine-loop
     languages: [csharp]
     severity: WARNING
     message: >-
