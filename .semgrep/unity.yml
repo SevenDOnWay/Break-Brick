@@ -1,0 +1,44 @@
+rules:
+  - id: unity-find-object-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid global scene searches in Update, LateUpdate, or FixedUpdate. Cache the
+      reference during initialization or inject it instead.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          void $FRAME_METHOD(...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: $OBJECT.FindObjectOfType<$TYPE>(...)
+          - pattern: $OBJECT.FindFirstObjectByType<$TYPE>(...)
+          - pattern: $OBJECT.FindAnyObjectByType<$TYPE>(...)
+          - pattern: GameObject.Find(...)
+
+  - id: unity-resources-load-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid Resources.Load in Update, LateUpdate, or FixedUpdate. Load and cache
+      the asset before the frame loop.
+    paths:
+      include:
+        - Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          void $FRAME_METHOD(...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: Resources.Load(...)
+          - pattern: Resources.Load<$TYPE>(...)

@@ -1,0 +1,30 @@
+name: Semgrep
+
+on:
+  pull_request:
+    paths:
+      - "Assets/**/*.cs"
+      - ".semgrep/**"
+      - ".github/workflows/semgrep.yml"
+  push:
+    branches: [master]
+    paths:
+      - "Assets/**/*.cs"
+      - ".semgrep/**"
+      - ".github/workflows/semgrep.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    name: Semgrep scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:1.171.0
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Scan Unity scripts
+        run: semgrep scan --config .semgrep --error --metrics=off Assets/Scripts
