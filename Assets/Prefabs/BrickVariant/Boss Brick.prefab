@@ -37,6 +37,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -8.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -2.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486126062699124628, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
@@ -52,6 +60,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boss Brick
       objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 7552218760340626732, guid: 46b3e7add64e5164196a718033cad6c8, type: 3}
+    - target: {fileID: 6444194836663007396, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.519846
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59,8 +75,11 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4554703150067164434}
+    - targetCorrespondingSourceObject: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7384320334571312311}
   m_SourcePrefab: {fileID: 100100000, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
---- !u!1 &7326087917622591853 stripped
+--- !u!1 &2103572489064228577 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4896636833092869423, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
   m_PrefabInstance: {fileID: 6828931793977949134}
@@ -71,7 +90,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7326087917622591853}
+  m_GameObject: {fileID: 2103572489064228577}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37f8c566e98b4f44bb9bf3b44b61c7de, type: 3}
@@ -81,3 +100,18 @@ MonoBehaviour:
   rallyCooldownTurns: 2
   rallyHealAmount: 2
   rallyRadius: 1
+--- !u!114 &7384320334571312311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103572489064228577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7284d3bc5ad25094d9df2bc607d1ba26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BreakBrick.Gameplay::BossSpawnAdapter
+  waveBudgetMultiplier: 1.25
+  replaceAllSpawnedBricks: 0
+  replacementBrickType: 0

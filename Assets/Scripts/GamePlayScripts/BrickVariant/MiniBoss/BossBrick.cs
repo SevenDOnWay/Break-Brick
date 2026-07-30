@@ -28,13 +28,19 @@ public class BossBrick : MonoBehaviour, IBrickVariant {
         }
 
         turnsUntilRally = Mathf.Max(1, rallyCooldownTurns);
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Reinforce, brickScript.transform.position, radius: brickScript.SquareSize));
     }
 
     public void OnEndTurn( BrickScript brickScript ) {
         turnsUntilRally--;
         if ( turnsUntilRally > 0 ) return;
 
-        brickManager?.RequestHeal(brickScript, brickScript.GridPosition, rallyRadius, rallyHealAmount);
+        var healed = brickManager?.RequestHeal(brickScript, brickScript.GridPosition, rallyRadius, rallyHealAmount);
+        if ( healed != null && healed.Count > 0 ) {
+            var targets = new System.Collections.Generic.List<Vector3>();
+            foreach (var target in healed) targets.Add(target.transform.position);
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.HealPulse, brickScript.transform.position, radius: brickScript.SquareSize * 1.25f, intensity: 1.3f, targetPositions: targets));
+        }
         turnsUntilRally = Mathf.Max(1, rallyCooldownTurns);
     }
 

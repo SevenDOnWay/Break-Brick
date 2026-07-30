@@ -6,11 +6,10 @@ using static SpawnController;
 public class MiniBossBrickEditor : PropertyDrawer {
 
     public override float GetPropertyHeight( SerializedProperty property, GUIContent label ) {
-        if ( !property.isExpanded )
-            return EditorGUIUtility.singleLineHeight; // only header when collapsed
+        if ( !property.isExpanded ) return EditorGUIUtility.singleLineHeight; // only header when collapsed
 
-        // Always: type, prefab, isMiniBoss
-        int lineCount = 3;
+        // Always: type, prefab, isMiniBoss, isBoss
+        int lineCount = 4;
 
         // Only show these if NOT miniboss
         if ( !property.FindPropertyRelative("isMiniBoss").boolValue ) {
@@ -18,8 +17,7 @@ public class MiniBossBrickEditor : PropertyDrawer {
         }
 
         // +1 for the foldout line
-        return EditorGUIUtility.singleLineHeight * (lineCount + 1)
-             + (lineCount) * EditorGUIUtility.standardVerticalSpacing;
+        return EditorGUIUtility.singleLineHeight * (lineCount + 1) + (lineCount) * EditorGUIUtility.standardVerticalSpacing;
     }
 
     public override void OnGUI( Rect position, SerializedProperty property, GUIContent label ) {
@@ -52,6 +50,9 @@ public class MiniBossBrickEditor : PropertyDrawer {
 
         SerializedProperty isMiniBossProp = property.FindPropertyRelative("isMiniBoss");
         EditorGUI.PropertyField(rect, isMiniBossProp);
+        rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+        EditorGUI.PropertyField(rect, property.FindPropertyRelative("isBoss"));
         rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
         // Only if not miniboss
