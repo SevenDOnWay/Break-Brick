@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour {
 
     public event Action<Vector2> OnBallLaunch;
 
+    public struct LaunchBallEvent { Vector2 dir; }
+
     [Inject]
     void Constructor(
         PlayScreen playScreen,
@@ -98,11 +100,9 @@ public class PlayerController : MonoBehaviour {
             // ---- Handle input only inside background ----
             if ( Input.GetMouseButtonDown(0) ) {
                 DrawLine(Input.mousePosition);
-            }
-            else if ( Input.GetMouseButton(0) ) {
+            } else if ( Input.GetMouseButton(0) ) {
                 DrawLine(Input.mousePosition);
-            }
-            else if ( Input.GetMouseButtonUp(0) ) {
+            } else if ( Input.GetMouseButtonUp(0) ) {
                 line.enabled = false;
                 canShoot = true;
 
@@ -146,8 +146,7 @@ public class PlayerController : MonoBehaviour {
             if ( Application.isPlaying ) {
                 Destroy(line.material);
                 Destroy(line.gameObject);
-            }
-            else {
+            } else {
                 DestroyImmediate(line.material);
                 DestroyImmediate(line.gameObject);
             }

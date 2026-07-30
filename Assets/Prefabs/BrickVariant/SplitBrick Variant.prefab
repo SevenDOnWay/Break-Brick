@@ -109,9 +109,25 @@ PrefabInstance:
       value: SplitBrick Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Size.x
+      value: 1.68
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_Size.y
+      value: 1.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 824211256135345222, guid: da58ddf5862df85478ed8113293c5a01, type: 3}
+      objectReference: {fileID: -1583741386388897784, guid: da58ddf5862df85478ed8113293c5a01, type: 3}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201054249612798387, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6444194836663007396, guid: 3b93938a3007b4a4486159c19793c9fa, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.30943212
