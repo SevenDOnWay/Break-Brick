@@ -18,6 +18,7 @@ public class RallyProcess : Process {
         float rallyBonus = statManager.GetStat(UpgradeType.RallyBonus);
 
         consecutiveHits++;
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Rally, brick.transform.position, radius: brick.SquareSize, intensity: Mathf.Clamp(1f + consecutiveHits * .08f, 1f, 2f)));
 
         // Return only the bonus damage; base damage is applied by BallScript.
         return Mathf.FloorToInt(consecutiveHits * rallyBonus);

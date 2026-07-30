@@ -12,13 +12,19 @@ public class BrickManager : MonoBehaviour {
 
     const int row = 10;
     const int column = 8;
+    public const int BossReservedRows = 3;
 
     [SerializeField] AnimationCurve curve; //handle health of the brick
 
 
     // List<BrickScript> bricks = new List<BrickScript>();
-    public BrickScript[,] bricks = new BrickScript[column, row];
     // public IReadOnlyList<BrickScript> Bricks => bricks;
+    public BrickScript[,] bricks = new BrickScript[column, row];
+    BrickScript stationaryBoss;
+
+    public bool HasBoss => stationaryBoss != null && !stationaryBoss.IsDead;
+    public BrickScript ActiveBoss => HasBoss ? stationaryBoss : null;
+    public int NormalSpawnStartRow => HasBoss ? BossReservedRows : 0;
 
     public event Action GameOverEvent;
 
@@ -76,6 +82,9 @@ public class BrickManager : MonoBehaviour {
         MoveBrick();
     }
 
+    public void Notify( object sender, string ev ) {
+    }
+
     public void RegisterBrick( BrickScript brick, Vector2Int pos, int? savedHealth = null ) {
 
         // var brick = gameobject.GetComponent<BrickScript>();
@@ -93,6 +102,10 @@ public class BrickManager : MonoBehaviour {
 
         bricks[pos.x, pos.y] = brick;
 
+        if ( brick.GetComponent<BossBrick>() != null ) {
+            stationaryBoss = brick;
+        }
+
         brick.OnHit += HandleBrickHit;
         brick.OnDestroyed += HandleBrickDestroyed;
     }
@@ -107,11 +120,15 @@ public class BrickManager : MonoBehaviour {
             return;
         }
 
+        if ( bricks[pos.x, pos.y] == stationaryBoss ) {
+            stationaryBoss = null;
+        }
+
         bricks[pos.x, pos.y] = null;
     }
 
 
-    public void MoveBrick() {
+    private void MoveBrick() {
         for ( int y = row - 1; y >= 0; y-- ) {
             for ( int x = column - 1; x >= 0; x-- ) {
 
@@ -119,8 +136,13 @@ public class BrickManager : MonoBehaviour {
 
                 if ( brick == null ) continue;
 
-
                 TickBrickEffects(brick);
+
+                // The boss owns the whole top area but is represented by one grid entry.
+                // It still receives end-turn effects, but never joins the downward march.
+                if ( brick == stationaryBoss ) {
+                    continue;
+                }
 
                 if ( brick.HasActiveEffect(EffectType.Freeze) ) {
                     continue;
@@ -237,7 +259,8 @@ public class BrickManager : MonoBehaviour {
     /// <paramref name="radius"/> cells (Chebyshev distance) of <paramref name="pos"/>,
     /// excluding <paramref name="origin"/> itself.
     /// </summary>
-    public void RequestHeal( BrickScript origin, Vector2Int pos, int radius, int healAmount ) {
+    public List<BrickScript> RequestHeal( BrickScript origin, Vector2Int pos, int radius, int healAmount ) {
+        List<BrickScript> healed = new();
         for ( int dx = -radius; dx <= radius; dx++ ) {
             for ( int dy = -radius; dy <= radius; dy++ ) {
                 if ( dx == 0 && dy == 0 ) continue;
@@ -247,8 +270,10 @@ public class BrickManager : MonoBehaviour {
 
                 neighbour.health += healAmount;
                 neighbour.UpdateHealthText();
+                healed.Add(neighbour);
             }
         }
+        return healed;
     }
 
     public void RequestOrthogonalDamage( BrickScript origin, int damage, DamageSource source, int depth ) {
@@ -263,6 +288,7 @@ public class BrickManager : MonoBehaviour {
             new Vector2Int(0, -1),
         };
 
+        List<Vector3> targetPositions = new();
         foreach ( Vector2Int offset in offsets ) {
             BrickScript neighbor = GetBrickAt(origin.GridPosition + offset);
             if ( neighbor == null || neighbor.IsDead ) {
@@ -270,6 +296,10 @@ public class BrickManager : MonoBehaviour {
             }
 
             RequestDamage(neighbor, damage, source, origin, depth);
+            targetPositions.Add(neighbor.transform.position);
+        }
+        if ( targetPositions.Count > 0 && source == DamageSource.Shockwave ) {
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Shockwave, origin.transform.position, radius: origin.SquareSize, targetPositions: targetPositions));
         }
     }
 
@@ -316,7 +346,26 @@ public class BrickManager : MonoBehaviour {
         if ( pos.x < 0 || pos.x >= column || pos.y < 0 || pos.y >= row ) {
             return true; // Out of bounds is considered occupied
         }
+
+        if ( HasBoss && pos.y < BossReservedRows ) {
+            return true;
+        }
+
         return bricks[pos.x, pos.y] != null;
+    }
+
+    public void ClearBricksInRows( int startRow, int rowCount ) {
+        int endRow = Mathf.Min(row, startRow + rowCount);
+
+        for ( int y = Mathf.Max(0, startRow); y < endRow; y++ ) {
+            for ( int x = 0; x < column; x++ ) {
+                BrickScript brick = bricks[x, y];
+                if ( brick == null || brick == stationaryBoss ) continue;
+
+                bricks[x, y] = null;
+                Destroy(brick.gameObject);
+            }
+        }
     }
 
     //public Vector2Int? FindBrickPosition( BrickScript target ) {

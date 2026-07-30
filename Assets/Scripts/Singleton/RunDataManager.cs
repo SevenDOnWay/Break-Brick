@@ -12,12 +12,14 @@ public class RunDataManager : MonoBehaviour {
     public RunData runData;
 
     string savePath;
+    string historyDirectory;
 
     JsonSerializerOptions option;
 
     void Awake() {
 
         savePath = Path.Combine(Application.persistentDataPath, "rundata.dat");
+        historyDirectory = Path.Combine(Application.persistentDataPath, "RunHistory");
 
         option = new JsonSerializerOptions {
             WriteIndented = true,
@@ -53,18 +55,35 @@ public class RunDataManager : MonoBehaviour {
             byte[] encrypted = XorUtility.XorEncrypt(bytes);
 
             await File.WriteAllBytesAsync(savePath, encrypted);
+            await SaveHistoryJson(json);
             Debug.Log($"RunData saved at: {savePath}");
-
-            // Also save a plain JSON version for debugging
-            // This is optional and can be removed in production builds
-
-            //string debugPath = Path.Combine(Application.persistentDataPath, "rundata_debug.json");
-            //await File.WriteAllTextAsync(debugPath, json);
-            //Debug.Log($"RunData saved (plain JSON) at: {debugPath}");
         }
         catch ( Exception e ) {
             Debug.LogError($"Failed to save RunData: {e.Message}");
         }
+    }
+
+    /// <summary>
+    /// Writes an unencrypted, analysis-friendly copy of the current run. These files are
+    /// intentionally retained after DeleteRun so external balance tools can inspect them.
+    /// </summary>
+    public async Task SaveHistoryJson() {
+        if ( runData == null ) return;
+
+        try {
+            string json = JsonSerializer.Serialize(runData, option);
+            await SaveHistoryJson(json);
+        }
+        catch ( Exception e ) {
+            Debug.LogError($"Failed to save run history JSON: {e.Message}");
+        }
+    }
+
+    async Task SaveHistoryJson( string json ) {
+        Directory.CreateDirectory(historyDirectory);
+        string historyPath = Path.Combine(historyDirectory, $"run-history-{runData.GetRunId()}.json");
+        await File.WriteAllTextAsync(historyPath, json, Encoding.UTF8);
+        Debug.Log($"Run history JSON saved at: {historyPath}");
     }
 
     public async Task<RunData> Load( CancellationToken token = default ) {

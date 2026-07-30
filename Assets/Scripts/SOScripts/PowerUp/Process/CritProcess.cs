@@ -15,6 +15,7 @@ public class CritProcess : Process {
         // Total crit damage = floor(baseDamage * critMultiplier).
         // BallScript already applies baseDamage, so return only the bonus on top.
         int temp  =Mathf.FloorToInt(baseDamage * critMultiplier) - baseDamage;
+        ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Crit, brick.transform.position, radius: brick.SquareSize));
         Debug.Log($"CritMultiplier: {critMultiplier}, BaseDamage: {baseDamage}, BonusDamage: {temp}");
         return temp;
     }

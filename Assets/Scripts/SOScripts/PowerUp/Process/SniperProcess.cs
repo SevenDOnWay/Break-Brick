@@ -32,6 +32,7 @@ public class SniperProcess : Process {
 
         if ( hitCounter >= interval ) {
             hitCounter = 0;
+            ArcadeVFXEvent.Raise(new ArcadeVFXRequest(ArcadeVFXId.Sniper, brick.transform.position, radius: brick.SquareSize, intensity: 1.25f));
             // Total sniper damage = SniperMultiplier.
             // BallScript applies baseDamage, so return only the bonus on top.
             return SniperMultiplier - baseDamage;

@@ -12,7 +12,6 @@ public class BallScript : MonoBehaviour {
 
     BallManager ballManager;
     StatManager statManager;
-    UpgradeManager upgradeManager;
 
     [HideInInspector] public Rigidbody2D rb;
     Collider2D collider2D;
@@ -51,27 +50,10 @@ public class BallScript : MonoBehaviour {
 
     public void Init( BallManager ballManager,
         StatManager statManager,
-        UpgradeManager upgradeManager,
         float squareSize ) {
         this.ballManager = ballManager;
         this.statManager = statManager;
-        this.upgradeManager = upgradeManager;
         this.squareSize = squareSize;
-
-        InitCurrentUpgrade(upgradeManager);
-    }
-
-    private void InitCurrentUpgrade( UpgradeManager upgradeManager ) {
-        // Create a copy to avoid double-adding processes when OnProcessAdded event fires
-        currentProcesses.Clear();
-
-        if ( upgradeManager == null ) {
-            return;
-        }
-
-        foreach ( var process in upgradeManager.GetAllProcess() ) {
-            AddProcess(process);
-        }
     }
 
     private void Awake() {
@@ -98,7 +80,6 @@ public class BallScript : MonoBehaviour {
         speed = GetConfiguredSpeed();
         baseDamage = statManager.GetStat(UpgradeType.BaseDamage);
 
-        upgradeManager.OnProcessAdded += AddProcess;
     }
 
     //TOOD: use reflection to map stat fields
@@ -184,7 +165,9 @@ public class BallScript : MonoBehaviour {
             var hitContext = new BallHitContext(this, brick, collision, statManager, directDamage, hitNormal, squareSize);
             specialBallConfig?.ApplyHitEffects(hitContext);
 
-            brick.NotifyHit(DamageSource.Ball, directDamage + bonusDamage, hitNormal);
+            DamageSource source = GetBallType() == BallType.Piercing ? DamageSource.Piercing :
+                GetBallType() == BallType.Heavy ? DamageSource.Heavy : DamageSource.Ball;
+            brick.NotifyHit(source, directDamage + bonusDamage, hitNormal);
             Debug.Log("Ball hit brick at " + brick.GridPosition + " with direct damage " + directDamage + " and bonus damage " + bonusDamage);
             bounceTime = 0;
 
@@ -227,13 +210,15 @@ public class BallScript : MonoBehaviour {
             });
     }
 
-    void AddProcess( Process process ) {
-        if ( process == null || currentProcesses.Contains(process) ) {
+    public void AddProcess( Process process ) {
+        if ( process == null || currentProcesses.Exists(current => current.GetProssType() == process.GetProssType()) ) {
             return;
         }
 
         currentProcesses.Add(process);
     }
+
+    public void ClearProcesses() => currentProcesses.Clear();
 
     public void SetSpecialBallConfig( SpecialBallConfig config ) {
         specialBallConfig = config;

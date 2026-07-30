@@ -7,7 +7,7 @@ using VContainer;
 public class UpgradeManager : IUpgradeSelectionService {
     RunDataManager runDataManager;
     StatManager statManager;
-    ProcessFactory processFactory;
+    BallManager ballManager;
     CharacterDataBase characterDataBase;
     UpgradeDataBase upgradeDataBase;
 
@@ -15,12 +15,9 @@ public class UpgradeManager : IUpgradeSelectionService {
     [Header("List")]
     readonly List<UpgradeSO> upgrades = new List<UpgradeSO>();
     List<UpgradeSO> currentUpgrades = new List<UpgradeSO>();
-    List<Process> currentProcess= new List<Process>();
     Queue<int> pendingUpgrades = new Queue<int>();
 
-    public event Action<BallType, int> RequestExtraBalls;
     public event Action<UpgradeOffer[]> UpgradeOffersReady;
-    public event Action<Process> OnProcessAdded;
     public event Action<UpgradeSO> OnUpgradeAdded;
     public event Action OnAllUpgradesProcessed;
     //public event Action<Process> OnProcessRemoved;
@@ -35,13 +32,13 @@ public class UpgradeManager : IUpgradeSelectionService {
     public void Construct(
         RunDataManager runDataManager,
         StatManager statManager,
-        ProcessFactory processFactory,
+        BallManager ballManager,
         UpgradeDataBase upgradeDataBase,
         CharacterDataBase characterDataBase
         ) {
         this.runDataManager = runDataManager;
         this.statManager = statManager;
-        this.processFactory = processFactory;
+        this.ballManager = ballManager;
         this.upgradeDataBase = upgradeDataBase;
         this.characterDataBase = characterDataBase;
     }
@@ -89,6 +86,7 @@ public class UpgradeManager : IUpgradeSelectionService {
         Debug.Log($"Applied upgrade: {upgrade.name}");
 
         ApplyDefinition(upgrade);
+        _ = runDataManager.SaveHistoryJson();
 
         isUpgradeMenuOpen = false;
         TryShowNextUpgrade();
@@ -100,46 +98,43 @@ public class UpgradeManager : IUpgradeSelectionService {
         }
 
         currentUpgrades.Add(upgrade);
-        switch ( upgrade ) {
-            case UpgradeStatSO statUpgrade:
-                ApplyStatUpgrade(statUpgrade);
-                break;
-            case UpgradeBehaviorSO behaviorUpgrade:
-                ApplyBehaviorUpgrade(behaviorUpgrade);
-                break;
-        }
+        ApplyEffect(BuildEffect(upgrade));
         OnUpgradeAdded?.Invoke(upgrade);
     }
 
-    void ApplyStatUpgrade( UpgradeStatSO upgrade ) {
-        IReadOnlyList<UpgradeStatSO.UpgradePair> pairs = upgrade.GetKeyValueMap();
-        if ( pairs == null ) {
-            return;
+    UpgradeEffect BuildEffect( UpgradeSO upgrade ) {
+        var statChanges = new List<StatChange>();
+        var processTypes = new List<ProcessType>();
+        var ballGrants = new List<BallGrant>();
+
+        if ( upgrade is UpgradeStatSO statUpgrade ) {
+            IReadOnlyList<UpgradeStatSO.UpgradePair> pairs = statUpgrade.GetKeyValueMap();
+            if ( pairs != null ) {
+                foreach ( UpgradeStatSO.UpgradePair pair in pairs ) {
+                    if ( pair.Type == UpgradeType.ExtraBalls ) {
+                        ballGrants.Add(new BallGrant(pair.BallType, (int)pair.Value));
+                        continue;
+                    }
+
+                    statChanges.Add(new StatChange(pair.Type, pair.Value));
+                    if ( TryGetProcessType(pair.Type, out ProcessType processType ) && !processTypes.Contains(processType) ) {
+                        processTypes.Add(processType);
+                    }
+                }
+            }
+        } else if ( upgrade is UpgradeBehaviorSO behaviorUpgrade && behaviorUpgrade.GetBehaviorTypes()?.Count > 0 ) {
+            Debug.LogWarning($"Behavior upgrade '{upgrade.name}' has no supported runtime effect. Magnet has been deprecated.");
         }
 
-        foreach ( UpgradeStatSO.UpgradePair pair in pairs ) {
-            if ( pair.Type == UpgradeType.ExtraBalls ) {
-                AddBall(pair.BallType, (int)pair.Value);
-                continue;
-            }
-
-            ModifyStat(pair.Type, pair.Value);
-
-            if ( TryGetProcessType(pair.Type, out ProcessType processType) ) {
-                AddProcess(processType);
-            }
-        }
+        return new UpgradeEffect(statChanges, processTypes, ballGrants);
     }
 
-    void ApplyBehaviorUpgrade( UpgradeBehaviorSO upgrade ) {
-        IReadOnlyList<UpgradeBehaviourType> behaviorTypes = upgrade.GetBehaviorTypes();
-        if ( behaviorTypes == null ) {
-            return;
+    void ApplyEffect( UpgradeEffect effect ) {
+        foreach ( StatChange statChange in effect.StatChanges ) {
+            statManager.ModifyStat(statChange.Type, statChange.Value);
         }
 
-        foreach ( UpgradeBehaviourType behaviorType in behaviorTypes ) {
-            SetBehaviorActive(behaviorType);
-        }
+        ballManager.ApplyUpgradeEffect(effect);
     }
 
     static bool TryGetProcessType( UpgradeType upgradeType, out ProcessType processType ) {
@@ -165,38 +160,7 @@ public class UpgradeManager : IUpgradeSelectionService {
             or UpgradeType.RallyBonus;
     }
 
-    public void ApplyProcess( Process process ) {
-        if(currentProcess.Exists(p => p.GetType() == process.GetType()) ) return; // Prevent duplicate processes of the same type. This is a simple check, you might want to implement a more robust system depending on your needs.
-        currentProcess.Add(process);
-        OnProcessAdded?.Invoke(process);
-    }
-
-    //public void OnProcessAddedInvoke( Process process ) {
-    //    OnProcessAdded?.Invoke(process);
-    //}
-
-    public List<Process> GetAllProcess() => currentProcess;
-
-    public void AddBall( BallType ballType, int extraBall ) {
-        RequestExtraBalls?.Invoke(ballType, extraBall);
-    }
-
-    public void ModifyStat( UpgradeType type, float value ) {
-        statManager.ModifyStat(type, value);
-    }
-
-    public void AddProcess( ProcessType type ) {
-        Process process = processFactory.CreateProcess(type);
-        if ( process != null ) {
-            ApplyProcess(process);
-        }
-    }
-
-    public void SetBehaviorActive( UpgradeBehaviourType type, bool active = true ) {
-        if ( type == UpgradeBehaviourType.Magnet ) {
-            SetMagnetActive(active);
-        }
-    }
+    public IReadOnlyList<UpgradeSO> GetCurrentUpgrades() => currentUpgrades;
 
 
     //TODO: Get Current Upgrades
@@ -279,7 +243,7 @@ public class UpgradeManager : IUpgradeSelectionService {
     //TODO: Clear Current Upgrades and Processes
     public void ClearUpgradesAndProcesses() {
         currentUpgrades.Clear();
-        currentProcess.Clear();
+        ballManager.ClearUpgradeEffects();
     }
 
     //TODO: Save current upgrades to rundata
@@ -293,15 +257,4 @@ public class UpgradeManager : IUpgradeSelectionService {
 
     #endregion
 
-    #region Magnet
-
-    bool isMagnetActive = false;
-
-    public void SetMagnetActive( bool active ) {
-        isMagnetActive = active;
-    }
-
-    public bool IsMagnetActive() => isMagnetActive;
-
-    #endregion
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -50,9 +51,14 @@ public class GameStateManager : MonoBehaviour {
     bool isUpgrading = false;
     bool isGameOver = false;
 
+    List<IManager> managers = new();
+
+
     void Start() {
 
         SetUpObserver();
+
+        SetUpManager();
 
         var runData = runDataManager.runData;
 
@@ -61,8 +67,7 @@ public class GameStateManager : MonoBehaviour {
         if ( runData != null && runData.GetIsContinuing() ) {
             Debug.Log("Resuming from saved RunData...");
             ContinueGame(runData);
-        }
-        else {
+        } else {
             Debug.Log("Starting a fresh run...");
             StartNewGame();
         }
@@ -76,12 +81,16 @@ public class GameStateManager : MonoBehaviour {
         ballManager.OnAllBallsDone += HandleAllBallsDone;
         levelManager.NotifiLevelUp += LevelUp;
         upgradeManager.OnAllUpgradesProcessed += FinishUpgrade;
-        upgradeManager.RequestExtraBalls += (ballType, extraballs) => ballManager.RequestExtraBall(ballType, extraballs);
         brickManager.GameOverEvent += CallGameOver;
     }
 
+    private void SetUpManager() {
+        managers.Clear();
+        managers.Add(GetComponentInChildren<IManager>(true));
+    }
+
     void StartNewGame() {
-        spawnController.StartGame(); 
+        spawnController.StartGame();
         ballManager.StartGame();
         playerController.StartGame();
         upgradeManager.StartGame();
@@ -104,6 +113,7 @@ public class GameStateManager : MonoBehaviour {
 
         if ( isBallsFlying ) return; // prevent multiple launch
 
+        runDataManager.runData?.BeginTurn(waveScript.GetWaveIndex(), ballManager.GetBallCount(), upgradeManager.GetCurrentUpgrades());
         ballManager.LaunchBall(dir);
 
         isBallsFlying = true;
@@ -111,6 +121,7 @@ public class GameStateManager : MonoBehaviour {
     }
 
     public void HandleAllBallsDone() {
+        _ = runDataManager.SaveHistoryJson();
         brickManager.HandleAllBallDone();
         spawnController.SpawnBrick();
         //playerController.HandleAllBallsDone();
@@ -119,7 +130,7 @@ public class GameStateManager : MonoBehaviour {
 
         isBallsFlying = false;
 
-        if(waveScript.GetWaveIndex() % 50 == 0) {
+        if ( waveScript.GetWaveIndex() % 50 == 0 ) {
             spawnController.SpawnBoss();
         }
 
@@ -127,20 +138,20 @@ public class GameStateManager : MonoBehaviour {
     }
 
     public GameObject RequestBall() {
-        return spawnController.SpawnBall(ballManager, statManager, upgradeManager, playScreen.GetSquareSize());
+        return spawnController.SpawnBall(ballManager, statManager, playScreen.GetSquareSize());
     }
 
     public GameObject RequestBall( BallType ballType ) {
-        return spawnController.SpawnBall(ballManager, statManager, upgradeManager, playScreen.GetSquareSize(), ballType);
+        return spawnController.SpawnBall(ballManager, statManager, playScreen.GetSquareSize(), ballType);
     }
 
     public void LevelUp( int currentLevel ) {
-        if( isGameOver) return;
+        if ( isGameOver ) return;
 
         StartCoroutine(LevelUpRoutine(currentLevel));
     }
 
-    private IEnumerator LevelUpRoutine(int currentLevel) {
+    private IEnumerator LevelUpRoutine( int currentLevel ) {
         yield return new WaitWhile(() => isBallsFlying);
 
         isUpgrading = true;
@@ -159,10 +170,9 @@ public class GameStateManager : MonoBehaviour {
 
     private void CheckTurnState() {
         // Only allow shooting if balls are NOT flying AND we are NOT upgrading
-        if ( !isBallsFlying && !isUpgrading && !isGameOver) {
+        if ( !isBallsFlying && !isUpgrading && !isGameOver ) {
             SetPlayerCanShoot(true);
-        }
-        else {
+        } else {
             SetPlayerCanShoot(false);
         }
     }
@@ -186,9 +196,16 @@ public class GameStateManager : MonoBehaviour {
         //TODO: add option to revive 
         await gameOverScript.HandleGameOver();
 
+        await runDataManager.SaveHistoryJson();
         runDataManager.DeleteRun();
 
-        await SceneManager.LoadSceneAsync(1); 
+        await SceneManager.LoadSceneAsync(1);
 
     }
+
+
+    private void OnNotify() {
+
+    }
+
 }

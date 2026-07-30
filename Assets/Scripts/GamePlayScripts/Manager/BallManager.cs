@@ -9,11 +9,12 @@ public class BallManager : MonoBehaviour {
     RunDataManager runDataManager;
     PlayScreen playScreen;
     StatManager statsManager;
-    UpgradeManager upgradeManager;
+    ProcessFactory processFactory;
 
 
 
     List<GameObject> balls = new List<GameObject>();
+    readonly HashSet<ProcessType> activeProcessTypes = new HashSet<ProcessType>();
 
 
 
@@ -48,12 +49,12 @@ public class BallManager : MonoBehaviour {
         RunDataManager runDataManager,
         PlayScreen playScreen,
         StatManager stats,
-        UpgradeManager upgradeManager
+        ProcessFactory processFactory
      ) {
         this.runDataManager = runDataManager;
         this.playScreen = playScreen;
         this.statsManager = stats;
-        this.upgradeManager = upgradeManager;
+        this.processFactory = processFactory;
     }
 
     public void StartGame() {
@@ -72,7 +73,7 @@ public class BallManager : MonoBehaviour {
 
     public void RequestExtraBall( int extraballs = 1 ) {
         for ( int i = 0; i < extraballs; i++ ) {
-            balls.Add(requestBall());
+            TrackBall(requestBall?.Invoke());
         }
 
         //TODO: Update text in here for now.
@@ -83,14 +84,71 @@ public class BallManager : MonoBehaviour {
     public void RequestExtraBall( BallType ballType, int extraballs = 1 ) {
         for ( int i = 0; i < extraballs; i++ ) {
             if ( ballType == BallType.Normal || requestTypedBall == null ) {
-                balls.Add(requestBall());
+                TrackBall(requestBall?.Invoke());
             }
             else {
-                balls.Add(requestTypedBall(ballType));
+                TrackBall(requestTypedBall(ballType));
             }
         }
 
         UpdateText();
+    }
+
+    /// <summary>
+    /// Applies the ball-facing portion of an upgrade. Each ball receives its own
+    /// Process instance, so stateful effects cannot leak between balls.
+    /// </summary>
+    public void ApplyUpgradeEffect( UpgradeEffect effect ) {
+        if ( effect == null ) {
+            return;
+        }
+
+        foreach ( ProcessType processType in effect.ProcessTypes ) {
+            if ( activeProcessTypes.Add(processType) ) {
+                foreach ( GameObject ball in balls ) {
+                    AddProcessToBall(ball, processType);
+                }
+            }
+        }
+
+        foreach ( BallGrant ballGrant in effect.BallGrants ) {
+            if ( ballGrant.Count > 0 ) {
+                RequestExtraBall(ballGrant.BallType, ballGrant.Count);
+            }
+        }
+    }
+
+    public void ClearUpgradeEffects() {
+        activeProcessTypes.Clear();
+
+        foreach ( GameObject ball in balls ) {
+            if ( ball != null && ball.TryGetComponent(out BallScript ballScript) ) {
+                ballScript.ClearProcesses();
+            }
+        }
+    }
+
+    void TrackBall( GameObject ball ) {
+        if ( ball == null ) {
+            Debug.LogWarning("BallManager did not receive a spawned ball.");
+            return;
+        }
+
+        balls.Add(ball);
+        foreach ( ProcessType processType in activeProcessTypes ) {
+            AddProcessToBall(ball, processType);
+        }
+    }
+
+    void AddProcessToBall( GameObject ball, ProcessType processType ) {
+        if ( ball == null || !ball.TryGetComponent(out BallScript ballScript) ) {
+            return;
+        }
+
+        Process process = processFactory.CreateProcess(processType);
+        if ( process != null ) {
+            ballScript.AddProcess(process);
+        }
     }
 
 
@@ -135,6 +193,10 @@ public class BallManager : MonoBehaviour {
                 AllBallDone();
             }
         }
+    }
+
+    public void Notify() {
+
     }
 
     IEnumerator LaunchSequence( Vector2 direction ) {
@@ -200,6 +262,7 @@ public class BallManager : MonoBehaviour {
     }
 
     public Vector2 GetBallPos() => ballPos;
+    public int GetBallCount() => balls.Count;
 
     public void ResetBallPos( Vector2 newPos ) {
         if ( !ballPosLocked ) {
