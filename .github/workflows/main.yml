@@ -39,6 +39,14 @@ jobs:
           key: Library-${{ runner.os }}-${{ hashFiles('Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}
           restore-keys: Library-${{ runner.os }}-
 
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - run: |
+          dotnet tool restore
+          dotnet nugetforunity restore .
+
       - uses: game-ci/unity-test-runner@v4
         id: tests
         env:
