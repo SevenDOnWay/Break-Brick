@@ -47,6 +47,11 @@ jobs:
           dotnet tool restore
           dotnet nugetforunity restore .
 
+      - name: Disable duplicate JetBrains annotations importer
+        run: >
+          cp test/nuget-for-unity/JetBrains.Annotations.dll.meta
+          Assets/Packages/JetBrains.Annotations.2025.2.2/lib/netstandard2.0/JetBrains.Annotations.dll.meta
+
       - uses: game-ci/unity-test-runner@v4
         id: tests
         env:
