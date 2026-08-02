@@ -41,6 +41,9 @@ rules:
           - pattern: FindObjectsOfType(...)
           - pattern: FindObjectsByType(...)
           - pattern: GameObject.Find(...)
+          - pattern: GameObject.FindWithTag(...)
+          - pattern: GameObject.FindGameObjectWithTag(...)
+          - pattern: GameObject.FindGameObjectsWithTag(...)
 
   - id: unity-resources-load-in-frame-loop
     languages: [csharp]
@@ -65,6 +68,10 @@ rules:
       - pattern-either:
           - pattern: Resources.Load(...)
           - pattern: Resources.Load<$TYPE>(...)
+          - pattern: Resources.LoadAll(...)
+          - pattern: Resources.LoadAll<$TYPE>(...)
+          - pattern: Resources.LoadAsync(...)
+          - pattern: Resources.LoadAsync<$TYPE>(...)
           
   - id: unity-string-concat-in-frame-loop
     languages: [csharp]
@@ -112,6 +119,11 @@ rules:
               - metavariable-regex:
                   metavariable: $STRING
                   regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $INTERPOLATED_STRING
+              - metavariable-regex:
+                  metavariable: $INTERPOLATED_STRING
+                  regex: '^(?:\$@|@\$|\$)".*\{.+\}.*"$'
           - pattern: string.Format(...)
           - pattern: string.Concat(...)
 
@@ -168,6 +180,8 @@ rules:
       - pattern-either:
           - pattern: Instantiate(...)
           - pattern: Object.Instantiate(...)
+          - pattern: Instantiate<$TYPE>(...)
+          - pattern: Object.Instantiate<$TYPE>(...)
           - pattern: Destroy(...)
           - pattern: Object.Destroy(...)
 
@@ -191,10 +205,17 @@ rules:
       - metavariable-regex:
           metavariable: $FRAME_METHOD
           regex: "^(Update|LateUpdate|FixedUpdate)$"
-      - pattern: $LIST.$LINQ_METHOD(...)
-      - metavariable-regex:
-          metavariable: $LINQ_METHOD
-          regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Aggregate|Sum|Average|ToList|ToArray|ToDictionary|ToHashSet|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
+      - pattern-either:
+          - patterns:
+              - pattern: $LIST.$LINQ_METHOD(...)
+              - metavariable-regex:
+                  metavariable: $LINQ_METHOD
+                  regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Aggregate|Sum|Average|ToList|ToArray|ToDictionary|ToHashSet|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
+          - patterns:
+              - pattern: $QUERY
+              - metavariable-regex:
+                  metavariable: $QUERY
+                  regex: '(?s)^from\s+.+\s+in\s+.+\s+select\s+.+$'
 
   - id: unity-getcomponent-inside-coroutine-loop
     languages: [csharp]
@@ -216,19 +237,35 @@ rules:
                 ...
               }
           - pattern-inside: |
+              while (...) ...
+          - pattern-inside: |
               for ($INITIALIZER; $CONDITION; $ITERATOR) {
                 ...
               }
+          - pattern-inside: |
+              for ($INITIALIZER; $CONDITION; $ITERATOR) ...
           - pattern-inside: |
               foreach ($TYPE $ITEM in $COLLECTION) {
                 ...
               }
           - pattern-inside: |
+              foreach ($TYPE $ITEM in $COLLECTION) ...
+          - pattern-inside: |
               do {
                 ...
               } while (...);
+          - pattern-inside: |
+              do ... while (...);
       - pattern-either:
           - pattern: $OBJ.GetComponent<$TYPE>(...)
           - pattern: GetComponent<$TYPE>(...)
           - pattern: $OBJ.GetComponent(...)
           - pattern: GetComponent(...)
+          - pattern: $OBJ.GetComponentInChildren<$TYPE>(...)
+          - pattern: GetComponentInChildren<$TYPE>(...)
+          - pattern: $OBJ.GetComponentInChildren(...)
+          - pattern: GetComponentInChildren(...)
+          - pattern: $OBJ.GetComponentInParent<$TYPE>(...)
+          - pattern: GetComponentInParent<$TYPE>(...)
+          - pattern: $OBJ.GetComponentInParent(...)
+          - pattern: GetComponentInParent(...)
