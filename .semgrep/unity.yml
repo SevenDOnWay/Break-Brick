@@ -1,0 +1,271 @@
+rules:
+  - id: unity-find-object-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid global scene searches in Update, LateUpdate, or FixedUpdate. Cache the
+      reference during initialization or inject it instead.
+    paths:
+      include:
+        - /Assets/Scripts/**
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD() {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD() => ...;
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: $OBJECT.FindObjectOfType<$TYPE>(...)
+          - pattern: $OBJECT.FindFirstObjectByType<$TYPE>(...)
+          - pattern: $OBJECT.FindAnyObjectByType<$TYPE>(...)
+          - pattern: $OBJECT.FindObjectsOfType<$TYPE>(...)
+          - pattern: $OBJECT.FindObjectsByType<$TYPE>(...)
+          - pattern: $OBJECT.FindObjectOfType(...)
+          - pattern: $OBJECT.FindFirstObjectByType(...)
+          - pattern: $OBJECT.FindAnyObjectByType(...)
+          - pattern: $OBJECT.FindObjectsOfType(...)
+          - pattern: $OBJECT.FindObjectsByType(...)
+          - pattern: FindObjectOfType<$TYPE>(...)
+          - pattern: FindFirstObjectByType<$TYPE>(...)
+          - pattern: FindAnyObjectByType<$TYPE>(...)
+          - pattern: FindObjectsOfType<$TYPE>(...)
+          - pattern: FindObjectsByType<$TYPE>(...)
+          - pattern: FindObjectOfType(...)
+          - pattern: FindFirstObjectByType(...)
+          - pattern: FindAnyObjectByType(...)
+          - pattern: FindObjectsOfType(...)
+          - pattern: FindObjectsByType(...)
+          - pattern: GameObject.Find(...)
+          - pattern: GameObject.FindWithTag(...)
+          - pattern: GameObject.FindGameObjectWithTag(...)
+          - pattern: GameObject.FindGameObjectsWithTag(...)
+
+  - id: unity-resources-load-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid Resources.Load in Update, LateUpdate, or FixedUpdate. Load and cache
+      the asset before the frame loop.
+    paths:
+      include:
+        - /Assets/Scripts/**
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD() {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD() => ...;
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: Resources.Load(...)
+          - pattern: Resources.Load<$TYPE>(...)
+          - pattern: Resources.LoadAll(...)
+          - pattern: Resources.LoadAll<$TYPE>(...)
+          - pattern: Resources.LoadAsync(...)
+          - pattern: Resources.LoadAsync<$TYPE>(...)
+          
+  - id: unity-string-concat-in-frame-loop
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Avoid string concatenation or string formatting in Update, LateUpdate,
+      or FixedUpdate. This causes GC allocations every frame. Use StringBuilder or cache the string.
+    paths:
+      include:
+        - /Assets/Scripts/**
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD() {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD() => ...;
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - patterns:
+              - pattern: $TEXT = $STRING + ...;
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $TEXT = ... + $STRING;
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $TEXT += $STRING;
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $STRING + ...
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: ... + $STRING
+              - metavariable-regex:
+                  metavariable: $STRING
+                  regex: '^(?:@)?".*"$'
+          - patterns:
+              - pattern: $INTERPOLATED_STRING
+              - metavariable-regex:
+                  metavariable: $INTERPOLATED_STRING
+                  regex: '^(?:\$@|@\$|\$)".*\{.+\}.*"$'
+          - pattern: string.Format(...)
+          - pattern: string.Concat(...)
+
+  - id: unity-getcomponent-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid calling GetComponent() in frame loops. Cache the component reference in 
+      Awake(), Start(), or inject it using your dependency injection framework.
+    paths:
+      include:
+        - /Assets/Scripts/**
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD() {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD() => ...;
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: $OBJ.GetComponent<$TYPE>(...)
+          - pattern: GetComponent<$TYPE>(...)
+          - pattern: $OBJ.GetComponent(...)
+          - pattern: GetComponent(...)
+          - pattern: $OBJ.GetComponentInChildren<$TYPE>(...)
+          - pattern: GetComponentInChildren<$TYPE>(...)
+          - pattern: $OBJ.GetComponentInChildren(...)
+          - pattern: GetComponentInChildren(...)
+
+  - id: unity-instantiate-destroy-in-frame-loop
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Avoid calling Instantiate() or Destroy() inside Update loops. Use an Object Pool 
+      pattern instead to reuse objects without triggering GC allocations.
+    paths:
+      include:
+        - /Assets/Scripts/**
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD() {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD() => ...;
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - pattern: Instantiate(...)
+          - pattern: Object.Instantiate(...)
+          - pattern: Instantiate<$TYPE>(...)
+          - pattern: Object.Instantiate<$TYPE>(...)
+          - pattern: Destroy(...)
+          - pattern: Object.Destroy(...)
+
+  - id: unity-avoid-linq-in-update
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      LINQ queries cause heap allocations and garbage collection spikes when run inside frame loops.
+      Replace with standard for/foreach loops or cached array operations.
+    paths:
+      include:
+        - /Assets/Scripts/**
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              void $FRAME_METHOD() {
+                ...
+              }
+          - pattern-inside: |
+              void $FRAME_METHOD() => ...;
+      - metavariable-regex:
+          metavariable: $FRAME_METHOD
+          regex: "^(Update|LateUpdate|FixedUpdate)$"
+      - pattern-either:
+          - patterns:
+              - pattern: $LIST.$LINQ_METHOD(...)
+              - metavariable-regex:
+                  metavariable: $LINQ_METHOD
+                  regex: "^(Where|Select|SelectMany|OrderBy|OrderByDescending|ThenBy|ThenByDescending|GroupBy|Join|GroupJoin|Distinct|Union|Intersect|Except|Skip|SkipWhile|Take|TakeWhile|First|FirstOrDefault|Last|LastOrDefault|Single|SingleOrDefault|Any|All|Count|LongCount|Aggregate|Sum|Average|ToList|ToArray|ToDictionary|ToHashSet|Cast|OfType|DefaultIfEmpty|SequenceEqual|Zip)$"
+          - patterns:
+              - pattern: $QUERY
+              - metavariable-regex:
+                  metavariable: $QUERY
+                  regex: '(?s)^from\s+.+\s+in\s+.+\s+select\s+.+$'
+
+  - id: unity-getcomponent-inside-coroutine-loop
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Avoid fetching components inside coroutine loops. Cache the reference before entering
+      the while loop or yield iteration.
+    paths:
+      include:
+        - /Assets/Scripts/**
+    patterns:
+      - pattern-inside: |
+          IEnumerator $COROUTINE(...) {
+            ...
+          }
+      - pattern-either:
+          - pattern-inside: |
+              while (...) {
+                ...
+              }
+          - pattern-inside: |
+              while (...) ...
+          - pattern-inside: |
+              for ($INITIALIZER; $CONDITION; $ITERATOR) {
+                ...
+              }
+          - pattern-inside: |
+              for ($INITIALIZER; $CONDITION; $ITERATOR) ...
+          - pattern-inside: |
+              foreach ($TYPE $ITEM in $COLLECTION) {
+                ...
+              }
+          - pattern-inside: |
+              foreach ($TYPE $ITEM in $COLLECTION) ...
+          - pattern-inside: |
+              do {
+                ...
+              } while (...);
+          - pattern-inside: |
+              do ... while (...);
+      - pattern-either:
+          - pattern: $OBJ.GetComponent<$TYPE>(...)
+          - pattern: GetComponent<$TYPE>(...)
+          - pattern: $OBJ.GetComponent(...)
+          - pattern: GetComponent(...)
+          - pattern: $OBJ.GetComponentInChildren<$TYPE>(...)
+          - pattern: GetComponentInChildren<$TYPE>(...)
+          - pattern: $OBJ.GetComponentInChildren(...)
+          - pattern: GetComponentInChildren(...)
+          - pattern: $OBJ.GetComponentInParent<$TYPE>(...)
+          - pattern: GetComponentInParent<$TYPE>(...)
+          - pattern: $OBJ.GetComponentInParent(...)
+          - pattern: GetComponentInParent(...)
